@@ -31,6 +31,11 @@
               "id": "69e41fc3-86c5-4e3c-930d-de81e851c416",
               "text": "Deliverables",
               "done": false
+            },
+            {
+              "id": "4d421b75-5520-428d-88fe-8095c660de92",
+              "text": "David Deliverables",
+              "done": false
             }
           ],
           "archivedAt": null,
@@ -42,7 +47,7 @@
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T13:03:12.952Z",
+  "updatedAt": "2026-08-26T13:03:16.615Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
