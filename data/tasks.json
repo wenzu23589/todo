@@ -42,10 +42,20 @@
       "title": "New heading",
       "collapsed": false,
       "color": null,
-      "tasks": [],
+      "tasks": [
+        {
+          "id": "def5ffe8-24fc-4f74-8bf7-06c1ad77421d",
+          "text": "New task",
+          "done": false,
+          "due": null,
+          "completedAt": null,
+          "calendarEventId": null,
+          "syncError": null
+        }
+      ],
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T09:26:17.563Z",
+  "updatedAt": "2026-08-26T09:26:24.884Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com"
 }
