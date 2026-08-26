@@ -20,11 +20,24 @@
           "calendarEventId": "eqga8cb2vrnnn6o4uvk4tco1es",
           "syncError": null,
           "syncing": false
+        },
+        {
+          "id": "82ed6695-d697-47ac-8015-7d124f23723f",
+          "text": "lala",
+          "done": false,
+          "due": {
+            "date": "2026-08-28",
+            "time": null,
+            "allDay": true
+          },
+          "completedAt": null,
+          "calendarEventId": null,
+          "syncError": null
         }
       ],
       "color": null
     }
   ],
-  "updatedAt": "2026-08-26T09:08:50.269Z",
+  "updatedAt": "2026-08-26T09:24:50.785Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com"
 }
