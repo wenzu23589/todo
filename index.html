@@ -230,24 +230,24 @@
   .task-row.done .task-text{ color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line); transition: color .2s ease; }
   .task-meta{ display:flex; align-items:center; gap:8px; margin-top:2px; padding-left:4px; flex-wrap:wrap; }
   .priority-flag{
-    display:inline-flex; align-items:center; gap:6px; font-size:0.74rem; color:var(--muted); flex-shrink:0;
+    display:inline-flex; align-items:center; gap:6px; font-size:0.8rem; color:var(--muted); flex-shrink:0;
     border:1px solid var(--line); border-radius:999px; padding:2px 9px 2px 8px; cursor:pointer; background:var(--paper-raised);
   }
   .priority-flag:hover{ border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
   .priority-flag.set{ color:var(--ink-soft); border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
-  .priority-dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; border:1px solid var(--line); }
+  .priority-dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0; border:1px solid var(--line); }
   .priority-dot.dot-high{ background:#d6483c; border-color:#b83a30; }
   .priority-dot.dot-medium{ background:#e08a34; border-color:#c07326; }
   .priority-dot.dot-low{ background:#3f9142; border-color:#337536; }
   .priority-dot.dot-none{ background:#ffffff; border-color:var(--line); }
   .due-badge{
-    display:inline-flex; align-items:center; gap:5px; font-size:0.74rem; color:var(--muted);
+    display:inline-flex; align-items:center; gap:5px; font-size:0.8rem; color:var(--muted);
     border:1px solid var(--line); border-radius:999px; padding:2px 9px 2px 8px; cursor:pointer; background:var(--paper-raised);
   }
   .due-badge:hover{ border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
   .due-badge.set{ color:var(--ink-soft); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
   .due-badge.overdue{ color:var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, var(--line)); }
-  .sync-icon{ width:12px; height:12px; flex-shrink:0; }
+  .sync-icon{ width:14px; height:14px; flex-shrink:0; }
   .sync-note{ font-size:0.72rem; color:var(--danger); }
   .task-actions{ display:flex; gap:2px; opacity:0; transition:opacity .1s; flex-shrink:0; }
   .task-row:hover .task-actions, .task-row:focus-within .task-actions{ opacity:1; }
@@ -258,11 +258,12 @@
   .due-editor{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; background:var(--paper-sunken); border:1px solid var(--line); border-radius:var(--radius-s); padding:6px 8px; margin-top:4px; }
   .due-editor input[type="date"], .due-editor input[type="time"]{ font:inherit; font-size:0.8rem; border:1px solid var(--line); border-radius:4px; padding:3px 5px; background:var(--paper-raised); color:var(--ink); }
   .due-editor label{ display:flex; align-items:center; gap:4px; font-size:0.78rem; color:var(--muted); }
+  .due-time-sep{ font-size:0.78rem; color:var(--muted); }
   .snooze-row{ display:flex; align-items:center; gap:6px; width:100%; padding-top:6px; margin-top:2px; border-top:1px solid var(--line); }
   .snooze-label{ font-size:0.72rem; color:var(--muted); margin-right:2px; }
 
   .notes-badge{
-    display:inline-flex; align-items:center; gap:5px; font-size:0.74rem; color:var(--muted);
+    display:inline-flex; align-items:center; gap:5px; font-size:0.8rem; color:var(--muted);
     border:1px solid var(--line); border-radius:999px; padding:2px 9px 2px 8px; cursor:pointer; background:var(--paper-raised);
   }
   .notes-badge:hover{ border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
@@ -293,7 +294,7 @@
   .notes-editor-actions{ display:flex; justify-content:flex-end; }
 
   .tags-badge{
-    display:inline-flex; align-items:center; gap:5px; font-size:0.74rem; color:var(--muted); max-width:220px;
+    display:inline-flex; align-items:center; gap:5px; font-size:0.8rem; color:var(--muted); max-width:220px;
     border:1px solid var(--line); border-radius:999px; padding:2px 9px 2px 8px; cursor:pointer; background:var(--paper-raised);
   }
   .tags-badge span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -329,11 +330,13 @@
   .tag-chip-dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
 
   .subtasks-badge{
-    display:inline-flex; align-items:center; gap:5px; font-size:0.74rem; color:var(--muted);
+    display:inline-flex; align-items:center; gap:5px; font-size:0.8rem; color:var(--muted);
     border:1px solid var(--line); border-radius:999px; padding:2px 9px 2px 8px; cursor:pointer; background:var(--paper-raised);
   }
   .subtasks-badge:hover{ border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
   .subtasks-badge.set{ color:var(--ink-soft); border-color: color-mix(in srgb, var(--accent-2) 45%, var(--line)); }
+  .subtask-chevron{ flex-shrink:0; transition: transform .15s ease; }
+  .subtasks-badge.open .subtask-chevron{ transform: rotate(180deg); }
   .subtasks-editor{
     display:flex; flex-direction:column; gap:7px; background:var(--paper-sunken); border:1px solid var(--line);
     border-radius:var(--radius-s); padding:8px; margin-top:4px;
@@ -599,12 +602,12 @@
       </div>
       <div class="header-controls">
         <button class="btn btn-sm" id="theme-btn" aria-label="Choose theme">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="6" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="10.5" cy="19" r="1.5" fill="currentColor" stroke="none"/><path d="M12 3a9 9 0 000 18c1.1 0 1.5-.7 1.5-1.5 0-.4-.15-.75-.4-1.02-.25-.28-.4-.63-.4-1.02 0-.83.67-1.46 1.5-1.46H16a5 5 0 005-5c0-4.42-4.03-8-9-8z"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="6" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="10.5" cy="19" r="1.5" fill="currentColor" stroke="none"/><path d="M12 3a9 9 0 000 18c1.1 0 1.5-.7 1.5-1.5 0-.4-.15-.75-.4-1.02-.25-.28-.4-.63-.4-1.02 0-.83.67-1.46 1.5-1.46H16a5 5 0 005-5c0-4.42-4.03-8-9-8z"/></svg>
           Theme
         </button>
         <button class="btn btn-sm" id="sync-now-btn">Sync now</button>
         <button class="btn btn-sm" id="install-app-btn" hidden>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 19h14"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 19h14"/></svg>
           Install app
         </button>
         <div class="status-pill" id="status-pill" data-state="off">
@@ -614,7 +617,7 @@
           <span class="status-dot"></span><span id="gcal-pill-text">Set up Calendar</span>
         </button>
         <button class="btn btn-sm" id="settings-btn" aria-label="GitHub settings">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.87-.34 1.7 1.7 0 00-1 1.55V21a2 2 0 11-4 0v-.09a1.7 1.7 0 00-1-1.55 1.7 1.7 0 00-1.87.34l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.7 1.7 0 00.34-1.87 1.7 1.7 0 00-1.55-1H3a2 2 0 110-4h.09a1.7 1.7 0 001.55-1 1.7 1.7 0 00-.34-1.87l-.06-.06a2 2 0 112.83-2.83l.06.06a1.7 1.7 0 001.87.34H9a1.7 1.7 0 001-1.55V3a2 2 0 114 0v.09a1.7 1.7 0 001 1.55 1.7 1.7 0 001.87-.34l.06-.06a2 2 0 112.83 2.83l-.06.06a1.7 1.7 0 00-.34 1.87V9a1.7 1.7 0 001.55 1H21a2 2 0 110 4h-.09a1.7 1.7 0 00-1.55 1z"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.87-.34 1.7 1.7 0 00-1 1.55V21a2 2 0 11-4 0v-.09a1.7 1.7 0 00-1-1.55 1.7 1.7 0 00-1.87.34l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.7 1.7 0 00.34-1.87 1.7 1.7 0 00-1.55-1H3a2 2 0 110-4h.09a1.7 1.7 0 001.55-1 1.7 1.7 0 00-.34-1.87l-.06-.06a2 2 0 112.83-2.83l.06.06a1.7 1.7 0 001.87.34H9a1.7 1.7 0 001-1.55V3a2 2 0 114 0v.09a1.7 1.7 0 001 1.55 1.7 1.7 0 001.87-.34l.06-.06a2 2 0 112.83 2.83l-.06.06a1.7 1.7 0 00-.34 1.87V9a1.7 1.7 0 001.55 1H21a2 2 0 110 4h-.09a1.7 1.7 0 00-1.55 1z"/></svg>
           Settings
         </button>
       </div>
@@ -638,11 +641,11 @@
           <button class="list-sort-btn" id="sort-due-btn" type="button">Due date</button>
         </div>
         <button class="btn btn-sm tag-filter-toggle-btn" id="tag-filter-btn" type="button" style="margin-left:auto;">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.59 13.41L11 3.83A2 2 0 009.59 3.17H4a1 1 0 00-1 1v5.59a2 2 0 00.59 1.41l9.59 9.59a2 2 0 002.82 0l4.59-4.59a2 2 0 000-2.82z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.59 13.41L11 3.83A2 2 0 009.59 3.17H4a1 1 0 00-1 1v5.59a2 2 0 00.59 1.41l9.59 9.59a2 2 0 002.82 0l4.59-4.59a2 2 0 000-2.82z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg>
           Tags
         </button>
         <button class="btn btn-sm" id="quick-capture-btn" type="button">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 5v14M5 12h14"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 5v14M5 12h14"/></svg>
           Quick capture
         </button>
       </div>
@@ -650,7 +653,7 @@
       <div id="empty-state-root"></div>
       <div class="add-heading-row">
         <button class="btn btn-primary" id="add-heading-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
           Add heading
         </button>
       </div>
@@ -902,6 +905,7 @@
     if(!Array.isArray(t.tags)) t.tags = [];
     if(!Array.isArray(t.subtasks)) t.subtasks = [];
     t.subtasks.forEach(normalizeSubtask);
+    if(t.due && t.due.endTime === undefined) t.due.endTime = null;
     // Auto-archive tasks completed a while ago, so the list doesn't accumulate old
     // check marks forever — still visible under "Show archived", not deleted.
     if(t.done && t.completedAt && !t.archivedAt){
@@ -916,6 +920,7 @@
     if(typeof st.text !== "string") st.text = "";
     st.done = !!st.done;
     if(st.due !== null && typeof st.due !== "object") st.due = null;
+    if(st.due && st.due.endTime === undefined) st.due.endTime = null;
     if(st.completedAt === undefined) st.completedAt = null;
   }
 
@@ -1381,16 +1386,28 @@
   }
   function eventTitleFor(task){ return (task.done ? "✓ " : "") + task.text; }
 
+  // All-day tasks sync to Google Calendar as a timed block from ALLDAY_SYNC_START
+  // to ALLDAY_SYNC_END, rather than a true all-day (date-only) event — so they show
+  // up in the day's time grid instead of a banner. eventToDue() below recognizes an
+  // event matching this exact window and reads it back as allDay, so the round trip
+  // through a periodic calendar refresh doesn't flip the task's own "All day" flag.
+  var ALLDAY_SYNC_START = "07:00";
+  var ALLDAY_SYNC_END = "19:00";
   function buildEventBody(task){
     if(!task.due) return null;
     var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
     if(task.due.allDay || !task.due.time){
-      return { summary: eventTitleFor(task), start: { date: task.due.date }, end: { date: addDaysToDateStr(task.due.date, 1) } };
+      return {
+        summary: eventTitleFor(task),
+        start: { dateTime: task.due.date + "T" + ALLDAY_SYNC_START + ":00", timeZone: tz },
+        end: { dateTime: task.due.date + "T" + ALLDAY_SYNC_END + ":00", timeZone: tz }
+      };
     }
+    var endTime = task.due.endTime || addMinutesToTimeStr(task.due.time, 30);
     return {
       summary: eventTitleFor(task),
       start: { dateTime: task.due.date + "T" + task.due.time + ":00", timeZone: tz },
-      end: { dateTime: task.due.date + "T" + addMinutesToTimeStr(task.due.time, 30) + ":00", timeZone: tz }
+      end: { dateTime: task.due.date + "T" + endTime + ":00", timeZone: tz }
     };
   }
 
@@ -1430,14 +1447,24 @@
 
   function eventToDue(ev){
     if(!ev.start) return null;
-    if(ev.start.date && !ev.start.dateTime) return { date: ev.start.date, time: null, allDay: true };
+    if(ev.start.date && !ev.start.dateTime) return { date: ev.start.date, time: null, endTime: null, allDay: true };
     var dt = ev.start.dateTime;
-    return { date: dt.slice(0, 10), time: dt.slice(11, 16), allDay: false };
+    var dateStr = dt.slice(0, 10);
+    var startTime = dt.slice(11, 16);
+    var endDt = ev.end && ev.end.dateTime;
+    var endTime = endDt ? endDt.slice(11, 16) : null;
+    var sameDay = !endDt || endDt.slice(0, 10) === dateStr;
+    // A same-day event running exactly ALLDAY_SYNC_START–ALLDAY_SYNC_END is the
+    // window Daybook itself creates for an "All day" task — read it back as such.
+    if(sameDay && startTime === ALLDAY_SYNC_START && endTime === ALLDAY_SYNC_END){
+      return { date: dateStr, time: null, endTime: null, allDay: true };
+    }
+    return { date: dateStr, time: startTime, endTime: sameDay ? endTime : null, allDay: false };
   }
   function dueEqual(a, b){
     if(!a && !b) return true;
     if(!a || !b) return false;
-    return a.date === b.date && a.time === b.time && !!a.allDay === !!b.allDay;
+    return a.date === b.date && a.time === b.time && a.endTime === b.endTime && !!a.allDay === !!b.allDay;
   }
   function normText(s){ return (s || "").replace(/^✓\s*/, "").trim().toLowerCase(); }
 
@@ -1866,7 +1893,7 @@
 
   function gripHtml(extraClass){
     return '<span class="grip' + (extraClass ? " " + extraClass : "") + '" draggable="true" title="Drag to reorder" aria-label="Drag to reorder">' +
-      '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>' +
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>' +
     '</span>';
   }
 
@@ -2220,14 +2247,18 @@
   }
 
   /* ---------------- rendering ---------------- */
+  function formatTimeOfDay(hhmm){
+    var parts = hhmm.split(":");
+    var t = new Date(2000,0,1, parseInt(parts[0],10), parseInt(parts[1],10));
+    return t.toLocaleTimeString(undefined, {hour:"numeric", minute:"2-digit"});
+  }
   function formatDue(due){
     if(!due) return "";
     var d = new Date(due.date + "T00:00:00");
     var label = d.toLocaleDateString(undefined, {month:"short", day:"numeric"});
     if(!due.allDay && due.time){
-      var parts = due.time.split(":");
-      var t = new Date(2000,0,1, parseInt(parts[0],10), parseInt(parts[1],10));
-      label += " · " + t.toLocaleTimeString(undefined, {hour:"numeric", minute:"2-digit"});
+      label += " · " + formatTimeOfDay(due.time);
+      if(due.endTime) label += " – " + formatTimeOfDay(due.endTime);
     }
     return label;
   }
@@ -2520,9 +2551,9 @@
     head.className = "cal-head";
     head.innerHTML =
       '<div class="cal-nav">' +
-        '<button class="cal-nav-btn" id="cal-prev" aria-label="Previous"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg></button>' +
+        '<button class="cal-nav-btn" id="cal-prev" aria-label="Previous"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg></button>' +
         '<button class="btn btn-sm btn-ghost" id="cal-today">Today</button>' +
-        '<button class="cal-nav-btn" id="cal-next" aria-label="Next"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 18l6-6-6-6"/></svg></button>' +
+        '<button class="cal-nav-btn" id="cal-next" aria-label="Next"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 18l6-6-6-6"/></svg></button>' +
       '</div>' +
       '<h2>' + escapeHtml(title) + '</h2>' +
       '<div class="cal-mode-toggle">' +
@@ -2617,7 +2648,7 @@
   }
 
   function addTaskWithDue(container, text, dateStr){
-    var t = { id: uid(), text: text || "New task", done:false, due:{date:dateStr,time:null,allDay:true}, completedAt:null, calendarEventId:null, syncError:null };
+    var t = { id: uid(), text: text || "New task", done:false, due:{date:dateStr,time:null,endTime:null,allDay:true}, completedAt:null, calendarEventId:null, syncError:null };
     container.tasks.push(t);
     lastAddedId = t.id;
     scheduleSave();
@@ -2798,9 +2829,9 @@
     }
     var due = null;
     if(dateResult){
-      due = { date: qcYmd(dateResult.date), time: timeResult ? (timeResult.hh + ":" + timeResult.mm) : null, allDay: !timeResult };
+      due = { date: qcYmd(dateResult.date), time: timeResult ? (timeResult.hh + ":" + timeResult.mm) : null, endTime: null, allDay: !timeResult };
     } else if(timeResult){
-      due = { date: qcYmd(qcDayOnly(now)), time: timeResult.hh + ":" + timeResult.mm, allDay: false };
+      due = { date: qcYmd(qcDayOnly(now)), time: timeResult.hh + ":" + timeResult.mm, endTime: null, allDay: false };
     }
     return { text: cleaned, due: due };
   }
@@ -2919,11 +2950,11 @@
     if(heading.color) bar.style.borderLeftColor = heading.color;
     bar.innerHTML =
       gripHtml() +
-      '<button class="collapse-btn" aria-label="Toggle section" title="Collapse / expand"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg></button>' +
+      '<button class="collapse-btn" aria-label="Toggle section" title="Collapse / expand"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg></button>' +
       '<button class="color-dot" type="button" title="Heading color" aria-label="Choose heading color" style="background:' + (heading.color || "var(--accent)") + '"></button>' +
       '<input class="heading-title" value="' + escapeHtml(heading.title) + '" aria-label="Heading title" />' +
       '<span class="heading-count mono">' + doneTasks + '/' + totalTasks + '</span>' +
-      '<div class="heading-actions"><button class="icon-btn danger" title="Delete heading" aria-label="Delete heading"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>';
+      '<div class="heading-actions"><button class="icon-btn danger" title="Delete heading" aria-label="Delete heading"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>';
     card.appendChild(bar);
 
     wireDragSource(bar.querySelector(".grip"), "heading", heading.id, card);
@@ -2951,7 +2982,7 @@
 
     var addTaskBtn = document.createElement("button");
     addTaskBtn.className = "ghost-add";
-    addTaskBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> Add task';
+    addTaskBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> Add task';
     addTaskBtn.addEventListener("click", function(){
       var t = addTask(heading, "");
       requestAnimationFrame(function(){ var el = document.querySelector('[data-task-id="' + t.id + '"] .task-text'); if(el){ el.focus(); el.select(); } });
@@ -2969,7 +3000,7 @@
 
     var addSub = document.createElement("button");
     addSub.className = "ghost-add";
-    addSub.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> Add sub-heading';
+    addSub.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> Add sub-heading';
     addSub.addEventListener("click", function(){ addSubheading(heading, "New sub-heading"); });
     bodyContent.appendChild(addSub);
 
@@ -2994,10 +3025,10 @@
     bar.className = "sub-bar";
     bar.innerHTML =
       gripHtml("grip-sm") +
-      '<button class="collapse-btn" aria-label="Toggle sub-section" title="Collapse / expand"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg></button>' +
+      '<button class="collapse-btn" aria-label="Toggle sub-section" title="Collapse / expand"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg></button>' +
       '<input class="sub-title" value="' + escapeHtml(sub.title) + '" aria-label="Sub-heading title" />' +
       '<span class="sub-count mono">' + visibleSubTasks.filter(function(t){return t.done;}).length + '/' + visibleSubTasks.length + '</span>' +
-      '<div class="sub-actions"><button class="icon-btn danger" title="Delete sub-heading" aria-label="Delete sub-heading"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>';
+      '<div class="sub-actions"><button class="icon-btn danger" title="Delete sub-heading" aria-label="Delete sub-heading"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>';
     block.appendChild(bar);
 
     wireDragSource(bar.querySelector(".grip"), "sub", sub.id, block);
@@ -3022,7 +3053,7 @@
 
     var addTaskBtn = document.createElement("button");
     addTaskBtn.className = "ghost-add";
-    addTaskBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> Add task';
+    addTaskBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> Add task';
     addTaskBtn.addEventListener("click", function(){
       var t = addTask(sub, "");
       requestAnimationFrame(function(){ var el = document.querySelector('[data-task-id="' + t.id + '"] .task-text'); if(el){ el.focus(); el.select(); } });
@@ -3091,7 +3122,7 @@
 
   /* ---------------- archive ---------------- */
   var expandedArchives = {}; // heading/sub id -> expanded?, transient UI state (not persisted)
-  var ICON_RESTORE = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M3 12a9 9 0 1 1 2.64 6.36M3 12V6m0 6h6"/></svg>';
+  var ICON_RESTORE = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M3 12a9 9 0 1 1 2.64 6.36M3 12V6m0 6h6"/></svg>';
   function renderArchivedRow(container, task){
     var row = document.createElement("div");
     row.className = "archived-row";
@@ -3101,7 +3132,7 @@
       '<span class="archived-text">' + escapeHtml(task.text) + '</span>' +
       '<span class="archived-date mono">' + escapeHtml(dateLabel) + '</span>' +
       '<button type="button" class="btn btn-sm btn-ghost" data-act="restore">' + ICON_RESTORE + ' Restore</button>' +
-      '<button type="button" class="icon-btn danger" title="Delete permanently" aria-label="Delete permanently"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>';
+      '<button type="button" class="icon-btn danger" title="Delete permanently" aria-label="Delete permanently"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>';
     row.querySelector('[data-act="restore"]').addEventListener("click", function(){
       task.archivedAt = null;
       scheduleSave();
@@ -3117,7 +3148,7 @@
     var btn = document.createElement("button");
     btn.type = "button";
     btn.className = "ghost-add archive-toggle";
-    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transform:rotate(' + (expanded ? "90" : "0") + 'deg)"><path d="M9 6l6 6-6 6"/></svg> ' +
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transform:rotate(' + (expanded ? "90" : "0") + 'deg)"><path d="M9 6l6 6-6 6"/></svg> ' +
       (expanded ? "Hide" : "Show") + " archived (" + archivedTasks.length + ")";
     btn.addEventListener("click", function(){
       expandedArchives[ownerObj.id] = !expanded;
@@ -3157,8 +3188,8 @@
         '</div>' +
       '</div>' +
       '<div class="task-actions">' +
-        (task.done ? '<button class="icon-btn" title="Archive task" aria-label="Archive task" data-act="archive"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8M10 13h4"/></svg></button>' : '') +
-        '<button class="icon-btn danger" title="Delete task" aria-label="Delete task"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>' +
+        (task.done ? '<button class="icon-btn" title="Archive task" aria-label="Archive task" data-act="archive"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8M10 13h4"/></svg></button>' : '') +
+        '<button class="icon-btn danger" title="Delete task" aria-label="Delete task"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>' +
       '</div>';
 
     if(taskSortMode !== "manual"){
@@ -3229,7 +3260,7 @@
   }
   function snoozeTask(task, days){
     if(!task.due) return;
-    task.due = { date: addDaysToDateStr(task.due.date, days), time: task.due.time, allDay: task.due.allDay };
+    task.due = { date: addDaysToDateStr(task.due.date, days), time: task.due.time, endTime: task.due.endTime, allDay: task.due.allDay };
     task.syncError = null;
     scheduleSave();
     render();
@@ -3244,7 +3275,9 @@
     var d = task.due || {};
     editor.innerHTML =
       '<input type="date" value="' + (d.date || "") + '" />' +
-      '<input type="time" value="' + (d.time || "") + '" ' + (d.allDay ? "disabled" : "") + ' />' +
+      '<input type="time" class="due-time-start" value="' + (d.time || "") + '" ' + (d.allDay ? "disabled" : "") + ' />' +
+      '<span class="due-time-sep">to</span>' +
+      '<input type="time" class="due-time-end" value="' + (d.endTime || "") + '" ' + (d.allDay ? "disabled" : "") + ' title="End time (optional)" />' +
       '<label><input type="checkbox" ' + (d.allDay ? "checked" : "") + ' /> All day</label>' +
       '<button class="btn btn-sm btn-primary" data-act="save">Save</button>' +
       (task.due ? '<button class="btn btn-sm btn-ghost" data-act="clear">Clear</button>' : '') +
@@ -3252,13 +3285,17 @@
       (task.due ? '<div class="snooze-row"><span class="snooze-label">Snooze</span><button type="button" class="btn btn-sm btn-ghost" data-act="snooze-1d">+1 day</button><button type="button" class="btn btn-sm btn-ghost" data-act="snooze-1w">+1 week</button></div>' : '');
     row.querySelector(".task-main").appendChild(editor);
     var dateEl = editor.querySelector('input[type="date"]');
-    var timeEl = editor.querySelector('input[type="time"]');
+    var timeEl = editor.querySelector('.due-time-start');
+    var endTimeEl = editor.querySelector('.due-time-end');
     var allDayEl = editor.querySelector('input[type="checkbox"]');
     dateEl.focus();
-    allDayEl.addEventListener("change", function(){ timeEl.disabled = allDayEl.checked; });
+    allDayEl.addEventListener("change", function(){ timeEl.disabled = allDayEl.checked; endTimeEl.disabled = allDayEl.checked; });
     editor.querySelector('[data-act="save"]').addEventListener("click", function(){
       if(!dateEl.value){ dateEl.focus(); return; }
-      task.due = { date: dateEl.value, time: allDayEl.checked ? null : (timeEl.value || null), allDay: allDayEl.checked || !timeEl.value };
+      var startVal = allDayEl.checked ? null : (timeEl.value || null);
+      var endVal = (allDayEl.checked || !startVal || !endTimeEl.value) ? null : endTimeEl.value;
+      if(endVal && endVal <= startVal) endVal = null; // end must be after start — ignore an invalid range rather than reject it
+      task.due = { date: dateEl.value, time: startVal, endTime: endVal, allDay: allDayEl.checked || !startVal };
       task.syncError = null;
       scheduleSave();
       render();
@@ -3279,7 +3316,7 @@
   }
 
   /* ---------------- notes & checklist ---------------- */
-  var NOTES_ICON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11l2 2 4-4"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg>';
+  var NOTES_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11l2 2 4-4"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg>';
   function notesBadgeSet(task){
     return !!(task.notes && task.notes.trim()) || (task.checklist && task.checklist.length > 0);
   }
@@ -3305,7 +3342,7 @@
     itemRow.innerHTML =
       '<input type="checkbox" class="checklist-item-check" ' + (item.done ? "checked" : "") + ' aria-label="Mark checklist item done" />' +
       '<input type="text" class="checklist-item-text" value="' + escapeHtml(item.text) + '" aria-label="Checklist item" />' +
-      '<button type="button" class="icon-btn danger checklist-item-remove" title="Remove item" aria-label="Remove item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
+      '<button type="button" class="icon-btn danger checklist-item-remove" title="Remove item" aria-label="Remove item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
     itemRow.querySelector(".checklist-item-check").addEventListener("change", function(e){
       item.done = e.target.checked;
       itemRow.classList.toggle("done", item.done);
@@ -3382,7 +3419,7 @@
     for(var i=0;i<tag.length;i++){ hash = (hash*31 + tag.charCodeAt(i)) | 0; }
     return TAG_COLORS[Math.abs(hash) % TAG_COLORS.length];
   }
-  var TAG_ICON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.59 13.41L11 3.83A2 2 0 009.59 3.17H4a1 1 0 00-1 1v5.59a2 2 0 00.59 1.41l9.59 9.59a2 2 0 002.82 0l4.59-4.59a2 2 0 000-2.82z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg>';
+  var TAG_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.59 13.41L11 3.83A2 2 0 009.59 3.17H4a1 1 0 00-1 1v5.59a2 2 0 00.59 1.41l9.59 9.59a2 2 0 002.82 0l4.59-4.59a2 2 0 000-2.82z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg>';
   function tagsBadgeSet(task){ return !!(task.tags && task.tags.length); }
   function tagsBadgeHtml(task){
     var tags = task.tags || [];
@@ -3399,7 +3436,7 @@
     var chip = document.createElement("span");
     chip.className = "tag-chip";
     chip.style.setProperty("--tag-color", tagColor(tag));
-    chip.innerHTML = '<span class="tag-chip-text"></span><button type="button" class="tag-chip-remove" aria-label="Remove tag ' + escapeHtml(tag) + '"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
+    chip.innerHTML = '<span class="tag-chip-text"></span><button type="button" class="tag-chip-remove" aria-label="Remove tag ' + escapeHtml(tag) + '"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
     chip.querySelector(".tag-chip-text").textContent = tag;
     chip.querySelector(".tag-chip-remove").addEventListener("click", function(){
       task.tags = task.tags.filter(function(t){ return t !== tag; });
@@ -3525,19 +3562,24 @@
   // Subtasks are a lighter-weight nested task: text, done, and an optional due date —
   // no notes/checklist/tags/priority/calendar sync of their own. Distinct from the
   // notes checklist, which is plain text items with no dates.
-  var SUBTASK_ICON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01" stroke-width="3" stroke-linecap="round"/></svg>';
+  var SUBTASK_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01" stroke-width="3" stroke-linecap="round"/></svg>';
+  // A dedicated disclosure arrow (rather than relying on the small icon alone as the
+  // only visual cue) — it rotates via the .open class toggled in toggleSubtasksEditor.
+  var SUBTASK_CHEVRON = '<svg class="subtask-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>';
   function subtasksBadgeSet(task){ return !!(task.subtasks && task.subtasks.length); }
   function subtasksBadgeHtml(task){
     var subs = task.subtasks || [];
-    if(!subs.length) return SUBTASK_ICON;
+    if(!subs.length) return SUBTASK_ICON + SUBTASK_CHEVRON;
     var done = subs.filter(function(s){ return s.done; }).length;
-    return SUBTASK_ICON + '<span>' + done + '/' + subs.length + '</span>';
+    return SUBTASK_ICON + '<span>' + done + '/' + subs.length + '</span>' + SUBTASK_CHEVRON;
   }
   function updateSubtasksBadge(row, task){
     var btn = row.querySelector(".subtasks-badge");
     if(!btn) return;
     btn.classList.toggle("set", subtasksBadgeSet(task));
+    var wasOpen = btn.classList.contains("open");
     btn.innerHTML = subtasksBadgeHtml(task);
+    btn.classList.toggle("open", wasOpen);
   }
   function updateSubtaskDueBadge(itemRow, subtask){
     var btn = itemRow.querySelector(".subtask-due-badge");
@@ -3556,20 +3598,26 @@
     var d = subtask.due || {};
     editor.innerHTML =
       '<input type="date" value="' + (d.date || "") + '" />' +
-      '<input type="time" value="' + (d.time || "") + '" ' + (d.allDay ? "disabled" : "") + ' />' +
+      '<input type="time" class="due-time-start" value="' + (d.time || "") + '" ' + (d.allDay ? "disabled" : "") + ' />' +
+      '<span class="due-time-sep">to</span>' +
+      '<input type="time" class="due-time-end" value="' + (d.endTime || "") + '" ' + (d.allDay ? "disabled" : "") + ' title="End time (optional)" />' +
       '<label><input type="checkbox" ' + (d.allDay ? "checked" : "") + ' /> All day</label>' +
       '<button class="btn btn-sm btn-primary" data-act="save">Save</button>' +
       (subtask.due ? '<button class="btn btn-sm btn-ghost" data-act="clear">Clear</button>' : '') +
       '<button class="btn btn-sm btn-ghost" data-act="close">Close</button>';
     itemRow.appendChild(editor);
     var dateEl = editor.querySelector('input[type="date"]');
-    var timeEl = editor.querySelector('input[type="time"]');
+    var timeEl = editor.querySelector('.due-time-start');
+    var endTimeEl = editor.querySelector('.due-time-end');
     var allDayEl = editor.querySelector('input[type="checkbox"]');
     dateEl.focus();
-    allDayEl.addEventListener("change", function(){ timeEl.disabled = allDayEl.checked; });
+    allDayEl.addEventListener("change", function(){ timeEl.disabled = allDayEl.checked; endTimeEl.disabled = allDayEl.checked; });
     editor.querySelector('[data-act="save"]').addEventListener("click", function(){
       if(!dateEl.value){ dateEl.focus(); return; }
-      subtask.due = { date: dateEl.value, time: allDayEl.checked ? null : (timeEl.value || null), allDay: allDayEl.checked || !timeEl.value };
+      var startVal = allDayEl.checked ? null : (timeEl.value || null);
+      var endVal = (allDayEl.checked || !startVal || !endTimeEl.value) ? null : endTimeEl.value;
+      if(endVal && endVal <= startVal) endVal = null;
+      subtask.due = { date: dateEl.value, time: startVal, endTime: endVal, allDay: allDayEl.checked || !startVal };
       scheduleSave();
       updateSubtaskDueBadge(itemRow, subtask);
       editor.remove();
@@ -3592,7 +3640,7 @@
         '<input type="checkbox" class="subtask-check" ' + (subtask.done ? "checked" : "") + ' aria-label="Mark subtask done" />' +
         '<input type="text" class="subtask-text" value="' + escapeHtml(subtask.text) + '" aria-label="Subtask" />' +
         '<button type="button" class="due-badge due-badge-sm subtask-due-badge' + (subtask.due ? (isOverdue(subtask.due, subtask.done) ? " overdue" : " set") : "") + '">' + (subtask.due ? escapeHtml(formatDue(subtask.due)) : "Add date") + '</button>' +
-        '<button type="button" class="icon-btn danger subtask-remove" title="Remove subtask" aria-label="Remove subtask"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+        '<button type="button" class="icon-btn danger subtask-remove" title="Remove subtask" aria-label="Remove subtask"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
       '</div>';
     itemRow.querySelector(".subtask-check").addEventListener("change", function(e){
       subtask.done = e.target.checked;
@@ -3618,9 +3666,11 @@
     listEl.appendChild(itemRow);
   }
   function toggleSubtasksEditor(row, task){
+    var badge = row.querySelector(".subtasks-badge");
     var existing = row.querySelector(".subtasks-editor");
-    if(existing){ existing.remove(); return; }
+    if(existing){ existing.remove(); if(badge) badge.classList.remove("open"); return; }
     document.querySelectorAll(".subtasks-editor").forEach(function(el){ el.remove(); });
+    document.querySelectorAll(".subtasks-badge.open").forEach(function(b){ b.classList.remove("open"); });
     if(!Array.isArray(task.subtasks)) task.subtasks = [];
     var editor = document.createElement("div");
     editor.className = "subtasks-editor";
@@ -3629,6 +3679,7 @@
       '<div class="subtask-add-row"><input type="text" class="subtask-add-input" placeholder="Add subtask…" aria-label="Add subtask"><button type="button" class="btn btn-sm btn-ghost" data-act="add-subtask">Add</button></div>' +
       '<div class="notes-editor-actions"><button type="button" class="btn btn-sm btn-ghost" data-act="close">Close</button></div>';
     row.querySelector(".task-main").appendChild(editor);
+    if(badge) badge.classList.add("open");
 
     var listEl = editor.querySelector(".subtask-list");
     task.subtasks.forEach(function(subtask){ renderSubtaskRow(listEl, row, task, subtask); });
@@ -3649,7 +3700,7 @@
     addInput.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); addSubtask(); } });
     addInput.focus();
 
-    editor.querySelector('[data-act="close"]').addEventListener("click", function(){ editor.remove(); });
+    editor.querySelector('[data-act="close"]').addEventListener("click", function(){ editor.remove(); if(badge) badge.classList.remove("open"); });
   }
 
   /* ---------------- stats page ---------------- */
