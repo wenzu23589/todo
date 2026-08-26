@@ -11,15 +11,20 @@
           "id": "37d44df1-ee80-4cda-b795-4c3e51a32346",
           "text": "1New task",
           "done": false,
-          "due": null,
+          "due": {
+            "date": "2026-08-27",
+            "time": null,
+            "allDay": true
+          },
           "completedAt": null,
-          "calendarEventId": null,
-          "syncError": null
+          "calendarEventId": "eqga8cb2vrnnn6o4uvk4tco1es",
+          "syncError": null,
+          "syncing": false
         }
       ],
       "color": null
     }
   ],
-  "updatedAt": "2026-08-26T09:08:43.324Z",
+  "updatedAt": "2026-08-26T09:08:50.269Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com"
 }
