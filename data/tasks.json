@@ -140,7 +140,7 @@
           "tasks": [
             {
               "id": "5826ef34-de8b-4a8b-bbbb-ba51ba5a3222",
-              "text": "New task",
+              "text": "SLR still under reivew - no reply yet from editor",
               "done": false,
               "due": null,
               "completedAt": null,
@@ -154,11 +154,17 @@
               "subtasks": []
             }
           ]
+        },
+        {
+          "id": "00c58f34-acde-43ad-a5bb-860b9b7a8283",
+          "title": "New sub-heading",
+          "collapsed": false,
+          "tasks": []
         }
       ]
     }
   ],
-  "updatedAt": "2026-08-26T13:39:23.568Z",
+  "updatedAt": "2026-08-26T13:39:40.848Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
