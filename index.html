@@ -347,6 +347,12 @@
   .tag-filter-row:hover{ background:var(--paper-sunken); }
   .tag-filter-row input{ width:auto; flex-shrink:0; }
   .tag-chip-dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .due-filter-popover{ min-width:210px; max-height:none; }
+  .due-filter-range{ border-top:1px solid var(--line); margin-top:6px; padding-top:8px; }
+  .due-filter-range-label{ font-size:0.72rem; font-weight:700; letter-spacing:0.02em; color:var(--muted); padding:0 7px 4px; }
+  .due-filter-range-row{ display:flex; align-items:center; gap:6px; padding:0 7px; }
+  .due-filter-range-row input[type="date"]{ flex:1; min-width:0; font:inherit; font-size:0.8rem; border:1px solid var(--line); border-radius:var(--radius-s); padding:4px 6px; background:var(--paper-raised); color:var(--ink); }
+  .due-filter-range-sep{ font-size:0.78rem; color:var(--muted); flex-shrink:0; }
 
   .subtasks-badge{
     display:inline-flex; align-items:center; gap:5px; font-size:0.8rem; color:var(--muted);
@@ -383,6 +389,37 @@
     flex:1; min-width:0; font:inherit; font-size:0.85rem; border:1px solid var(--line); border-radius:var(--radius-s);
     padding:5px 8px; background:var(--paper-raised); color:var(--ink);
   }
+
+  .attachments-badge{
+    display:inline-flex; align-items:center; gap:5px; font-size:0.8rem; color:var(--muted);
+    border:1px solid var(--line); border-radius:999px; padding:2px 9px 2px 8px; cursor:pointer; background:var(--paper-raised);
+  }
+  .attachments-badge:hover{ border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
+  .attachments-badge.set{ color:var(--ink-soft); border-color: color-mix(in srgb, var(--accent-2) 45%, var(--line)); }
+  .attachments-editor{
+    display:flex; flex-direction:column; gap:7px; background:var(--paper-sunken); border:1px solid var(--line);
+    border-radius:var(--radius-s); padding:8px; margin-top:4px;
+  }
+  .attachment-list{ display:flex; flex-direction:column; gap:6px; }
+  .attachment-item{ display:flex; align-items:center; gap:8px; }
+  .attachment-thumb{
+    width:32px; height:32px; border-radius:6px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    background:var(--paper-raised); border:1px solid var(--line); color:var(--muted); overflow:hidden;
+  }
+  .attachment-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .attachment-info{ flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
+  .attachment-name-btn{
+    background:none; border:none; padding:0; text-align:left; font:inherit; font-size:0.85rem; color:var(--accent);
+    cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;
+  }
+  .attachment-name-btn:hover{ text-decoration:underline; }
+  .attachment-name-btn:disabled{ color:var(--muted); cursor:default; text-decoration:none; }
+  .attachment-size{ font-size:0.72rem; color:var(--muted); }
+  .attachment-remove{ flex-shrink:0; padding:4px; }
+  .attachment-add-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .attachment-add-label{ cursor:pointer; }
+  .attachment-hint{ font-size:0.74rem; color:var(--muted); }
+  .attachment-error{ font-size:0.78rem; color:var(--danger); }
 
   .ghost-add{
     display:flex; align-items:center; gap:6px; color:var(--muted); background:none; border:1px dashed var(--line);
@@ -670,6 +707,14 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.59 13.41L11 3.83A2 2 0 009.59 3.17H4a1 1 0 00-1 1v5.59a2 2 0 00.59 1.41l9.59 9.59a2 2 0 002.82 0l4.59-4.59a2 2 0 000-2.82z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg>
           Tags
         </button>
+        <button class="btn btn-sm tag-filter-toggle-btn" id="priority-filter-btn" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 21V4"/><path d="M6 4h11l-3 4 3 4H6"/></svg>
+          Priority
+        </button>
+        <button class="btn btn-sm tag-filter-toggle-btn" id="due-filter-btn" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+          Due date
+        </button>
         <button class="btn btn-sm" id="quick-capture-btn" type="button">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 5v14M5 12h14"/></svg>
           Quick capture
@@ -941,6 +986,7 @@
     if(t.archivedAt === undefined) t.archivedAt = null;
     if(t.priority !== "low" && t.priority !== "medium" && t.priority !== "high") t.priority = null;
     if(!Array.isArray(t.tags)) t.tags = [];
+    if(!Array.isArray(t.attachments)) t.attachments = [];
     if(!Array.isArray(t.subtasks)) t.subtasks = [];
     t.subtasks.forEach(normalizeSubtask);
     if(t.due && t.due.endTime === undefined) t.due.endTime = null;
@@ -951,8 +997,8 @@
       if(ageMs > ARCHIVE_AFTER_DAYS * 24 * 60 * 60 * 1000) t.archivedAt = new Date().toISOString();
     }
   }
-  // Subtasks are deliberately lighter than top-level tasks: text, done, and an
-  // optional due date — no notes/checklist/tags/priority/calendar sync of their own.
+  // Subtasks are deliberately lighter than top-level tasks: text, done, an optional
+  // due date, and attachments — no notes/checklist/tags/priority/calendar sync of their own.
   function normalizeSubtask(st){
     if(!st.id) st.id = uid();
     if(typeof st.text !== "string") st.text = "";
@@ -960,6 +1006,7 @@
     if(st.due !== null && typeof st.due !== "object") st.due = null;
     if(st.due && st.due.endTime === undefined) st.due.endTime = null;
     if(st.completedAt === undefined) st.completedAt = null;
+    if(!Array.isArray(st.attachments)) st.attachments = [];
   }
 
   /* ---------------- config (per-device, in this browser only) ---------------- */
@@ -1031,6 +1078,49 @@
           throw new Error(msg);
         }
         return json.content.sha;
+      });
+    });
+  }
+
+  /* ---------------- GitHub Contents API — binary files (attachments) ----------------
+     Separate from ghGet/ghPut above, which only ever read/write the one JSON tasks
+     file. Attachments are uploaded as their own files under attachments/ in the repo,
+     referenced from a task/subtask by path — this keeps tasks.json itself small and
+     fast to sync no matter how many images or PDFs get attached.
+     Note on GET: GitHub's Contents API only returns inline base64 `content` for files
+     under 1MB; above that it comes back empty. The `application/vnd.github.raw` Accept
+     media type sidesteps that entirely by returning the raw bytes directly (works up to
+     100MB), so that's what's used here for downloading rather than the JSON content field. */
+  function ghPutBinary(cfg, base64Content){
+    var body = { message: "Add attachment — " + new Date().toISOString(), content: base64Content, branch: cfg.branch };
+    return fetch(contentsUrl(cfg, false), {
+      method: "PUT", headers: ghHeaders(cfg, {"Content-Type":"application/json"}), body: JSON.stringify(body)
+    }).then(function(res){
+      return res.json().then(function(json){
+        if(!res.ok) throw new Error(describeStatus(res, json));
+        return json.content && json.content.sha;
+      });
+    });
+  }
+  function ghGetBinaryBlob(cfg, mime){
+    return fetch(contentsUrl(cfg, true), { headers: ghHeaders(cfg, {"Accept":"application/vnd.github.raw"}) }).then(function(res){
+      if(res.status === 404) return { exists:false };
+      if(!res.ok){
+        return res.json().catch(function(){ return null; }).then(function(json){ throw new Error(describeStatus(res, json)); });
+      }
+      return res.blob().then(function(blob){
+        return { exists:true, blob: mime ? blob.slice(0, blob.size, mime) : blob };
+      });
+    });
+  }
+  function ghDeleteFile(cfg, sha){
+    var body = { message: "Remove attachment — " + new Date().toISOString(), sha: sha, branch: cfg.branch };
+    return fetch(contentsUrl(cfg, false), {
+      method: "DELETE", headers: ghHeaders(cfg, {"Content-Type":"application/json"}), body: JSON.stringify(body)
+    }).then(function(res){
+      if(res.status === 404) return; // already gone — fine, nothing left to clean up
+      return res.json().then(function(json){
+        if(!res.ok) throw new Error(describeStatus(res, json));
       });
     });
   }
@@ -2102,6 +2192,8 @@
   var HEADING_COLORS = ["#a8672a","#3f7d6e","#4a5fc1","#b3486b","#6f7d3a","#7a4fa0","#55606e","#b8452f"];
   function closeAllPopovers(){
     document.querySelectorAll(".color-popover, .theme-popover, .quickadd-popover, .tag-filter-popover").forEach(function(p){ p.remove(); });
+    // priority/due popovers reuse the .tag-filter-popover class above (same look/behavior)
+    // so this selector already covers them too — kept here as the single source of truth.
   }
   document.addEventListener("click", function(){ closeAllPopovers(); });
 
@@ -2176,6 +2268,14 @@
     e.stopPropagation();
     openTagFilterPopover(e.currentTarget);
   });
+  document.getElementById("priority-filter-btn").addEventListener("click", function(e){
+    e.stopPropagation();
+    openPriorityFilterPopover(e.currentTarget);
+  });
+  document.getElementById("due-filter-btn").addEventListener("click", function(e){
+    e.stopPropagation();
+    openDueFilterPopover(e.currentTarget);
+  });
   document.getElementById("sort-manual-btn").addEventListener("click", function(){ setTaskSortMode("manual"); });
   document.getElementById("sort-priority-btn").addEventListener("click", function(){ setTaskSortMode("priority"); });
   document.getElementById("sort-due-btn").addEventListener("click", function(){ setTaskSortMode("due"); });
@@ -2212,7 +2312,7 @@
     heading.subheadings.push(sh); lastAddedId = sh.id; scheduleSave(); render(); return sh;
   }
   function addTask(container, text){
-    var t = { id: uid(), text: text || "New task", done:false, due:null, completedAt:null, calendarEventId:null, syncError:null, notes:"", checklist:[], archivedAt:null, priority:null, tags:[], subtasks:[] };
+    var t = { id: uid(), text: text || "New task", done:false, due:null, completedAt:null, calendarEventId:null, syncError:null, notes:"", checklist:[], archivedAt:null, priority:null, tags:[], subtasks:[], attachments:[] };
     container.tasks.push(t); lastAddedId = t.id; scheduleSave(); render(); return t;
   }
   /* ---------------- undo toast ---------------- */
@@ -2927,7 +3027,7 @@
       var createdWithDue = [];
       lines.forEach(function(line){
         var parsed = parseQuickCaptureLine(line, now);
-        var t = { id: uid(), text: parsed.text, done:false, due: parsed.due, completedAt:null, calendarEventId:null, syncError:null, notes:"", checklist:[], archivedAt:null, priority:null, tags:[], subtasks:[] };
+        var t = { id: uid(), text: parsed.text, done:false, due: parsed.due, completedAt:null, calendarEventId:null, syncError:null, notes:"", checklist:[], archivedAt:null, priority:null, tags:[], subtasks:[], attachments:[] };
         heading.tasks.push(t);
         if(parsed.due) createdWithDue.push(t);
       });
@@ -2948,6 +3048,8 @@
     renderHeadings();
     renderEmptyState();
     refreshTagFilterButton();
+    refreshPriorityFilterButton();
+    refreshDueFilterButton();
     if(viewMode === "today") renderTodayView();
     if(viewMode === "stats") renderStats();
     if(viewMode === "cal") renderCalendar();
@@ -3015,7 +3117,7 @@
 
     var directList = document.createElement("div");
     directList.className = "task-list";
-    sortedTaskList(visibleHeadingTasks.filter(taskPassesTagFilter)).forEach(function(task){ directList.appendChild(renderTaskRow(heading, task)); });
+    sortedTaskList(visibleHeadingTasks.filter(taskPassesFilters)).forEach(function(task){ directList.appendChild(renderTaskRow(heading, task)); });
     wireTaskListContainer(directList, heading);
     bodyContent.appendChild(directList);
 
@@ -3086,7 +3188,7 @@
 
     var list = document.createElement("div");
     list.className = "task-list";
-    sortedTaskList(visibleSubTasks.filter(taskPassesTagFilter)).forEach(function(task){ list.appendChild(renderTaskRow(sub, task)); });
+    sortedTaskList(visibleSubTasks.filter(taskPassesFilters)).forEach(function(task){ list.appendChild(renderTaskRow(sub, task)); });
     wireTaskListContainer(list, sub);
     subBodyInner.appendChild(list);
 
@@ -3225,6 +3327,7 @@
           '<button class="notes-badge' + (notesBadgeSet(task) ? ' set' : '') + '" type="button" title="Notes & checklist">' + notesBadgeHtml(task) + '</button>' +
           '<button class="tags-badge' + (tagsBadgeSet(task) ? ' set' : '') + '" type="button" title="Tags">' + tagsBadgeHtml(task) + '</button>' +
           '<button class="subtasks-badge' + (subtasksBadgeSet(task) ? ' set' : '') + '" type="button" title="Subtasks">' + subtasksBadgeHtml(task) + '</button>' +
+          '<button class="attachments-badge' + (attachmentsBadgeSet(task) ? ' set' : '') + '" type="button" title="Attachments">' + attachmentsBadgeHtml(task) + '</button>' +
           (task.syncError ? '<span class="sync-note" title="' + escapeHtml(task.syncError) + '">' + escapeHtml(task.syncError) + '</span>' : '') +
         '</div>' +
       '</div>' +
@@ -3277,6 +3380,7 @@
     row.querySelector(".notes-badge").addEventListener("click", function(){ toggleNotesEditor(row, task); });
     row.querySelector(".tags-badge").addEventListener("click", function(){ toggleTagsEditor(row, task); });
     row.querySelector(".subtasks-badge").addEventListener("click", function(){ toggleSubtasksEditor(row, task); });
+    row.querySelector(".attachments-badge").addEventListener("click", function(){ toggleAttachmentsEditor(row, task); });
     var subtaskToggleBtn = row.querySelector(".task-subtask-toggle");
     if(subtaskToggleBtn) subtaskToggleBtn.addEventListener("click", function(){ toggleSubtasksEditor(row, task); });
     row.querySelector(".icon-btn.danger").addEventListener("click", function(){ removeTask(container, task); });
@@ -3719,6 +3823,184 @@
     });
   }
 
+  /* ---------------- priority & due date filters ----------------
+     Same idea as the tag filter above (session-only, OR logic within
+     each filter) but these hide/show individual tasks by their own
+     priority or due date — not related to the Manual/Priority/Due date
+     Sort toggle, which only ever reorders tasks and never hides any. */
+  var activePriorityFilters = []; // subset of "high"/"medium"/"low"/"none"
+  var activeDuePresets = []; // subset of "overdue"/"today"/"week"/"none"
+  var activeDueRange = { from: "", to: "" }; // "" = unset
+  var PRIORITY_FILTER_OPTS = [
+    { key: "high", label: "High" },
+    { key: "medium", label: "Medium" },
+    { key: "low", label: "Low" },
+    { key: "none", label: "No priority" }
+  ];
+  var DUE_FILTER_PRESETS = [
+    { key: "overdue", label: "Overdue" },
+    { key: "today", label: "Due today" },
+    { key: "week", label: "Due this week" },
+    { key: "none", label: "No due date" }
+  ];
+
+  function taskPassesPriorityFilter(task){
+    if(!activePriorityFilters.length) return true;
+    return activePriorityFilters.indexOf(task.priority || "none") !== -1;
+  }
+  function dueRangeActive(){ return !!(activeDueRange.from || activeDueRange.to); }
+  function dueFilterActive(){ return activeDuePresets.length > 0 || dueRangeActive(); }
+  function taskPassesDueFilter(task){
+    if(!dueFilterActive()) return true;
+    var due = task.due;
+    if(!due) return activeDuePresets.indexOf("none") !== -1;
+    if(activeDuePresets.indexOf("overdue") !== -1 && isOverdue(due, task.done)) return true;
+    var today = todayDateStr();
+    if(activeDuePresets.indexOf("today") !== -1 && due.date === today) return true;
+    if(activeDuePresets.indexOf("week") !== -1){
+      var weekEnd = addDaysToDateStr(today, 7);
+      if(due.date >= today && due.date <= weekEnd) return true;
+    }
+    if(dueRangeActive()){
+      var from = activeDueRange.from || "0000-01-01";
+      var to = activeDueRange.to || "9999-12-31";
+      if(due.date >= from && due.date <= to) return true;
+    }
+    return false;
+  }
+  // The single predicate every task-list rendering site filters through: passes
+  // only if it clears the tag filter AND the priority filter AND the due filter
+  // (each individual filter is itself OR logic across its own selected options).
+  function taskPassesFilters(task){
+    return taskPassesTagFilter(task) && taskPassesPriorityFilter(task) && taskPassesDueFilter(task);
+  }
+
+  function refreshPriorityFilterButton(){
+    var btn = document.getElementById("priority-filter-btn");
+    if(!btn) return;
+    var n = activePriorityFilters.length;
+    btn.classList.toggle("active", n > 0);
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 21V4"/><path d="M6 4h11l-3 4 3 4H6"/></svg><span>' + (n ? "Priority (" + n + ")" : "Priority") + '</span>';
+  }
+  function openPriorityFilterPopover(anchorEl){
+    var existing = document.querySelector(".priority-filter-popover");
+    if(existing){ existing.remove(); return; }
+    closeAllPopovers();
+    buildPriorityFilterPopover(anchorEl);
+  }
+  function buildPriorityFilterPopover(anchorEl){
+    var old = document.querySelector(".priority-filter-popover");
+    if(old) old.remove();
+    var pop = document.createElement("div");
+    pop.className = "tag-filter-popover priority-filter-popover";
+    pop.innerHTML = PRIORITY_FILTER_OPTS.map(function(o){
+      var checked = activePriorityFilters.indexOf(o.key) !== -1;
+      return '<label class="tag-filter-row"><input type="checkbox" class="priority-filter-cb" value="' + o.key + '"' + (checked ? " checked" : "") + '>' +
+        '<span class="priority-dot dot-' + o.key + '"></span><span>' + o.label + '</span></label>';
+    }).join("");
+    if(activePriorityFilters.length){
+      pop.innerHTML += '<button type="button" class="btn btn-sm btn-ghost" id="priority-filter-clear" style="margin-top:4px;width:100%;">Clear filter</button>';
+    }
+    document.body.appendChild(pop);
+    var rect = anchorEl.getBoundingClientRect();
+    pop.style.top = (rect.bottom + 6) + "px";
+    pop.style.left = Math.max(8, rect.left) + "px";
+    pop.addEventListener("click", function(e){ e.stopPropagation(); });
+    pop.querySelectorAll(".priority-filter-cb").forEach(function(cb){
+      cb.addEventListener("change", function(){
+        var key = cb.value;
+        var idx = activePriorityFilters.indexOf(key);
+        if(cb.checked){ if(idx === -1) activePriorityFilters.push(key); }
+        else if(idx !== -1){ activePriorityFilters.splice(idx, 1); }
+        refreshPriorityFilterButton();
+        render();
+        buildPriorityFilterPopover(anchorEl);
+      });
+    });
+    var clearBtn = pop.querySelector("#priority-filter-clear");
+    if(clearBtn) clearBtn.addEventListener("click", function(){
+      activePriorityFilters = [];
+      refreshPriorityFilterButton();
+      render();
+      buildPriorityFilterPopover(anchorEl);
+    });
+  }
+
+  function refreshDueFilterButton(){
+    var btn = document.getElementById("due-filter-btn");
+    if(!btn) return;
+    var n = activeDuePresets.length + (dueRangeActive() ? 1 : 0);
+    btn.classList.toggle("active", n > 0);
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg><span>' + (n ? "Due date (" + n + ")" : "Due date") + '</span>';
+  }
+  function openDueFilterPopover(anchorEl){
+    var existing = document.querySelector(".due-filter-popover");
+    if(existing){ existing.remove(); return; }
+    closeAllPopovers();
+    buildDueFilterPopover(anchorEl);
+  }
+  function buildDueFilterPopover(anchorEl){
+    var old = document.querySelector(".due-filter-popover");
+    if(old) old.remove();
+    var pop = document.createElement("div");
+    pop.className = "tag-filter-popover due-filter-popover";
+    pop.innerHTML = DUE_FILTER_PRESETS.map(function(o){
+      var checked = activeDuePresets.indexOf(o.key) !== -1;
+      return '<label class="tag-filter-row"><input type="checkbox" class="due-filter-cb" value="' + o.key + '"' + (checked ? " checked" : "") + '><span>' + o.label + '</span></label>';
+    }).join("") +
+      '<div class="due-filter-range">' +
+        '<div class="due-filter-range-label">Custom range</div>' +
+        '<div class="due-filter-range-row">' +
+          '<input type="date" class="due-filter-from" value="' + escapeHtml(activeDueRange.from) + '" aria-label="From date">' +
+          '<span class="due-filter-range-sep">to</span>' +
+          '<input type="date" class="due-filter-to" value="' + escapeHtml(activeDueRange.to) + '" aria-label="To date">' +
+        '</div>' +
+      '</div>' +
+      (activeDuePresets.length || dueRangeActive() ? '<button type="button" class="btn btn-sm btn-ghost" id="due-filter-clear" style="margin-top:8px;width:100%;">Clear filter</button>' : '');
+    document.body.appendChild(pop);
+    var rect = anchorEl.getBoundingClientRect();
+    pop.style.top = (rect.bottom + 6) + "px";
+    // This popover is wider than the tag/priority ones (it holds two date inputs
+    // side by side), so when its anchor button sits near the right edge, anchoring
+    // to rect.left like the others would run it off-screen — clamp to the viewport.
+    var left = Math.min(rect.left, window.innerWidth - pop.offsetWidth - 8);
+    pop.style.left = Math.max(8, left) + "px";
+    pop.addEventListener("click", function(e){ e.stopPropagation(); });
+    pop.querySelectorAll(".due-filter-cb").forEach(function(cb){
+      cb.addEventListener("change", function(){
+        var key = cb.value;
+        var idx = activeDuePresets.indexOf(key);
+        if(cb.checked){ if(idx === -1) activeDuePresets.push(key); }
+        else if(idx !== -1){ activeDuePresets.splice(idx, 1); }
+        refreshDueFilterButton();
+        render();
+        buildDueFilterPopover(anchorEl);
+      });
+    });
+    var fromInput = pop.querySelector(".due-filter-from");
+    var toInput = pop.querySelector(".due-filter-to");
+    fromInput.addEventListener("change", function(){
+      activeDueRange.from = fromInput.value || "";
+      refreshDueFilterButton();
+      render();
+      buildDueFilterPopover(anchorEl);
+    });
+    toInput.addEventListener("change", function(){
+      activeDueRange.to = toInput.value || "";
+      refreshDueFilterButton();
+      render();
+      buildDueFilterPopover(anchorEl);
+    });
+    var clearBtn = pop.querySelector("#due-filter-clear");
+    if(clearBtn) clearBtn.addEventListener("click", function(){
+      activeDuePresets = [];
+      activeDueRange = { from: "", to: "" };
+      refreshDueFilterButton();
+      render();
+      buildDueFilterPopover(anchorEl);
+    });
+  }
+
   /* ---------------- subtasks ---------------- */
   // Subtasks are a lighter-weight nested task: text, done, and an optional due date —
   // no notes/checklist/tags/priority/calendar sync of their own. Distinct from the
@@ -3822,6 +4104,7 @@
         '<input type="checkbox" class="subtask-check" ' + (subtask.done ? "checked" : "") + ' aria-label="Mark subtask done" />' +
         '<input type="text" class="subtask-text" value="' + escapeHtml(subtask.text) + '" aria-label="Subtask" />' +
         '<button type="button" class="due-badge due-badge-sm subtask-due-badge' + (subtask.due ? (isOverdue(subtask.due, subtask.done) ? " overdue" : " set") : "") + '">' + (subtask.due ? escapeHtml(formatDue(subtask.due)) : "Add date") + '</button>' +
+        '<button type="button" class="attachments-badge due-badge-sm subtask-attachments-badge' + (attachmentsBadgeSet(subtask) ? " set" : "") + '" title="Attachments">' + attachmentsBadgeHtml(subtask) + '</button>' +
         '<button type="button" class="icon-btn danger subtask-remove" title="Remove subtask" aria-label="Remove subtask"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
       '</div>';
     itemRow.querySelector(".subtask-check").addEventListener("change", function(e){
@@ -3839,6 +4122,7 @@
     });
     textEl.addEventListener("keydown", function(e){ if(e.key === "Enter") textEl.blur(); });
     itemRow.querySelector(".subtask-due-badge").addEventListener("click", function(){ toggleSubtaskDueEditor(itemRow, task, subtask); });
+    itemRow.querySelector(".subtask-attachments-badge").addEventListener("click", function(){ toggleSubtaskAttachmentsEditor(itemRow, subtask); });
     itemRow.querySelector(".subtask-remove").addEventListener("click", function(){
       task.subtasks = task.subtasks.filter(function(s){ return s.id !== subtask.id; });
       itemRow.remove();
@@ -3878,7 +4162,7 @@
     function addSubtask(){
       var text = addInput.value.trim();
       if(!text) return;
-      var subtask = { id: uid(), text: text, done: false, due: null, completedAt: null };
+      var subtask = { id: uid(), text: text, done: false, due: null, completedAt: null, attachments: [] };
       task.subtasks.push(subtask);
       renderSubtaskRow(listEl, row, task, subtask);
       addInput.value = "";
@@ -3896,6 +4180,220 @@
       if(badge) badge.classList.remove("open");
       if(toggleBtn) toggleBtn.classList.remove("open");
     });
+  }
+
+  /* ---------------- attachments (images & PDFs, on tasks and subtasks) ----------------
+     Each attachment is its own file committed to the repo under attachments/, uploaded
+     via ghPutBinary — the task/subtask itself only stores a lightweight reference (id,
+     name, path, mime, type, size, sha). Shared between tasks and subtasks: both kinds of
+     owner object just need an `attachments` array, so the upload/render/remove logic
+     below is written generically against "ownerObj" and wired up by two thin per-kind
+     wrapper functions (toggleAttachmentsEditor for tasks, toggleSubtaskAttachmentsEditor
+     for subtasks) that know their own badge/DOM conventions. */
+  var ATTACHMENTS_DIR = "attachments";
+  var ATTACHMENT_MAX_BYTES = 12 * 1024 * 1024; // 12MB — still comfortably inside what a single Contents API PUT reliably accepts
+  var ATTACH_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.44 11.05l-9.19 9.19a5.5 5.5 0 01-7.78-7.78l9.19-9.19a3.5 3.5 0 014.95 4.95l-9.19 9.19a1.5 1.5 0 01-2.12-2.12l8.49-8.48"/></svg>';
+  var ATTACH_IMAGE_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
+  var ATTACH_PDF_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h8l5 5v13a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/><path d="M14 2v5a1 1 0 001 1h5"/><path d="M8 17v-4h1.3a1.3 1.3 0 010 2.6H8M12 13v4h.8a1.7 1.7 0 000-4H12zM16.5 17v-4h2M16.5 15h1.5"/></svg>';
+
+  function attachmentPathFor(id, filename){
+    var safe = String(filename || "file").replace(/[^a-zA-Z0-9._-]+/g, "_").slice(-80) || "file";
+    return ATTACHMENTS_DIR + "/" + id + "-" + safe;
+  }
+  function formatFileSize(bytes){
+    if(bytes === null || bytes === undefined) return "";
+    if(bytes < 1024) return bytes + " B";
+    if(bytes < 1024 * 1024) return Math.round(bytes / 1024) + " KB";
+    return (Math.round(bytes / 1024 / 1024 * 10) / 10) + " MB";
+  }
+  function fileToBase64(file){
+    return new Promise(function(resolve, reject){
+      var reader = new FileReader();
+      reader.onload = function(){
+        var result = reader.result || "";
+        var comma = result.indexOf(",");
+        resolve(comma !== -1 ? result.slice(comma + 1) : result);
+      };
+      reader.onerror = function(){ reject(new Error("Couldn't read that file.")); };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // In-memory only (per session, never persisted): once an attachment's bytes are
+  // fetched from GitHub they're kept as a blob URL so reopening the editor, or the
+  // file itself, doesn't re-download it every time.
+  var attachmentBlobCache = {};
+  function fetchAttachmentBlob(att){
+    if(attachmentBlobCache[att.path]) return attachmentBlobCache[att.path];
+    var p = ghGetBinaryBlob(cfgFor(att.path), att.mime).then(function(res){
+      if(!res.exists) throw new Error("That attachment is missing from the repo.");
+      return res.blob;
+    }).catch(function(e){ delete attachmentBlobCache[att.path]; throw e; });
+    attachmentBlobCache[att.path] = p;
+    return p;
+  }
+
+  function attachmentsBadgeSet(ownerObj){ return !!(ownerObj.attachments && ownerObj.attachments.length); }
+  function attachmentsBadgeHtml(ownerObj){
+    var atts = ownerObj.attachments || [];
+    return ATTACH_ICON + (atts.length ? "<span>" + atts.length + "</span>" : "");
+  }
+  function updateAttachmentsBadge(row, task){
+    var btn = row.querySelector(".attachments-badge");
+    if(!btn) return;
+    btn.classList.toggle("set", attachmentsBadgeSet(task));
+    btn.innerHTML = attachmentsBadgeHtml(task);
+  }
+  function updateSubtaskAttachmentsBadge(itemRow, subtask){
+    var btn = itemRow.querySelector(".subtask-attachments-badge");
+    if(!btn) return;
+    btn.classList.toggle("set", attachmentsBadgeSet(subtask));
+    btn.innerHTML = attachmentsBadgeHtml(subtask);
+  }
+
+  function showAttachmentError(editorOrRow, message){
+    var editor = editorOrRow.classList && editorOrRow.classList.contains("attachments-editor") ? editorOrRow : editorOrRow.closest(".attachments-editor");
+    var errEl = editor && editor.querySelector(".attachment-error");
+    if(errEl){ errEl.textContent = message; errEl.hidden = false; }
+  }
+
+  function openAttachment(att, itemRow){
+    fetchAttachmentBlob(att).then(function(blob){
+      var url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+    }).catch(function(e){ showAttachmentError(itemRow, "Couldn't open that attachment: " + e.message); });
+  }
+  function loadAttachmentThumb(itemRow, att){
+    var thumb = itemRow.querySelector(".attachment-thumb");
+    if(!thumb) return;
+    fetchAttachmentBlob(att).then(function(blob){
+      var url = URL.createObjectURL(blob);
+      var img = document.createElement("img");
+      img.src = url;
+      img.alt = "";
+      thumb.innerHTML = "";
+      thumb.appendChild(img);
+    }).catch(function(){ /* leave the file-type icon in place */ });
+  }
+
+  function paintAttachmentRow(itemRow, ownerObj, att, onChange){
+    var icon = att.type === "image" ? ATTACH_IMAGE_ICON : ATTACH_PDF_ICON;
+    itemRow.innerHTML =
+      '<div class="attachment-thumb">' + (att.uploading ? ICON_SPIN : icon) + '</div>' +
+      '<div class="attachment-info">' +
+        '<button type="button" class="attachment-name-btn"' + (att.uploading ? " disabled" : "") + '>' + escapeHtml(att.name) + '</button>' +
+        '<span class="attachment-size">' + (att.uploading ? "Uploading…" : formatFileSize(att.size)) + '</span>' +
+      '</div>' +
+      (att.uploading ? '' : '<button type="button" class="icon-btn danger attachment-remove" title="Remove attachment" aria-label="Remove attachment"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>');
+    if(!att.uploading){
+      itemRow.querySelector(".attachment-name-btn").addEventListener("click", function(){ openAttachment(att, itemRow); });
+      itemRow.querySelector(".attachment-remove").addEventListener("click", function(){ removeAttachmentFrom(ownerObj, att, itemRow, onChange); });
+      if(att.type === "image") loadAttachmentThumb(itemRow, att);
+    }
+  }
+  function appendAttachmentRow(listEl, ownerObj, att, onChange){
+    var itemRow = document.createElement("div");
+    itemRow.className = "attachment-item";
+    itemRow.setAttribute("data-attachment-id", att.id);
+    paintAttachmentRow(itemRow, ownerObj, att, onChange);
+    listEl.appendChild(itemRow);
+    return itemRow;
+  }
+  function removeAttachmentFrom(ownerObj, att, itemRow, onChange){
+    ownerObj.attachments = (ownerObj.attachments || []).filter(function(a){ return a.id !== att.id; });
+    itemRow.remove();
+    scheduleSave();
+    if(onChange) onChange();
+    delete attachmentBlobCache[att.path];
+    // Best-effort cleanup of the file in the repo — the reference is already gone from
+    // tasks.json either way, so a failure here (offline, token revoked, etc.) shouldn't
+    // block the removal the user just did; it just leaves an orphaned file in GitHub.
+    if(config && att.sha){ ghDeleteFile(cfgFor(att.path), att.sha).catch(function(){}); }
+  }
+  function uploadAttachment(ownerObj, file, listEl, errEl, onChange){
+    errEl.hidden = true;
+    var isImage = /^image\//.test(file.type);
+    var isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name || "");
+    if(!isImage && !isPdf){
+      errEl.textContent = "Only images and PDFs can be attached.";
+      errEl.hidden = false;
+      return;
+    }
+    if(file.size > ATTACHMENT_MAX_BYTES){
+      errEl.textContent = "That file is " + formatFileSize(file.size) + " — attachments are limited to 12MB.";
+      errEl.hidden = false;
+      return;
+    }
+    if(!config){
+      errEl.textContent = "Connect a GitHub repo in Settings first — attachments are stored there.";
+      errEl.hidden = false;
+      return;
+    }
+    var att = { id: uid(), name: file.name || "file", path: null, mime: file.type || (isPdf ? "application/pdf" : "application/octet-stream"), type: isImage ? "image" : "pdf", size: file.size, sha: null, uploading: true };
+    att.path = attachmentPathFor(att.id, att.name);
+    if(!Array.isArray(ownerObj.attachments)) ownerObj.attachments = [];
+    ownerObj.attachments.push(att);
+    var itemRow = appendAttachmentRow(listEl, ownerObj, att, onChange);
+    fileToBase64(file).then(function(base64){
+      return ghPutBinary(cfgFor(att.path), base64);
+    }).then(function(sha){
+      att.sha = sha;
+      att.uploading = false;
+      scheduleSave();
+      if(onChange) onChange();
+      paintAttachmentRow(itemRow, ownerObj, att, onChange);
+    }).catch(function(e){
+      ownerObj.attachments = ownerObj.attachments.filter(function(a){ return a.id !== att.id; });
+      itemRow.remove();
+      errEl.textContent = "Upload failed: " + e.message;
+      errEl.hidden = false;
+    });
+  }
+  function renderAttachmentsInto(listEl, ownerObj, onChange){
+    (ownerObj.attachments || []).forEach(function(att){ appendAttachmentRow(listEl, ownerObj, att, onChange); });
+  }
+  function buildAttachmentsEditorEl(ownerObj, onChange){
+    var editor = document.createElement("div");
+    editor.className = "attachments-editor";
+    editor.innerHTML =
+      '<div class="attachment-list"></div>' +
+      '<div class="attachment-add-row">' +
+        '<label class="btn btn-sm btn-ghost attachment-add-label">' +
+          '<input type="file" class="attachment-file-input" accept="image/*,application/pdf" hidden />+ Add attachment' +
+        '</label>' +
+        '<span class="attachment-hint">Images or PDFs, up to 12MB</span>' +
+      '</div>' +
+      '<div class="attachment-error" hidden></div>' +
+      '<div class="notes-editor-actions"><button type="button" class="btn btn-sm btn-ghost" data-act="close">Close</button></div>';
+    var listEl = editor.querySelector(".attachment-list");
+    renderAttachmentsInto(listEl, ownerObj, onChange);
+    var fileInput = editor.querySelector(".attachment-file-input");
+    var errEl = editor.querySelector(".attachment-error");
+    fileInput.addEventListener("change", function(){
+      var file = fileInput.files && fileInput.files[0];
+      fileInput.value = "";
+      if(!file) return;
+      uploadAttachment(ownerObj, file, listEl, errEl, onChange);
+    });
+    editor.querySelector('[data-act="close"]').addEventListener("click", function(){ editor.remove(); });
+    return editor;
+  }
+  function toggleAttachmentsEditor(row, task){
+    var existing = row.querySelector(".attachments-editor");
+    if(existing){ existing.remove(); return; }
+    document.querySelectorAll(".attachments-editor").forEach(function(el){ el.remove(); });
+    if(!Array.isArray(task.attachments)) task.attachments = [];
+    var editor = buildAttachmentsEditorEl(task, function(){ updateAttachmentsBadge(row, task); });
+    row.querySelector(".task-main").appendChild(editor);
+  }
+  function toggleSubtaskAttachmentsEditor(itemRow, subtask){
+    var existing = itemRow.querySelector(".attachments-editor");
+    if(existing){ existing.remove(); return; }
+    document.querySelectorAll(".attachments-editor").forEach(function(el){ el.remove(); });
+    if(!Array.isArray(subtask.attachments)) subtask.attachments = [];
+    var editor = buildAttachmentsEditorEl(subtask, function(){ updateSubtaskAttachmentsBadge(itemRow, subtask); });
+    itemRow.appendChild(editor);
   }
 
   /* ---------------- stats page ---------------- */
