@@ -101,7 +101,20 @@
           "tags": [],
           "subtasks": [],
           "notesRich": true,
-          "attachments": [],
+          "attachments": [
+            {
+              "id": "89bf3bc3-8551-46cd-9926-96e5168e48a9",
+              "name": "pasted-1787774392495.png",
+              "path": "attachments/89bf3bc3-8551-46cd-9926-96e5168e48a9-pasted-1787774392495.png",
+              "mime": "image/png",
+              "type": "image",
+              "size": 1498472,
+              "sha": "1fdac1801f0bd5679423eff7aca6970f89632bdb",
+              "uploading": false,
+              "extractedText": "",
+              "textStatus": "extracting"
+            }
+          ],
           "deletedAt": null
         },
         {
@@ -432,7 +445,7 @@
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T19:50:04.199Z",
+  "updatedAt": "2026-08-26T19:59:55.884Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
