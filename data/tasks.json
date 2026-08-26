@@ -179,14 +179,30 @@
         },
         {
           "id": "b0248800-270b-4570-a173-37e854232df3",
-          "title": "New sub-heading",
+          "title": "GraphComm Paper",
           "collapsed": false,
-          "tasks": []
+          "tasks": [
+            {
+              "id": "b1697acf-362c-46e1-802b-2d84d2cac398",
+              "text": "New task",
+              "done": false,
+              "due": null,
+              "completedAt": null,
+              "calendarEventId": null,
+              "syncError": null,
+              "notes": "",
+              "checklist": [],
+              "archivedAt": null,
+              "priority": null,
+              "tags": [],
+              "subtasks": []
+            }
+          ]
         }
       ]
     }
   ],
-  "updatedAt": "2026-08-26T13:39:53.856Z",
+  "updatedAt": "2026-08-26T13:40:03.526Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
