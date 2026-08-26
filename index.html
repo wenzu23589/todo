@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link id="font-base-link" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <title>Daybook</title>
 <style>
@@ -27,6 +27,9 @@
     --radius-s: 6px;
     --radius-m: 10px;
     --radius-l: 14px;
+    --font-heading: "Fraunces", Georgia, "Times New Roman", serif;
+    --font-body: "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark){
@@ -50,11 +53,11 @@
   body{
     overflow-x: hidden;
     background: var(--paper); color: var(--ink);
-    font-family: "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: var(--font-body);
     font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased;
   }
-  h1,h2,h3{ font-family: "Fraunces", Georgia, "Times New Roman", serif; text-wrap: balance; margin: 0; }
-  .mono{ font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; }
+  h1,h2,h3{ font-family: var(--font-heading); text-wrap: balance; margin: 0; }
+  .mono{ font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
   button{ font-family: inherit; }
   ::selection{ background: color-mix(in srgb, var(--accent) 35%, transparent); }
   :focus-visible{ outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
@@ -160,7 +163,7 @@
   .color-popover .swatch[data-color=""]{ background: repeating-linear-gradient(45deg, var(--muted) 0 2px, transparent 2px 5px); }
   .heading-title{
     font-size:1.15rem; font-weight:600; flex:1; min-width:0; background:transparent; border:none;
-    color:var(--ink); font-family:"Fraunces",serif; padding:2px 4px; border-radius:4px;
+    color:var(--ink); font-family:var(--font-heading); padding:2px 4px; border-radius:4px;
   }
   .heading-title:focus{ background:var(--paper-sunken); }
   .heading-count{ color:var(--muted); font-size:0.78rem; white-space:nowrap; }
@@ -184,7 +187,7 @@
   .grip-sm{ width:16px; height:16px; }
   .sub-title{
     font-size:0.92rem; font-weight:600; color:var(--ink-soft); flex:1; min-width:0; background:transparent;
-    border:none; padding:2px 4px; border-radius:4px; font-family:"Public Sans",sans-serif; text-transform:uppercase; letter-spacing:0.04em;
+    border:none; padding:2px 4px; border-radius:4px; font-family:var(--font-body); text-transform:uppercase; letter-spacing:0.04em;
   }
   .sub-title:focus{ background:var(--paper-sunken); }
   .sub-actions{ display:flex; gap:2px; }
@@ -254,7 +257,7 @@
   .stats-head p{ color:var(--muted); font-size:0.86rem; margin-top:4px; }
   .stat-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:26px; }
   .stat-tile{ background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-m); padding:14px 16px; box-shadow:var(--shadow); }
-  .stat-tile .num{ font-family:"Fraunces",serif; font-size:1.9rem; font-weight:600; line-height:1; }
+  .stat-tile .num{ font-family:var(--font-heading); font-size:1.9rem; font-weight:600; line-height:1; }
   .stat-tile .num.danger{ color:var(--danger); }
   .stat-tile .num.accent2{ color:var(--accent-2); }
   .stat-tile .label{ font-size:0.78rem; color:var(--muted); margin-top:5px; }
@@ -334,6 +337,19 @@
   }
   .theme-appearance-btn.active{ background:var(--paper-raised); color:var(--ink); box-shadow:var(--shadow); }
   .theme-appearance-btn:hover:not(.active){ color:var(--ink); }
+  .theme-font-list{ display:flex; flex-direction:column; gap:2px; }
+  .theme-font-option{
+    display:flex; align-items:center; gap:10px; border:none; background:transparent; padding:6px 9px; border-radius:var(--radius-s);
+    cursor:pointer; font:inherit; font-size:0.85rem; color:var(--ink); text-align:left;
+  }
+  .theme-font-option:hover{ background:var(--paper-sunken); }
+  .theme-font-option.active{ background:color-mix(in srgb, var(--accent) 12%, var(--paper-sunken)); }
+  .theme-font-sample{
+    display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; flex-shrink:0;
+    border:1px solid var(--line); border-radius:var(--radius-s); background:var(--paper); font-size:0.95rem; font-weight:600;
+  }
+  .theme-font-label{ font-weight:500; }
+  .theme-font-option.active .theme-font-label{ font-weight:700; }
 
   /* ---------- calendar view ---------- */
   .cal-head{ display:flex; align-items:center; gap:10px; margin:22px 0 16px; flex-wrap:wrap; }
@@ -350,14 +366,14 @@
   .cal-weekday-row span{ padding:8px 6px; font-size:0.72rem; font-weight:600; color:var(--muted); text-align:center; letter-spacing:0.03em; text-transform:uppercase; }
   .cal-month-body{ display:grid; grid-template-columns:repeat(7,1fr); }
   .cal-day-cell{
-    min-height:92px; border-right:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft);
-    padding:5px; display:flex; flex-direction:column; gap:3px; cursor:pointer; position:relative;
+    min-height:92px; min-width:0; border-right:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft);
+    padding:5px; display:flex; flex-direction:column; gap:3px; cursor:pointer; position:relative; overflow:hidden;
   }
   .cal-day-cell:hover{ background:color-mix(in srgb, var(--accent) 6%, transparent); }
   .cal-month-body .cal-day-cell:nth-child(7n){ border-right:none; }
   .cal-day-cell.outside{ background:var(--paper-sunken); }
   .cal-day-cell.outside .cal-day-num{ color:var(--muted); opacity:0.6; }
-  .cal-day-num{ font-family:"IBM Plex Mono",monospace; font-size:0.78rem; color:var(--ink-soft); }
+  .cal-day-num{ font-family:var(--font-mono); font-size:0.78rem; color:var(--ink-soft); }
   .cal-day-cell.today .cal-day-num{
     display:inline-flex; align-items:center; justify-content:center; width:19px; height:19px;
     background:var(--accent); color:var(--accent-ink); border-radius:50%; font-weight:600;
@@ -376,7 +392,7 @@
   .cal-week-col-head{ padding:8px 10px; border-bottom:1px solid var(--line-soft); text-align:center; cursor:pointer; }
   .cal-week-col-head:hover{ background:color-mix(in srgb, var(--accent) 6%, transparent); }
   .cal-week-col-head .wd{ font-size:0.68rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.03em; }
-  .cal-week-col-head .dn{ font-family:"IBM Plex Mono",monospace; font-size:0.95rem; }
+  .cal-week-col-head .dn{ font-family:var(--font-mono); font-size:0.95rem; }
   .cal-week-col.today .cal-week-col-head .dn{
     display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px;
     background:var(--accent); color:var(--accent-ink); border-radius:50%; font-weight:600;
@@ -389,9 +405,20 @@
   .cal-week-chip.done{ text-decoration:line-through; opacity:0.6; }
   .cal-week-chip.ext-event{ background:var(--paper-sunken); border-left:3px solid var(--muted); color:var(--muted); font-style:italic; }
   .cal-week-chip.other-cal{ background:var(--paper-sunken); color:var(--ink-soft); border-left:3px solid var(--muted); }
-  .cal-week-chip .t{ display:block; font-size:0.62rem; color:var(--muted); font-family:"IBM Plex Mono",monospace; }
+  .cal-week-chip .t{ display:block; font-size:0.62rem; color:var(--muted); font-family:var(--font-mono); }
   .cal-week-add{ border:1px dashed var(--line); background:transparent; color:var(--muted); border-radius:6px; padding:5px 6px; font-size:0.72rem; cursor:pointer; }
   .cal-week-add:hover{ color:var(--ink); border-color:color-mix(in srgb, var(--ink) 25%, var(--line)); }
+
+  .list-sort-row{ display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+  .list-sort-label{ font-size:0.72rem; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:var(--muted); }
+  .list-sort-toggle{ display:inline-flex; gap:2px; background:var(--paper-sunken); padding:3px; border-radius:var(--radius-m); }
+  .list-sort-btn{
+    border:none; background:transparent; padding:5px 11px; border-radius:calc(var(--radius-m) - 3px);
+    font-size:0.78rem; font-weight:500; color:var(--muted); cursor:pointer; font:inherit;
+  }
+  .list-sort-btn.active{ background:var(--paper-raised); color:var(--ink); box-shadow:var(--shadow); font-weight:600; }
+  .list-sort-btn:hover:not(.active){ color:var(--ink); }
+  .grip.inactive{ opacity:0.35; cursor:default; }
 
   .quickadd-popover{
     position:fixed; z-index:40; background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-m);
@@ -446,6 +473,13 @@
 
   <main>
     <div id="list-view">
+      <div class="list-sort-row" id="list-sort-row">
+        <span class="list-sort-label">Sort</span>
+        <div class="list-sort-toggle">
+          <button class="list-sort-btn active" id="sort-manual-btn" type="button">Manual</button>
+          <button class="list-sort-btn" id="sort-due-btn" type="button">Due date</button>
+        </div>
+      </div>
       <div id="headings-root"></div>
       <div id="empty-state-root"></div>
       <div class="add-heading-row">
@@ -512,6 +546,103 @@
     currentPaletteKey = key;
   }
   var currentPaletteKey = "ledger";
+
+  /* ---------------- font packages ---------------- */
+  var FONT_KEY = "daybook-font-v1";
+  var FONT_PACKAGES = {
+    ledger: {
+      name: "Ledger", sample: "Aa",
+      heading: '"Fraunces", Georgia, "Times New Roman", serif',
+      body: '"Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      mono: '"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
+      gfamilies: null // already loaded by the base <link> in <head>
+    },
+    classic: {
+      name: "Classic", sample: "Aa",
+      heading: '"Source Serif 4", Georgia, "Times New Roman", serif',
+      body: '"Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      mono: '"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
+      gfamilies: "family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Source+Sans+3:wght@400;500;600;700"
+    },
+    modern: {
+      name: "Modern", sample: "Aa",
+      heading: '"Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif',
+      body: '"Space Grotesk", -apple-system, BlinkMacSystemFont, sans-serif',
+      mono: '"Space Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
+      gfamilies: "family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700"
+    },
+    literary: {
+      name: "Literary", sample: "Aa",
+      heading: '"Lora", Georgia, "Times New Roman", serif',
+      body: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      mono: '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
+      gfamilies: "family=Lora:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500"
+    },
+    minimal: {
+      name: "Minimal", sample: "Aa",
+      heading: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      body: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      mono: '"Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
+      gfamilies: "family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500"
+    }
+  };
+  var loadedFontLinks = {}; // package key -> true, once its <link> has been injected
+  function loadFontKey(){
+    try{ var k = localStorage.getItem(FONT_KEY); return (k && FONT_PACKAGES[k]) ? k : "ledger"; } catch(e){ return "ledger"; }
+  }
+  function ensureFontLoaded(key){
+    var pkg = FONT_PACKAGES[key];
+    if(!pkg || !pkg.gfamilies || loadedFontLinks[key]) return;
+    var link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?" + pkg.gfamilies + "&display=swap";
+    document.head.appendChild(link);
+    loadedFontLinks[key] = true;
+  }
+  function applyFontPackage(key){
+    if(!FONT_PACKAGES[key]) key = "ledger";
+    ensureFontLoaded(key);
+    try{ localStorage.setItem(FONT_KEY, key); }catch(e){}
+    var pkg = FONT_PACKAGES[key];
+    var root = document.documentElement;
+    root.style.setProperty("--font-heading", pkg.heading);
+    root.style.setProperty("--font-body", pkg.body);
+    root.style.setProperty("--font-mono", pkg.mono);
+    currentFontKey = key;
+  }
+  var currentFontKey = "ledger";
+
+  /* ---------------- task sort (manual vs due date) ---------------- */
+  var TASK_SORT_KEY = "daybook-tasksort-v1";
+  var taskSortMode = "manual";
+  function loadTaskSortMode(){
+    try{ return localStorage.getItem(TASK_SORT_KEY) === "due" ? "due" : "manual"; }catch(e){ return "manual"; }
+  }
+  function setTaskSortMode(mode){
+    taskSortMode = (mode === "due") ? "due" : "manual";
+    try{ localStorage.setItem(TASK_SORT_KEY, taskSortMode); }catch(e){}
+    syncSortButtons();
+    render();
+  }
+  function syncSortButtons(){
+    var mb = document.getElementById("sort-manual-btn"), db = document.getElementById("sort-due-btn");
+    if(mb) mb.classList.toggle("active", taskSortMode === "manual");
+    if(db) db.classList.toggle("active", taskSortMode === "due");
+  }
+  // Undated tasks all get this same (very late) key, so a stable sort keeps them
+  // in their original relative order, trailing after every dated task.
+  function dueSortKey(t){
+    if(!t.due || !t.due.date) return "9999-12-31T99:99";
+    var time = (t.due.allDay || !t.due.time) ? "00:00" : t.due.time;
+    return t.due.date + "T" + time;
+  }
+  function sortedTaskList(tasks){
+    if(taskSortMode !== "due") return tasks;
+    return tasks.slice().sort(function(a, b){
+      var ka = dueSortKey(a), kb = dueSortKey(b);
+      return ka < kb ? -1 : (ka > kb ? 1 : 0);
+    });
+  }
 
   /* ---------------- appearance (light / dark / system) ---------------- */
   var APPEARANCE_KEY = "daybook-appearance-v1";
@@ -1653,7 +1784,17 @@
           '<span>' + escapeHtml(p.name) + '</span>' +
         '</button>';
       }).join("");
-    pop.innerHTML = appearanceRow + paletteRow;
+    Object.keys(FONT_PACKAGES).forEach(function(key){ ensureFontLoaded(key); }); // so every sample below previews in its real typeface
+    var fontRow =
+      '<div class="theme-section-label">Font</div>' +
+      '<div class="theme-font-list">' + Object.keys(FONT_PACKAGES).map(function(key){
+        var f = FONT_PACKAGES[key];
+        return '<button class="theme-font-option' + (key === currentFontKey ? " active" : "") + '" type="button" data-font-key="' + key + '">' +
+          '<span class="theme-font-sample" style="font-family:' + escapeHtml(f.heading) + '">' + escapeHtml(f.sample) + '</span>' +
+          '<span class="theme-font-label">' + escapeHtml(f.name) + '</span>' +
+        '</button>';
+      }).join("") + '</div>';
+    pop.innerHTML = appearanceRow + paletteRow + fontRow;
     document.body.appendChild(pop);
     var rect = anchorEl.getBoundingClientRect();
     pop.style.top = (rect.bottom + 6) + "px";
@@ -1673,11 +1814,19 @@
         pop.querySelectorAll(".theme-option").forEach(function(b){ b.classList.toggle("active", b === btn); });
       });
     });
+    pop.querySelectorAll(".theme-font-option").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        applyFontPackage(btn.getAttribute("data-font-key"));
+        pop.querySelectorAll(".theme-font-option").forEach(function(b){ b.classList.toggle("active", b === btn); });
+      });
+    });
   }
   document.getElementById("theme-btn").addEventListener("click", function(e){
     e.stopPropagation();
     openThemePopover(e.currentTarget);
   });
+  document.getElementById("sort-manual-btn").addEventListener("click", function(){ setTaskSortMode("manual"); });
+  document.getElementById("sort-due-btn").addEventListener("click", function(){ setTaskSortMode("due"); });
   function wireColorDot(dot, bar, heading){
     dot.addEventListener("click", function(e){
       e.stopPropagation();
@@ -2232,7 +2381,7 @@
 
     var directList = document.createElement("div");
     directList.className = "task-list";
-    heading.tasks.forEach(function(task){ directList.appendChild(renderTaskRow(heading, task)); });
+    sortedTaskList(heading.tasks).forEach(function(task){ directList.appendChild(renderTaskRow(heading, task)); });
     wireTaskListContainer(directList, heading);
     bodyContent.appendChild(directList);
 
@@ -2299,7 +2448,7 @@
 
     var list = document.createElement("div");
     list.className = "task-list";
-    sub.tasks.forEach(function(task){ list.appendChild(renderTaskRow(sub, task)); });
+    sortedTaskList(sub.tasks).forEach(function(task){ list.appendChild(renderTaskRow(sub, task)); });
     wireTaskListContainer(list, sub);
     subBodyInner.appendChild(list);
 
@@ -2344,8 +2493,15 @@
       '</div>' +
       '<div class="task-actions"><button class="icon-btn danger" title="Delete task" aria-label="Delete task"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>';
 
-    wireDragSource(row.querySelector(".grip"), "task", task.id, row);
-    wireTaskRowDropTarget(row, task);
+    if(taskSortMode === "due"){
+      var grip = row.querySelector(".grip");
+      grip.classList.add("inactive");
+      grip.removeAttribute("draggable");
+      grip.title = "Switch to Manual sort to drag and reorder";
+    } else {
+      wireDragSource(row.querySelector(".grip"), "task", task.id, row);
+      wireTaskRowDropTarget(row, task);
+    }
 
     row.querySelector(".check").addEventListener("change", function(e){
       task.done = e.target.checked;
@@ -2508,6 +2664,9 @@
   currentAppearance = loadAppearance();
   if(currentAppearance !== "system") document.documentElement.setAttribute("data-theme", currentAppearance);
   applyPalette(loadPaletteKey());
+  applyFontPackage(loadFontKey());
+  taskSortMode = loadTaskSortMode();
+  syncSortButtons();
   state = defaultState();
   config = loadConfig();
   render();
