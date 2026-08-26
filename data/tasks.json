@@ -9,7 +9,7 @@
       "tasks": [
         {
           "id": "4c35eaa1-7e51-4c2b-9d59-2c4bdb73f820",
-          "text": "New task",
+          "text": "High Priority",
           "done": false,
           "due": null,
           "completedAt": null,
@@ -20,12 +20,26 @@
           "archivedAt": null,
           "priority": "high",
           "tags": []
+        },
+        {
+          "id": "e7500df6-73f7-40a4-a1e0-571742123543",
+          "text": "New task",
+          "done": false,
+          "due": null,
+          "completedAt": null,
+          "calendarEventId": null,
+          "syncError": null,
+          "notes": "",
+          "checklist": [],
+          "archivedAt": null,
+          "priority": null,
+          "tags": []
         }
       ],
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T11:43:21.108Z",
+  "updatedAt": "2026-08-26T11:43:26.985Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
