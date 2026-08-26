@@ -198,11 +198,17 @@
               "subtasks": []
             }
           ]
+        },
+        {
+          "id": "f741364b-aab1-4ca0-b642-665e7957e96a",
+          "title": "New sub-heading",
+          "collapsed": false,
+          "tasks": []
         }
       ]
     }
   ],
-  "updatedAt": "2026-08-26T13:40:11.926Z",
+  "updatedAt": "2026-08-26T13:40:13.298Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
