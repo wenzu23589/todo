@@ -62,13 +62,53 @@ The token is stored only in that browser's local storage — it's never sent any
 
 ## How it works
 
-- Add headings (e.g. "Work", "This week"), sub-headings inside them, and tasks inside those.
+- Add headings (e.g. "Work", "This week"), sub-headings inside them, and tasks either directly under a heading or inside a sub-heading.
+- Drag the grip handle (⋮⋮) on any task, sub-heading, or heading to reorder it or move it into a different heading/sub-heading.
+- Click the coloured dot on a heading to give it its own colour — it shows up on the heading's left edge and in the Stats view.
+- Click the ▾ arrow on a heading or sub-heading to collapse it.
 - Click a task's due-date pill to give it a date (and optional time). Overdue tasks are flagged in red.
+- The **Stats** tab (top of the page) shows completion percentage, overdue/upcoming counts, a per-heading progress breakdown, and a list of what's coming up.
 - Every change auto-saves to the GitHub file a second or so after you stop typing. The pill in the header shows the connected repo; the little indicator in the bottom-right shows save status.
 - Open the same URL on another device, connect it to the same repo/token, and you'll see the same list. The **Sync now** button force-refreshes from GitHub (handy right after making a change elsewhere).
 - If two devices save at almost the same moment, the second save detects the conflict, reloads the latest version from GitHub, and shows a banner — just redo the change that got dropped.
 
+## 6. Connect Google Calendar (optional, two-way sync)
+
+Give any task a due date and Daybook can create a real event for it on your Google Calendar. Events you add, move, rename, or complete (✓ prefix) on that calendar flow back into Daybook too. This runs entirely in your browser — there's no server involved — but Google requires every app to have its own (free) OAuth "Client ID", so you create a small Cloud project once, just for yourself.
+
+**A. Create the Google Cloud project and enable the Calendar API**
+
+1. Go to [console.cloud.google.com](https://console.cloud.google.com) and sign in with the Google account whose calendar you want to sync.
+2. Click the project dropdown at the top → **New Project**. Give it any name (e.g. "Daybook") → **Create**.
+3. With that project selected, go to **APIs & Services → Library**, search for **Google Calendar API**, open it, and click **Enable**.
+
+**B. Configure the consent screen**
+
+1. Go to **APIs & Services → Google Auth platform**. If prompted to get started, choose **External** user type (this just means "not restricted to a Google Workspace org") and fill in an app name and your email.
+2. Under **Audience**, make sure the app's publishing status is **Testing** — you do not need to publish or verify it.
+3. Still under Audience, scroll to **Test users** → **Add users** → add your own Google account email. Only test users can sign in while the app is in Testing status, which is exactly what you want here.
+
+**C. Create the OAuth Client ID**
+
+1. Go to **Clients** (in the same Google Auth platform section) → **Create Client**.
+2. **Application type:** Web application. Name it anything (e.g. "Daybook web").
+3. Under **Authorized JavaScript origins**, click **Add URI** and enter exactly: `https://todo.lawrencefarrugiacaruana.com` (no trailing slash, no path). Leave "Authorized redirect URIs" empty — it isn't needed.
+4. Click **Create**. Copy the **Client ID** shown (it ends in `.apps.googleusercontent.com`) — you don't need the client secret.
+
+**D. Connect it in the app**
+
+1. Open `https://todo.lawrencefarrugiacaruana.com` and click **Set up Calendar** in the header.
+2. Paste the Client ID into the field and click **Connect Google Calendar**.
+3. Google will show its normal sign-in / consent screen (since the app is in Testing, it'll show an "unverified app" notice — click **Continue**, this is expected for a personal project). Approve calendar access.
+4. Daybook loads your calendar list and automatically picks the one that looks like "To Do" if you have one (it matched yours from your screenshot). To point it at a different calendar, reopen **Set up Calendar** and use the dropdown that appears once connected.
+
+From then on: any task you give a due date to gets created as an event on that calendar; editing the due date, title, or ticking a task off updates the event; and Daybook periodically re-reads events from that calendar so changes made directly in Google Calendar (new time, renamed, marked done by adding a ✓, or deleted) flow back into your task list.
+
+Notes on this integration:
+- The sign-in only lasts about an hour at a time in the browser; the app quietly re-authenticates in the background as long as you keep visiting from the same browser (you may occasionally see a brief consent popup).
+- This only works over `https://` — it won't work opening `index.html` straight from a file, only from the live GitHub Pages site.
+- The Client ID is not secret (it's fine that it lives in this static page / your browser's local storage) — it only identifies which app is asking, Google's sign-in step is what actually protects your calendar.
+
 ## Notes
 
-- There's no calendar integration in this version — it's a plain to-do list, synced only through your GitHub repo.
 - Nothing here handles multiple *people* sharing one list concurrently — it's built for one person across their own devices.
