@@ -201,20 +201,7 @@
               "tags": [],
               "subtasks": [],
               "notesRich": true,
-              "attachments": [
-                {
-                  "id": "a832a7a2-ad9c-4f89-a2dd-4526d369fe25",
-                  "name": "chrome_0LhKycBPC2.png",
-                  "path": "attachments/a832a7a2-ad9c-4f89-a2dd-4526d369fe25-chrome_0LhKycBPC2.png",
-                  "mime": "image/png",
-                  "type": "image",
-                  "size": 86301,
-                  "sha": "266114d8fcb769ae98aaf765cf7dfc53d80daccd",
-                  "uploading": false,
-                  "extractedText": "Teepe ype plo\n=\n—\n— CE\n——— CE\n==)\nRa = [acl\npm—— ee [E==e\nsmm—— ee EE)\nBr — ==\nI ——\n",
-                  "textStatus": "done"
-                }
-              ],
+              "attachments": [],
               "deletedAt": null
             }
           ]
@@ -445,7 +432,7 @@
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T19:50:01.631Z",
+  "updatedAt": "2026-08-26T19:50:04.199Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
