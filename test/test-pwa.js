@@ -96,6 +96,36 @@ async function main() {
       console.log("Service worker registers:", "FAIL (registrations=" + regs + ")");
     });
 
+  // ---- Install button: simulate the real beforeinstallprompt/prompt() flow ----
+  // Chromium under Playwright never fires a genuine beforeinstallprompt, so we dispatch a
+  // fake one with a mock prompt()/userChoice, matching the shape the browser provides.
+  await page.evaluate(() => {
+    const ev = new Event("beforeinstallprompt", { cancelable: true });
+    ev.prompt = () => Promise.resolve();
+    ev.userChoice = Promise.resolve({ outcome: "accepted" });
+    window.dispatchEvent(ev);
+  });
+  await page.waitForSelector("#install-app-btn:not([hidden])", { timeout: 3000 });
+  console.log("Install button appears after beforeinstallprompt fires:", "PASS");
+  await page.click("#install-app-btn");
+  await page.waitForSelector("#install-app-btn[hidden]", { timeout: 3000 });
+  console.log("Clicking install, accepting, hides the button afterward:", "PASS");
+
+  // Now the failure path this fix targets: .prompt() throwing should leave the button
+  // enabled and visible for a retry, not permanently stuck disabled with no feedback.
+  await page.evaluate(() => {
+    const ev = new Event("beforeinstallprompt", { cancelable: true });
+    ev.prompt = () => { throw new Error("simulated Android Chrome prompt() failure"); };
+    ev.userChoice = Promise.reject(new Error("never reached"));
+    window.dispatchEvent(ev);
+  });
+  await page.waitForSelector("#install-app-btn:not([hidden])", { timeout: 3000 });
+  await page.click("#install-app-btn");
+  await page.waitForTimeout(300);
+  const stuck = await page.locator("#install-app-btn").evaluate(el => ({ hidden: el.hidden, disabled: el.disabled }));
+  console.log("A failed prompt() leaves the button visible (not hidden) for retry:", stuck.hidden === false ? "PASS" : "FAIL");
+  console.log("A failed prompt() re-enables the button instead of leaving it stuck disabled:", stuck.disabled === false ? "PASS" : "FAIL (" + JSON.stringify(stuck) + ")");
+
   await browser.close();
   server.close();
 }

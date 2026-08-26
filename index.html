@@ -5121,6 +5121,7 @@
     });
   }
   var deferredInstallPrompt = null;
+  var installPromptBusy = false;
   var installBtn = document.getElementById("install-app-btn");
   function isStandalone(){
     return (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true;
@@ -5131,16 +5132,35 @@
     if(!isStandalone()) installBtn.hidden = false;
   });
   installBtn.addEventListener("click", function(){
-    if(!deferredInstallPrompt) return;
+    if(!deferredInstallPrompt || installPromptBusy) return;
+    installPromptBusy = true;
     installBtn.disabled = true;
-    deferredInstallPrompt.prompt();
-    deferredInstallPrompt.userChoice.finally(function(){
+    var capturedPrompt = deferredInstallPrompt;
+    // Previously this called deferredInstallPrompt.prompt() directly with no error handling.
+    // On some Android Chrome builds .prompt() can throw (or its promise can reject) instead
+    // of showing the dialog — with no try/catch, that left the button permanently disabled
+    // with zero feedback, which is exactly what "I click it and nothing happens" looks like.
+    // Wrapping the call in Promise.resolve().then(...) turns a synchronous throw into a
+    // rejection so the .catch() below always runs.
+    Promise.resolve().then(function(){
+      return capturedPrompt.prompt();
+    }).then(function(){
+      return capturedPrompt.userChoice;
+    }).then(function(){
+      // Accepted or dismissed — either way this event is spent per spec, so wait for a
+      // fresh beforeinstallprompt before offering install again.
       deferredInstallPrompt = null;
       installBtn.hidden = true;
+    }).catch(function(err){
+      // .prompt() itself failed — leave deferredInstallPrompt in place and the button
+      // visible/enabled so the user can try again, instead of a silently-stuck button.
+      console.warn("Daybook: install prompt failed —", err);
+    }).finally(function(){
+      installPromptBusy = false;
       installBtn.disabled = false;
     });
   });
-  window.addEventListener("appinstalled", function(){ installBtn.hidden = true; });
+  window.addEventListener("appinstalled", function(){ installBtn.hidden = true; deferredInstallPrompt = null; });
 })();
 </script>
 </body>
