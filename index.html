@@ -230,11 +230,16 @@
   .task-row.done .task-text{ color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line); transition: color .2s ease; }
   .task-meta{ display:flex; align-items:center; gap:8px; margin-top:2px; padding-left:4px; flex-wrap:wrap; }
   .priority-flag{
-    display:inline-flex; align-items:center; font-size:0.74rem; color:var(--muted); flex-shrink:0;
-    border:1px solid var(--line); border-radius:999px; padding:2px 9px; cursor:pointer; background:var(--paper-raised);
+    display:inline-flex; align-items:center; gap:6px; font-size:0.74rem; color:var(--muted); flex-shrink:0;
+    border:1px solid var(--line); border-radius:999px; padding:2px 9px 2px 8px; cursor:pointer; background:var(--paper-raised);
   }
   .priority-flag:hover{ border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
   .priority-flag.set{ color:var(--ink-soft); border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
+  .priority-dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; border:1px solid var(--line); }
+  .priority-dot.dot-high{ background:#d6483c; border-color:#b83a30; }
+  .priority-dot.dot-medium{ background:#e08a34; border-color:#c07326; }
+  .priority-dot.dot-low{ background:#3f9142; border-color:#337536; }
+  .priority-dot.dot-none{ background:#ffffff; border-color:var(--line); }
   .due-badge{
     display:inline-flex; align-items:center; gap:5px; font-size:0.74rem; color:var(--muted);
     border:1px solid var(--line); border-radius:999px; padding:2px 9px 2px 8px; cursor:pointer; background:var(--paper-raised);
@@ -2886,7 +2891,7 @@
     addTaskBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> Add task';
     addTaskBtn.addEventListener("click", function(){
       var t = addTask(heading, "");
-      requestAnimationFrame(function(){ var el = document.querySelector('[data-task-id="' + t.id + '"] .task-text'); if(el) el.focus(); });
+      requestAnimationFrame(function(){ var el = document.querySelector('[data-task-id="' + t.id + '"] .task-text'); if(el){ el.focus(); el.select(); } });
     });
     bodyContent.appendChild(addTaskBtn);
 
@@ -2957,7 +2962,7 @@
     addTaskBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> Add task';
     addTaskBtn.addEventListener("click", function(){
       var t = addTask(sub, "");
-      requestAnimationFrame(function(){ var el = document.querySelector('[data-task-id="' + t.id + '"] .task-text'); if(el) el.focus(); });
+      requestAnimationFrame(function(){ var el = document.querySelector('[data-task-id="' + t.id + '"] .task-text'); if(el){ el.focus(); el.select(); } });
     });
     subBodyInner.appendChild(addTaskBtn);
 
@@ -3033,7 +3038,7 @@
       '<div class="task-main">' +
         '<input class="task-text" value="' + escapeHtml(task.text) + '" aria-label="Task" />' +
         '<div class="task-meta">' +
-          '<button class="priority-flag' + (task.priority ? ' set' : '') + '" type="button" title="' + (task.priority ? "Priority: " + priorityLabel(task) + " (click to change)" : "Set priority") + '" aria-label="Priority">' + escapeHtml(priorityLabel(task)) + '</button>' +
+          '<button class="priority-flag' + (task.priority ? ' set' : '') + '" type="button" title="' + (task.priority ? "Priority: " + priorityLabel(task) + " (click to change)" : "Set priority") + '" aria-label="Priority"><span class="priority-dot dot-' + (task.priority || "none") + '"></span>' + escapeHtml(priorityLabel(task)) + '</button>' +
           '<button class="due-badge' + (due ? (overdue ? ' overdue' : ' set') : '') + '" type="button">' + syncBadge + '<span>' + escapeHtml(dueLabel) + '</span></button>' +
           '<button class="notes-badge' + (notesBadgeSet(task) ? ' set' : '') + '" type="button" title="Notes & checklist">' + notesBadgeHtml(task) + '</button>' +
           '<button class="tags-badge' + (tagsBadgeSet(task) ? ' set' : '') + '" type="button" title="Tags">' + tagsBadgeHtml(task) + '</button>' +
