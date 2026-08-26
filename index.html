@@ -48,6 +48,7 @@
   *{ box-sizing: border-box; }
   html,body{ margin:0; padding:0; }
   body{
+    overflow-x: hidden;
     background: var(--paper); color: var(--ink);
     font-family: "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased;
@@ -295,6 +296,87 @@
   .field-row .field{ flex:1; }
   .modal-error{ font-size:0.8rem; color:var(--danger); margin:-6px 0 12px; }
   .modal-note{ font-size:0.8rem; color:var(--muted); background:var(--paper-sunken); border-radius:var(--radius-s); padding:8px 10px; margin:-4px 0 14px; }
+
+  /* ---------- theme popover ---------- */
+  .theme-popover{
+    position:fixed; z-index:40; background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-m);
+    box-shadow:var(--shadow); padding:8px; display:flex; flex-direction:column; gap:2px; min-width:170px;
+  }
+  .theme-option{
+    display:flex; align-items:center; gap:9px; border:none; background:transparent; padding:8px 9px; border-radius:var(--radius-s);
+    cursor:pointer; font:inherit; font-size:0.85rem; color:var(--ink); text-align:left;
+  }
+  .theme-option:hover{ background:var(--paper-sunken); }
+  .theme-option.active{ background:color-mix(in srgb, var(--accent) 12%, var(--paper-sunken)); font-weight:600; }
+  .theme-swatch{ display:flex; flex-shrink:0; }
+  .theme-swatch span{ width:13px; height:13px; border-radius:50%; box-shadow:0 0 0 1px var(--line); }
+  .theme-swatch span + span{ margin-left:-4px; }
+
+  /* ---------- calendar view ---------- */
+  .cal-head{ display:flex; align-items:center; gap:10px; margin:22px 0 16px; flex-wrap:wrap; }
+  .cal-head h2{ font-size:1.25rem; flex:1; min-width:140px; }
+  .cal-nav{ display:flex; align-items:center; gap:2px; }
+  .cal-nav-btn{ border:1px solid var(--line); background:var(--paper-raised); color:var(--ink); width:30px; height:30px; border-radius:var(--radius-s); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .cal-nav-btn:hover{ background:var(--paper-sunken); }
+  .cal-mode-toggle{ display:flex; gap:2px; background:var(--paper-sunken); padding:3px; border-radius:var(--radius-m); }
+  .cal-loading{ font-size:0.78rem; color:var(--muted); }
+  .cal-error{ font-size:0.82rem; color:var(--danger); margin-bottom:12px; }
+
+  .cal-month-grid{ border:1px solid var(--line); border-radius:var(--radius-l); overflow:hidden; background:var(--paper-raised); box-shadow:var(--shadow); }
+  .cal-weekday-row{ display:grid; grid-template-columns:repeat(7,1fr); border-bottom:1px solid var(--line); }
+  .cal-weekday-row span{ padding:8px 6px; font-size:0.72rem; font-weight:600; color:var(--muted); text-align:center; letter-spacing:0.03em; text-transform:uppercase; }
+  .cal-month-body{ display:grid; grid-template-columns:repeat(7,1fr); }
+  .cal-day-cell{
+    min-height:92px; border-right:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft);
+    padding:5px; display:flex; flex-direction:column; gap:3px; cursor:pointer; position:relative;
+  }
+  .cal-day-cell:hover{ background:color-mix(in srgb, var(--accent) 6%, transparent); }
+  .cal-month-body .cal-day-cell:nth-child(7n){ border-right:none; }
+  .cal-day-cell.outside{ background:var(--paper-sunken); }
+  .cal-day-cell.outside .cal-day-num{ color:var(--muted); opacity:0.6; }
+  .cal-day-num{ font-family:"IBM Plex Mono",monospace; font-size:0.78rem; color:var(--ink-soft); }
+  .cal-day-cell.today .cal-day-num{
+    display:inline-flex; align-items:center; justify-content:center; width:19px; height:19px;
+    background:var(--accent); color:var(--accent-ink); border-radius:50%; font-weight:600;
+  }
+  .cal-chip{
+    font-size:0.68rem; padding:2px 5px; border-radius:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    background:color-mix(in srgb, var(--accent) 16%, var(--paper-raised)); color:var(--ink); border-left:3px solid var(--accent);
+  }
+  .cal-chip.done{ text-decoration:line-through; opacity:0.6; }
+  .cal-chip.ext-event{ background:var(--paper-sunken); border-left:3px solid var(--muted); color:var(--muted); font-style:italic; }
+  .cal-more{ font-size:0.66rem; color:var(--muted); padding:1px 5px; }
+
+  .cal-week-grid{ display:grid; grid-template-columns:repeat(7,minmax(112px,1fr)); gap:10px; align-items:start; overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:6px; }
+  .cal-week-col{ border:1px solid var(--line); border-radius:var(--radius-m); background:var(--paper-raised); box-shadow:var(--shadow); min-height:220px; display:flex; flex-direction:column; }
+  .cal-week-col-head{ padding:8px 10px; border-bottom:1px solid var(--line-soft); text-align:center; cursor:pointer; }
+  .cal-week-col-head:hover{ background:color-mix(in srgb, var(--accent) 6%, transparent); }
+  .cal-week-col-head .wd{ font-size:0.68rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.03em; }
+  .cal-week-col-head .dn{ font-family:"IBM Plex Mono",monospace; font-size:0.95rem; }
+  .cal-week-col.today .cal-week-col-head .dn{
+    display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px;
+    background:var(--accent); color:var(--accent-ink); border-radius:50%; font-weight:600;
+  }
+  .cal-week-body{ padding:6px; display:flex; flex-direction:column; gap:4px; flex:1; }
+  .cal-week-chip{
+    font-size:0.72rem; padding:4px 6px; border-radius:6px; background:color-mix(in srgb, var(--accent) 14%, var(--paper-raised));
+    border-left:3px solid var(--accent); color:var(--ink); line-height:1.3;
+  }
+  .cal-week-chip.done{ text-decoration:line-through; opacity:0.6; }
+  .cal-week-chip.ext-event{ background:var(--paper-sunken); border-left:3px solid var(--muted); color:var(--muted); font-style:italic; }
+  .cal-week-chip .t{ display:block; font-size:0.62rem; color:var(--muted); font-family:"IBM Plex Mono",monospace; }
+  .cal-week-add{ border:1px dashed var(--line); background:transparent; color:var(--muted); border-radius:6px; padding:5px 6px; font-size:0.72rem; cursor:pointer; }
+  .cal-week-add:hover{ color:var(--ink); border-color:color-mix(in srgb, var(--ink) 25%, var(--line)); }
+
+  .quickadd-popover{
+    position:fixed; z-index:40; background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-m);
+    box-shadow:var(--shadow); padding:12px; width:230px; display:flex; flex-direction:column; gap:8px;
+  }
+  .quickadd-popover .qa-title{ font-size:0.78rem; font-weight:600; color:var(--muted); }
+  .quickadd-popover input, .quickadd-popover select{
+    width:100%; font:inherit; font-size:0.85rem; padding:7px 9px; border-radius:var(--radius-s); border:1px solid var(--line); background:var(--paper-sunken); color:var(--ink);
+  }
+  .quickadd-popover .qa-actions{ display:flex; gap:6px; justify-content:flex-end; }
 </style>
 </head>
 <body>
@@ -307,9 +389,14 @@
       </div>
       <div class="view-tabs" role="tablist">
         <button class="tab-btn active" id="tab-list" data-view="list">List</button>
+        <button class="tab-btn" id="tab-cal" data-view="cal">Calendar</button>
         <button class="tab-btn" id="tab-stats" data-view="stats">Stats</button>
       </div>
       <div class="header-controls">
+        <button class="btn btn-sm" id="theme-btn" aria-label="Choose theme">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="6" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="10.5" cy="19" r="1.5" fill="currentColor" stroke="none"/><path d="M12 3a9 9 0 000 18c1.1 0 1.5-.7 1.5-1.5 0-.4-.15-.75-.4-1.02-.25-.28-.4-.63-.4-1.02 0-.83.67-1.46 1.5-1.46H16a5 5 0 005-5c0-4.42-4.03-8-9-8z"/></svg>
+          Theme
+        </button>
         <button class="btn btn-sm" id="sync-now-btn">Sync now</button>
         <div class="status-pill" id="status-pill" data-state="off">
           <span class="status-dot"></span><span id="status-text">Not connected</span>
@@ -343,6 +430,7 @@
         </button>
       </div>
     </div>
+    <div id="cal-view" hidden></div>
     <div id="stats-view" hidden></div>
   </main>
 </div>
@@ -364,6 +452,39 @@
   var lastFetchAt = 0;
   var viewMode = "list";
   var lastAddedId = null;
+
+  /* ---------------- theme palettes ---------------- */
+  var PALETTE_KEY = "daybook-palette-v1";
+  var PALETTES = {
+    ledger: { name: "Ledger", light: { accent: "#a8672a", accent2: "#3f7d6e" }, dark: { accent: "#d99a4e", accent2: "#67ab9a" } },
+    ocean:  { name: "Ocean",  light: { accent: "#2f6690", accent2: "#1f8a70" }, dark: { accent: "#6fb3e0", accent2: "#4fc7a4" } },
+    plum:   { name: "Plum",   light: { accent: "#7a4fa0", accent2: "#b3486b" }, dark: { accent: "#b48ee0", accent2: "#e07aa0" } },
+    forest: { name: "Forest", light: { accent: "#4a6741", accent2: "#2f7d8c" }, dark: { accent: "#8fbf7c", accent2: "#5fb6c9" } },
+    slate:  { name: "Slate",  light: { accent: "#4a5568", accent2: "#6b7a3f" }, dark: { accent: "#a3adc2", accent2: "#b7c980" } }
+  };
+  function loadPaletteKey(){
+    try{ var k = localStorage.getItem(PALETTE_KEY); return (k && PALETTES[k]) ? k : "ledger"; } catch(e){ return "ledger"; }
+  }
+  function applyPalette(key){
+    if(!PALETTES[key]) key = "ledger";
+    try{ localStorage.setItem(PALETTE_KEY, key); }catch(e){}
+    var root = document.documentElement;
+    if(key === "ledger"){
+      root.style.removeProperty("--accent");
+      root.style.removeProperty("--accent-2");
+    } else {
+      var pal = PALETTES[key];
+      var isDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var vals = isDark ? pal.dark : pal.light;
+      root.style.setProperty("--accent", vals.accent);
+      root.style.setProperty("--accent-2", vals.accent2);
+    }
+    currentPaletteKey = key;
+  }
+  var currentPaletteKey = "ledger";
+  if(window.matchMedia){
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function(){ applyPalette(currentPaletteKey); });
+  }
 
   function uid(){
     if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
@@ -1040,12 +1161,16 @@
   function setView(mode){
     viewMode = mode;
     document.getElementById("list-view").hidden = mode !== "list";
+    document.getElementById("cal-view").hidden = mode !== "cal";
     document.getElementById("stats-view").hidden = mode !== "stats";
     document.getElementById("tab-list").classList.toggle("active", mode === "list");
+    document.getElementById("tab-cal").classList.toggle("active", mode === "cal");
     document.getElementById("tab-stats").classList.toggle("active", mode === "stats");
     if(mode === "stats") renderStats();
+    if(mode === "cal") renderCalendar();
   }
   document.getElementById("tab-list").addEventListener("click", function(){ setView("list"); });
+  document.getElementById("tab-cal").addEventListener("click", function(){ setView("cal"); });
   document.getElementById("tab-stats").addEventListener("click", function(){ setView("stats"); });
 
   /* ---------------- data helpers ---------------- */
@@ -1294,9 +1419,41 @@
   /* ---------------- color popover ---------------- */
   var HEADING_COLORS = ["#a8672a","#3f7d6e","#4a5fc1","#b3486b","#6f7d3a","#7a4fa0","#55606e","#b8452f"];
   function closeAllPopovers(){
-    document.querySelectorAll(".color-popover").forEach(function(p){ p.remove(); });
+    document.querySelectorAll(".color-popover, .theme-popover, .quickadd-popover").forEach(function(p){ p.remove(); });
   }
   document.addEventListener("click", function(){ closeAllPopovers(); });
+
+  /* ---------------- theme popover ---------------- */
+  function openThemePopover(anchorEl){
+    var existing = document.querySelector(".theme-popover");
+    if(existing){ existing.remove(); return; }
+    closeAllPopovers();
+    var pop = document.createElement("div");
+    pop.className = "theme-popover";
+    pop.innerHTML = Object.keys(PALETTES).map(function(key){
+      var p = PALETTES[key];
+      return '<button class="theme-option' + (key === currentPaletteKey ? " active" : "") + '" type="button" data-key="' + key + '">' +
+        '<span class="theme-swatch"><span style="background:' + p.light.accent + '"></span><span style="background:' + p.light.accent2 + '"></span></span>' +
+        '<span>' + escapeHtml(p.name) + '</span>' +
+      '</button>';
+    }).join("");
+    document.body.appendChild(pop);
+    var rect = anchorEl.getBoundingClientRect();
+    pop.style.top = (rect.bottom + 6) + "px";
+    var left = rect.right - pop.offsetWidth;
+    pop.style.left = Math.max(8, left) + "px";
+    pop.addEventListener("click", function(e){ e.stopPropagation(); });
+    pop.querySelectorAll(".theme-option").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        applyPalette(btn.getAttribute("data-key"));
+        pop.querySelectorAll(".theme-option").forEach(function(b){ b.classList.toggle("active", b === btn); });
+      });
+    });
+  }
+  document.getElementById("theme-btn").addEventListener("click", function(e){
+    e.stopPropagation();
+    openThemePopover(e.currentTarget);
+  });
   function wireColorDot(dot, bar, heading){
     dot.addEventListener("click", function(e){
       e.stopPropagation();
@@ -1379,11 +1536,275 @@
   spinStyle.textContent = "@keyframes spin{to{transform:rotate(360deg)}}";
   document.head.appendChild(spinStyle);
 
+  /* ---------------- calendar view ---------------- */
+  var calMode = "month";
+  var calAnchor = new Date(); calAnchor.setHours(0,0,0,0);
+  var calEvents = [];
+  var calEventsKey = null;
+  var calEventsLoading = false;
+  var calEventsError = null;
+
+  function dateKey(d){ return d.getFullYear() + "-" + pad2(d.getMonth()+1) + "-" + pad2(d.getDate()); }
+  function startOfMonth(d){ return new Date(d.getFullYear(), d.getMonth(), 1); }
+  function addMonthsCal(d, n){ return new Date(d.getFullYear(), d.getMonth()+n, 1); }
+  function addDaysCal(d, n){ var r = new Date(d); r.setDate(r.getDate()+n); return r; }
+  function mondayOfWeek(d){ var r = new Date(d); var day = (r.getDay()+6)%7; r.setDate(r.getDate()-day); return r; }
+  function sameDateCal(a, b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+  function formatTimeShort(timeStr){
+    if(!timeStr) return "";
+    var parts = timeStr.split(":");
+    var t = new Date(2000,0,1, parseInt(parts[0],10), parseInt(parts[1],10));
+    return t.toLocaleTimeString(undefined, {hour:"numeric", minute:"2-digit"});
+  }
+
+  function fetchCalRangeEvents(startDate, endDateExclusive){
+    var key = gcalStatus + "|" + (state.googleCalendarId || "") + "|" + dateKey(startDate) + "_" + dateKey(endDateExclusive);
+    if(gcalStatus !== "connected" || !state.googleCalendarId){
+      calEvents = []; calEventsKey = key; calEventsError = null;
+      return;
+    }
+    if(calEventsKey === key || calEventsLoading) return;
+    calEventsLoading = true; calEventsError = null;
+    var url = "calendars/" + encodeURIComponent(state.googleCalendarId) + "/events?singleEvents=true&orderBy=startTime&maxResults=250" +
+      "&timeMin=" + encodeURIComponent(startDate.toISOString()) + "&timeMax=" + encodeURIComponent(endDateExclusive.toISOString());
+    gcalFetch(url).then(function(res){
+      if(!res.ok) return res.json().then(function(j){ throw new Error((j && j.error && j.error.message) || "Couldn't load calendar events."); });
+      return res.json();
+    }).then(function(json){
+      calEvents = (json.items || []).filter(function(e){ return e.status !== "cancelled"; });
+      calEventsKey = key;
+    }).catch(function(err){
+      calEventsError = err.message || "Couldn't load calendar events.";
+    }).then(function(){
+      calEventsLoading = false;
+      if(viewMode === "cal") renderCalendar();
+    });
+  }
+
+  function buildDayIndex(startDate, numDays){
+    var idx = {};
+    for(var i=0;i<numDays;i++){ idx[dateKey(addDaysCal(startDate,i))] = { tasks: [], events: [] }; }
+    var linkedIds = {};
+    forEachTask(function(t){ if(t.calendarEventId) linkedIds[t.calendarEventId] = true; });
+    forEachTask(function(t, h){
+      if(!t.due) return;
+      var k = t.due.date;
+      if(idx[k]) idx[k].tasks.push({ task: t, heading: h });
+    });
+    calEvents.forEach(function(ev){
+      if(linkedIds[ev.id]) return;
+      var due = eventToDue(ev);
+      if(!due) return;
+      var k = due.date;
+      if(idx[k]) idx[k].events.push({ event: ev, due: due });
+    });
+    return idx;
+  }
+
+  function itemSortKey(it){
+    var due = it.type === "task" ? it.data.task.due : it.data.due;
+    return (due && !due.allDay && due.time) ? due.time : "";
+  }
+  function dayItems(idx, k){
+    var d = idx[k] || { tasks: [], events: [] };
+    var items = d.tasks.map(function(x){ return { type:"task", data:x }; })
+      .concat(d.events.map(function(x){ return { type:"event", data:x }; }));
+    items.sort(function(a,b){ var ka=itemSortKey(a), kb=itemSortKey(b); return ka<kb?-1:(ka>kb?1:0); });
+    return items;
+  }
+
+  function renderCalChip(it){
+    var chip = document.createElement("div");
+    if(it.type === "task"){
+      var t = it.data.task, h = it.data.heading;
+      chip.className = "cal-chip" + (t.done ? " done" : "");
+      chip.style.borderLeftColor = h.color || "var(--accent)";
+      chip.textContent = t.text;
+      chip.title = t.text + (t.due && !t.due.allDay && t.due.time ? " · " + formatTimeShort(t.due.time) : "");
+    } else {
+      var ev = it.data.event;
+      chip.className = "cal-chip ext-event";
+      chip.textContent = ev.summary || "(untitled)";
+      chip.title = chip.textContent;
+    }
+    chip.addEventListener("click", function(e){ e.stopPropagation(); });
+    return chip;
+  }
+  function renderCalWeekChip(it){
+    var chip = document.createElement("div");
+    if(it.type === "task"){
+      var t = it.data.task, h = it.data.heading;
+      chip.className = "cal-week-chip" + (t.done ? " done" : "");
+      chip.style.borderLeftColor = h.color || "var(--accent)";
+      chip.innerHTML = escapeHtml(t.text) + '<span class="t">' + (t.due && !t.due.allDay && t.due.time ? escapeHtml(formatTimeShort(t.due.time)) : "All day") + '</span>';
+    } else {
+      var ev = it.data.event, due = it.data.due;
+      chip.className = "cal-week-chip ext-event";
+      chip.innerHTML = escapeHtml(ev.summary || "(untitled)") + '<span class="t">' + (due && !due.allDay && due.time ? escapeHtml(formatTimeShort(due.time)) : "All day") + '</span>';
+    }
+    chip.addEventListener("click", function(e){ e.stopPropagation(); });
+    return chip;
+  }
+
+  function renderCalendarHead(root, title){
+    var head = document.createElement("div");
+    head.className = "cal-head";
+    head.innerHTML =
+      '<div class="cal-nav">' +
+        '<button class="cal-nav-btn" id="cal-prev" aria-label="Previous"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg></button>' +
+        '<button class="btn btn-sm btn-ghost" id="cal-today">Today</button>' +
+        '<button class="cal-nav-btn" id="cal-next" aria-label="Next"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 18l6-6-6-6"/></svg></button>' +
+      '</div>' +
+      '<h2>' + escapeHtml(title) + '</h2>' +
+      '<div class="cal-mode-toggle">' +
+        '<button class="tab-btn' + (calMode==="month"?" active":"") + '" id="cal-mode-month" type="button">Month</button>' +
+        '<button class="tab-btn' + (calMode==="week"?" active":"") + '" id="cal-mode-week" type="button">Week</button>' +
+      '</div>' +
+      (calEventsLoading ? '<span class="cal-loading">Loading calendar…</span>' : '');
+    root.appendChild(head);
+    head.querySelector("#cal-prev").addEventListener("click", function(){ calAnchor = calMode==="month" ? addMonthsCal(calAnchor,-1) : addDaysCal(calAnchor,-7); renderCalendar(); });
+    head.querySelector("#cal-next").addEventListener("click", function(){ calAnchor = calMode==="month" ? addMonthsCal(calAnchor,1) : addDaysCal(calAnchor,7); renderCalendar(); });
+    head.querySelector("#cal-today").addEventListener("click", function(){ calAnchor = new Date(); calAnchor.setHours(0,0,0,0); renderCalendar(); });
+    head.querySelector("#cal-mode-month").addEventListener("click", function(){ calMode = "month"; renderCalendar(); });
+    head.querySelector("#cal-mode-week").addEventListener("click", function(){ calMode = "week"; renderCalendar(); });
+    if(calEventsError){
+      var err = document.createElement("div"); err.className = "cal-error"; err.textContent = calEventsError; root.appendChild(err);
+    }
+  }
+
+  function renderCalendarMonth(root){
+    var monthStart = startOfMonth(calAnchor);
+    var gridStart = mondayOfWeek(monthStart);
+    var totalDays = 42;
+    var gridEnd = addDaysCal(gridStart, totalDays);
+    fetchCalRangeEvents(gridStart, gridEnd);
+    var title = monthStart.toLocaleDateString(undefined, {month:"long", year:"numeric"});
+    renderCalendarHead(root, title);
+
+    var idx = buildDayIndex(gridStart, totalDays);
+    var today = new Date(); today.setHours(0,0,0,0);
+    var grid = document.createElement("div"); grid.className = "cal-month-grid";
+    var weekdayRow = document.createElement("div"); weekdayRow.className = "cal-weekday-row";
+    ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].forEach(function(d){ var s = document.createElement("span"); s.textContent = d; weekdayRow.appendChild(s); });
+    grid.appendChild(weekdayRow);
+    var body = document.createElement("div"); body.className = "cal-month-body";
+    var dayDates = []; for(var i=0;i<totalDays;i++) dayDates.push(addDaysCal(gridStart, i));
+    dayDates.forEach(function(d){
+      var k = dateKey(d);
+      var cell = document.createElement("div");
+      cell.className = "cal-day-cell" + (d.getMonth() !== monthStart.getMonth() ? " outside" : "") + (sameDateCal(d, today) ? " today" : "");
+      var num = document.createElement("span"); num.className = "cal-day-num"; num.textContent = d.getDate(); cell.appendChild(num);
+      var items = dayItems(idx, k);
+      var shown = items.slice(0, 3);
+      shown.forEach(function(it){ cell.appendChild(renderCalChip(it)); });
+      if(items.length > shown.length){
+        var more = document.createElement("span"); more.className = "cal-more"; more.textContent = "+" + (items.length - shown.length) + " more"; cell.appendChild(more);
+      }
+      cell.addEventListener("click", function(e){ e.stopPropagation(); openQuickAdd(cell, k); });
+      body.appendChild(cell);
+    });
+    grid.appendChild(body);
+    root.appendChild(grid);
+  }
+
+  function renderCalendarWeek(root){
+    var weekStart = mondayOfWeek(calAnchor);
+    var weekEnd = addDaysCal(weekStart, 7);
+    fetchCalRangeEvents(weekStart, weekEnd);
+    var title = weekStart.toLocaleDateString(undefined, {month:"short", day:"numeric"}) + " – " + addDaysCal(weekStart,6).toLocaleDateString(undefined, {month:"short", day:"numeric", year:"numeric"});
+    renderCalendarHead(root, title);
+
+    var idx = buildDayIndex(weekStart, 7);
+    var today = new Date(); today.setHours(0,0,0,0);
+    var grid = document.createElement("div"); grid.className = "cal-week-grid";
+    var dayDates = []; for(var i=0;i<7;i++) dayDates.push(addDaysCal(weekStart, i));
+    dayDates.forEach(function(d){
+      var k = dateKey(d);
+      var col = document.createElement("div");
+      col.className = "cal-week-col" + (sameDateCal(d, today) ? " today" : "");
+      var colHead = document.createElement("div"); colHead.className = "cal-week-col-head";
+      colHead.innerHTML = '<div class="wd">' + d.toLocaleDateString(undefined,{weekday:"short"}) + '</div><div class="dn mono">' + d.getDate() + '</div>';
+      colHead.addEventListener("click", function(e){ e.stopPropagation(); openQuickAdd(colHead, k); });
+      col.appendChild(colHead);
+      var body = document.createElement("div"); body.className = "cal-week-body";
+      dayItems(idx, k).forEach(function(it){ body.appendChild(renderCalWeekChip(it)); });
+      var addBtn = document.createElement("button"); addBtn.className = "cal-week-add"; addBtn.type = "button"; addBtn.textContent = "+ Add task";
+      addBtn.addEventListener("click", function(e){ e.stopPropagation(); openQuickAdd(addBtn, k); });
+      body.appendChild(addBtn);
+      col.appendChild(body);
+      grid.appendChild(col);
+    });
+    root.appendChild(grid);
+  }
+
+  function renderCalendar(){
+    var root = document.getElementById("cal-view");
+    if(!root) return;
+    root.innerHTML = "";
+    if(!state){ return; }
+    if(calMode === "month") renderCalendarMonth(root); else renderCalendarWeek(root);
+  }
+
+  function addTaskWithDue(container, text, dateStr){
+    var t = { id: uid(), text: text || "New task", done:false, due:{date:dateStr,time:null,allDay:true}, completedAt:null, calendarEventId:null, syncError:null };
+    container.tasks.push(t);
+    lastAddedId = t.id;
+    scheduleSave();
+    render();
+    syncTaskToCalendar(t);
+    return t;
+  }
+
+  function openQuickAdd(anchorEl, dateStr){
+    var existing = document.querySelector(".quickadd-popover");
+    if(existing){
+      var wasSameDate = existing.getAttribute("data-date") === dateStr;
+      existing.remove();
+      if(wasSameDate) return;
+    }
+    closeAllPopovers();
+    if(!state.headings.length){ showBanner("Add a heading first, then you can add tasks from the calendar.", "danger"); return; }
+    var pop = document.createElement("div");
+    pop.className = "quickadd-popover";
+    pop.setAttribute("data-date", dateStr);
+    var dObj = new Date(dateStr + "T00:00:00");
+    var label = dObj.toLocaleDateString(undefined, {weekday:"long", month:"long", day:"numeric"});
+    pop.innerHTML =
+      '<div class="qa-title">Add task — ' + escapeHtml(label) + '</div>' +
+      '<input type="text" class="qa-text" placeholder="Task title" />' +
+      '<select class="qa-heading">' + state.headings.map(function(h){ return '<option value="' + h.id + '">' + escapeHtml(h.title) + '</option>'; }).join("") + '</select>' +
+      '<div class="qa-actions"><button class="btn btn-sm btn-ghost" type="button" data-act="cancel">Cancel</button><button class="btn btn-sm btn-primary" type="button" data-act="add">Add</button></div>';
+    document.body.appendChild(pop);
+    var rect = anchorEl.getBoundingClientRect();
+    var popRect = pop.getBoundingClientRect();
+    var top = rect.bottom + 6;
+    var left = rect.left;
+    if(left + popRect.width > window.innerWidth - 8) left = window.innerWidth - popRect.width - 8;
+    if(top + popRect.height > window.innerHeight - 8) top = rect.top - popRect.height - 6;
+    pop.style.top = Math.max(8, top) + "px";
+    pop.style.left = Math.max(8, left) + "px";
+    pop.addEventListener("click", function(e){ e.stopPropagation(); });
+    var textEl = pop.querySelector(".qa-text");
+    textEl.focus();
+    function submit(){
+      var text = textEl.value.trim();
+      if(!text){ textEl.focus(); return; }
+      var headingId = pop.querySelector(".qa-heading").value;
+      var heading = state.headings.filter(function(h){ return h.id === headingId; })[0] || state.headings[0];
+      addTaskWithDue(heading, text, dateStr);
+      pop.remove();
+    }
+    textEl.addEventListener("keydown", function(e){ if(e.key === "Enter") submit(); if(e.key === "Escape") pop.remove(); });
+    pop.querySelector('[data-act="add"]').addEventListener("click", submit);
+    pop.querySelector('[data-act="cancel"]').addEventListener("click", function(){ pop.remove(); });
+  }
+
   function render(){
     if(!state) return;
     renderHeadings();
     renderEmptyState();
     if(viewMode === "stats") renderStats();
+    if(viewMode === "cal") renderCalendar();
   }
 
   function renderEmptyState(){
@@ -1609,12 +2030,14 @@
       task.due = { date: dateEl.value, time: allDayEl.checked ? null : (timeEl.value || null), allDay: allDayEl.checked || !timeEl.value };
       task.syncError = null;
       scheduleSave();
+      render();
       syncTaskToCalendar(task);
     });
     var clearBtn = editor.querySelector('[data-act="clear"]');
     if(clearBtn) clearBtn.addEventListener("click", function(){
       task.due = null;
       scheduleSave();
+      render();
       syncTaskToCalendar(task);
     });
     editor.querySelector('[data-act="close"]').addEventListener("click", function(){ editor.remove(); });
@@ -1716,6 +2139,7 @@
   });
 
   /* ---------------- boot ---------------- */
+  applyPalette(loadPaletteKey());
   state = defaultState();
   config = loadConfig();
   render();

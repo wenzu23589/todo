@@ -64,10 +64,12 @@ The token is stored only in that browser's local storage — it's never sent any
 
 - Add headings (e.g. "Work", "This week"), sub-headings inside them, and tasks either directly under a heading or inside a sub-heading.
 - Drag the grip handle (⋮⋮) on any task, sub-heading, or heading to reorder it or move it into a different heading/sub-heading.
-- Click the coloured dot on a heading to give it its own colour — it shows up on the heading's left edge and in the Stats view.
+- Click the coloured dot on a heading to give it its own colour — it shows up on the heading's left edge, in the Calendar view, and in the Stats view.
 - Click the ▾ arrow on a heading or sub-heading to collapse it.
 - Click a task's due-date pill to give it a date (and optional time). Overdue tasks are flagged in red.
-- The **Stats** tab (top of the page) shows completion percentage, overdue/upcoming counts, a per-heading progress breakdown, and a list of what's coming up.
+- The **Theme** button in the header lets you pick a different accent colour palette for the whole app (Ledger, Ocean, Plum, Forest, Slate) — this is separate from per-heading colours and is remembered per browser.
+- The **Calendar** tab (top of the page) shows a Month grid or Week agenda of everything with a due date, colour-coded by heading. Click any day to quickly add a task due that day — it appears in your list immediately. If Google Calendar is connected, other events on that calendar show up alongside your tasks too (in grey), so you can see your whole day in one place.
+- The **Stats** tab shows completion percentage, overdue/upcoming counts, a per-heading progress breakdown, and a list of what's coming up.
 - Every change auto-saves to the GitHub file a second or so after you stop typing. The pill in the header shows the connected repo; the little indicator in the bottom-right shows save status.
 - Open the same URL on another device, connect it to the same repo/token, and you'll see the same list. The **Sync now** button force-refreshes from GitHub (handy right after making a change elsewhere).
 - If two devices save at almost the same moment, the second save detects the conflict, reloads the latest version from GitHub, and shows a banner — just redo the change that got dropped.
