@@ -193,8 +193,8 @@
   .sub-bar.drop-target{ background: color-mix(in srgb, var(--accent-2) 10%, transparent); border-radius:4px; }
   .grip-sm{ width:16px; height:16px; }
   .sub-title{
-    font-size:0.92rem; font-weight:600; color:var(--ink-soft); flex:1; min-width:0; background:transparent;
-    border:none; padding:2px 4px; border-radius:4px; font-family:var(--font-body); text-transform:uppercase; letter-spacing:0.04em;
+    font-size:0.95rem; font-weight:600; color:var(--ink-soft); flex:1; min-width:0; background:transparent;
+    border:none; padding:2px 4px; border-radius:4px; font-family:var(--font-body);
   }
   .sub-title:focus{ background:var(--paper-sunken); }
   .sub-actions{ display:flex; gap:2px; }
@@ -464,6 +464,7 @@
   .theme-popover{
     position:fixed; z-index:40; background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-m);
     box-shadow:var(--shadow); padding:8px; display:flex; flex-direction:column; gap:2px; min-width:170px;
+    max-height:min(480px, calc(100vh - 90px)); overflow-y:auto;
   }
   .theme-option{
     display:flex; align-items:center; gap:9px; border:none; background:transparent; padding:8px 9px; border-radius:var(--radius-s);
@@ -685,11 +686,16 @@
   /* ---------------- theme palettes ---------------- */
   var PALETTE_KEY = "daybook-palette-v1";
   var PALETTES = {
-    ledger: { name: "Ledger", light: { accent: "#a8672a", accent2: "#3f7d6e" }, dark: { accent: "#d99a4e", accent2: "#67ab9a" } },
-    ocean:  { name: "Ocean",  light: { accent: "#2f6690", accent2: "#1f8a70" }, dark: { accent: "#6fb3e0", accent2: "#4fc7a4" } },
-    plum:   { name: "Plum",   light: { accent: "#7a4fa0", accent2: "#b3486b" }, dark: { accent: "#b48ee0", accent2: "#e07aa0" } },
-    forest: { name: "Forest", light: { accent: "#4a6741", accent2: "#2f7d8c" }, dark: { accent: "#8fbf7c", accent2: "#5fb6c9" } },
-    slate:  { name: "Slate",  light: { accent: "#4a5568", accent2: "#6b7a3f" }, dark: { accent: "#a3adc2", accent2: "#b7c980" } }
+    ledger:  { name: "Ledger",  light: { accent: "#a8672a", accent2: "#3f7d6e" }, dark: { accent: "#d99a4e", accent2: "#67ab9a" } },
+    ocean:   { name: "Ocean",   light: { accent: "#2f6690", accent2: "#1f8a70" }, dark: { accent: "#6fb3e0", accent2: "#4fc7a4" } },
+    plum:    { name: "Plum",    light: { accent: "#7a4fa0", accent2: "#b3486b" }, dark: { accent: "#b48ee0", accent2: "#e07aa0" } },
+    forest:  { name: "Forest",  light: { accent: "#4a6741", accent2: "#2f7d8c" }, dark: { accent: "#8fbf7c", accent2: "#5fb6c9" } },
+    slate:   { name: "Slate",   light: { accent: "#4a5568", accent2: "#6b7a3f" }, dark: { accent: "#a3adc2", accent2: "#b7c980" } },
+    rose:    { name: "Rose",    light: { accent: "#b23a63", accent2: "#c9903a" }, dark: { accent: "#e08bad", accent2: "#e0b578" } },
+    indigo:  { name: "Indigo",  light: { accent: "#4650b0", accent2: "#2f8f7a" }, dark: { accent: "#9aa0f0", accent2: "#6fd1b8" } },
+    gold:    { name: "Gold",    light: { accent: "#a67c11", accent2: "#6a4c93" }, dark: { accent: "#e0b84a", accent2: "#b28ee0" } },
+    crimson: { name: "Crimson", light: { accent: "#a13030", accent2: "#2f7a5c" }, dark: { accent: "#e0797a", accent2: "#6fc99a" } },
+    teal:    { name: "Teal",    light: { accent: "#1f7d78", accent2: "#a15a2f" }, dark: { accent: "#5fd0c4", accent2: "#e0a06a" } }
   };
   function loadPaletteKey(){
     try{ var k = localStorage.getItem(PALETTE_KEY); return (k && PALETTES[k]) ? k : "ledger"; } catch(e){ return "ledger"; }
@@ -2940,6 +2946,7 @@
   function renderHeadingCard(heading){
     var card = document.createElement("section");
     card.className = "heading-card" + (heading.collapsed ? " collapsed" : "");
+    if(heading.color) card.style.background = "color-mix(in srgb, " + heading.color + " 10%, var(--paper-raised))";
     var visibleHeadingTasks = heading.tasks.filter(function(t){ return !t.archivedAt; });
     var archivedHeadingTasks = heading.tasks.filter(function(t){ return t.archivedAt; });
     var totalTasks = visibleHeadingTasks.length, doneTasks = visibleHeadingTasks.filter(function(t){return t.done;}).length;
