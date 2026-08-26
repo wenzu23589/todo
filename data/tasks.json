@@ -360,9 +360,14 @@
           "id": "bcfaadd0-c252-4329-a32e-14d530732dc6",
           "text": "Xjenza call status ?",
           "done": false,
-          "due": null,
+          "due": {
+            "date": "2026-09-07",
+            "time": null,
+            "endTime": null,
+            "allDay": true
+          },
           "completedAt": null,
-          "calendarEventId": null,
+          "calendarEventId": "tud8ag7lgertesv10fhechsb9o",
           "syncError": null,
           "notes": "",
           "checklist": [],
@@ -370,13 +375,14 @@
           "priority": null,
           "tags": [],
           "subtasks": [],
-          "attachments": []
+          "attachments": [],
+          "syncing": false
         }
       ],
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T16:36:35.463Z",
+  "updatedAt": "2026-08-26T16:36:42.532Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
