@@ -107,14 +107,30 @@
       "subheadings": [
         {
           "id": "1e0b9535-b3a3-4b0a-9dd9-8f7397a9acb0",
-          "title": "New sub-heading",
+          "title": "Daniela Paper",
           "collapsed": false,
-          "tasks": []
+          "tasks": [
+            {
+              "id": "5a53cca1-85c7-4b1f-9725-bcc61e5a816a",
+              "text": "New task",
+              "done": false,
+              "due": null,
+              "completedAt": null,
+              "calendarEventId": null,
+              "syncError": null,
+              "notes": "",
+              "checklist": [],
+              "archivedAt": null,
+              "priority": null,
+              "tags": [],
+              "subtasks": []
+            }
+          ]
         }
       ]
     }
   ],
-  "updatedAt": "2026-08-26T13:28:05.198Z",
+  "updatedAt": "2026-08-26T13:28:11.334Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
