@@ -1,5 +1,12 @@
 {
   "version": 1,
-  "headings": [],
-  "updatedAt": "2026-08-26T06:48:27.961Z"
+  "headings": [
+    {
+      "id": "id-2ktak66jcy1mt9qg1jg",
+      "title": "New heading",
+      "collapsed": false,
+      "subheadings": []
+    }
+  ],
+  "updatedAt": "2026-08-26T06:48:33.054Z"
 }
