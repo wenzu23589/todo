@@ -25,12 +25,26 @@
           "priority": null,
           "tags": [],
           "syncing": false
+        },
+        {
+          "id": "d95e17ef-b662-4ff3-ac40-a14f5fb05117",
+          "text": "New task",
+          "done": false,
+          "due": null,
+          "completedAt": null,
+          "calendarEventId": null,
+          "syncError": null,
+          "notes": "",
+          "checklist": [],
+          "archivedAt": null,
+          "priority": null,
+          "tags": []
         }
       ],
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T12:01:48.456Z",
+  "updatedAt": "2026-08-26T12:01:51.842Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
