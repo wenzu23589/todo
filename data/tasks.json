@@ -10,7 +10,14 @@
           "id": "id-5yvswwjkdwymt9qgz2h",
           "title": "New sub-heading",
           "collapsed": false,
-          "tasks": []
+          "tasks": [
+            {
+              "id": "id-0xpkdr14x4ximt9qh05c",
+              "text": "New task",
+              "done": false,
+              "due": null
+            }
+          ]
         }
       ]
     },
@@ -21,5 +28,5 @@
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T06:49:16.501Z"
+  "updatedAt": "2026-08-26T06:49:17.909Z"
 }
