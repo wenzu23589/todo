@@ -1,12 +1,15 @@
 {
-  "version": 1,
+  "version": 3,
   "headings": [
     {
       "id": "id-dsycrwthexmt9uykep",
       "title": "New heading",
       "collapsed": false,
-      "subheadings": []
+      "subheadings": [],
+      "tasks": [],
+      "color": null
     }
   ],
-  "updatedAt": "2026-08-26T08:54:55.787Z"
+  "updatedAt": "2026-08-26T09:02:40.717Z",
+  "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com"
 }
