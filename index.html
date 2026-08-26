@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Daybook</title>
+<style>
+  :root{
+    --ink: #1c2130;
+    --ink-soft: #3a4152;
+    --paper: #eef0f3;
+    --paper-raised: #ffffff;
+    --paper-sunken: #e3e6eb;
+    --line: #d7dbe1;
+    --line-soft: #e4e7eb;
+    --muted: #5b6270;
+    --accent: #a8672a;
+    --accent-ink: #ffffff;
+    --accent-2: #3f7d6e;
+    --danger: #b8452f;
+    --focus: #2f5fd6;
+    --shadow: 0 1px 2px rgba(28,33,48,0.06), 0 8px 24px -12px rgba(28,33,48,0.18);
+    --radius-s: 6px;
+    --radius-m: 10px;
+    --radius-l: 14px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ink: #ece9df; --ink-soft: #c8c4b6; --paper: #14171f; --paper-raised: #1b1f2a;
+      --paper-sunken: #10131a; --line: #2c3140; --line-soft: #232838; --muted: #939aab;
+      --accent: #d99a4e; --accent-ink: #1c1200; --accent-2: #67ab9a; --danger: #e08469;
+      --focus: #7ea1ff; --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px -14px rgba(0,0,0,0.6);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink: #ece9df; --ink-soft: #c8c4b6; --paper: #14171f; --paper-raised: #1b1f2a;
+    --paper-sunken: #10131a; --line: #2c3140; --line-soft: #232838; --muted: #939aab;
+    --accent: #d99a4e; --accent-ink: #1c1200; --accent-2: #67ab9a; --danger: #e08469;
+    --focus: #7ea1ff; --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px -14px rgba(0,0,0,0.6);
+    color-scheme: dark;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--paper); color: var(--ink);
+    font-family: "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+  h1,h2,h3{ font-family: "Fraunces", Georgia, "Times New Roman", serif; text-wrap: balance; margin: 0; }
+  .mono{ font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; }
+  button{ font-family: inherit; }
+  ::selection{ background: color-mix(in srgb, var(--accent) 35%, transparent); }
+  :focus-visible{ outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; } }
+
+  .shell{ max-width: 900px; margin: 0 auto; padding: 0 20px 80px; }
+
+  header.top{
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    backdrop-filter: blur(10px); border-bottom: 1px solid var(--line);
+  }
+  .top-inner{ max-width: 900px; margin: 0 auto; display:flex; align-items:center; gap:16px; padding:16px 20px; flex-wrap:wrap; }
+  .brand{ display:flex; align-items:baseline; gap:10px; margin-right:auto; }
+  .brand h1{ font-size:1.5rem; font-weight:600; letter-spacing:-0.01em; }
+  .brand .tag{ color:var(--muted); font-size:0.8rem; }
+  .header-controls{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+
+  .status-pill{
+    display:flex; align-items:center; gap:6px; font-size:0.78rem; padding:5px 10px 5px 8px;
+    border-radius:999px; border:1px solid var(--line); background:var(--paper-raised); color:var(--muted); white-space:nowrap;
+  }
+  .status-dot{ width:7px; height:7px; border-radius:50%; background:var(--muted); flex-shrink:0; }
+  .status-pill[data-state="connected"] .status-dot{ background:var(--accent-2); }
+  .status-pill[data-state="connected"]{ color:var(--accent-2); border-color:color-mix(in srgb, var(--accent-2) 40%, var(--line)); }
+  .status-pill[data-state="warn"] .status-dot{ background:var(--accent); }
+  .status-pill[data-state="warn"]{ color:var(--accent); border-color:color-mix(in srgb, var(--accent) 40%, var(--line)); }
+  .status-pill[data-state="error"] .status-dot{ background:var(--danger); }
+  .status-pill[data-state="error"]{ color:var(--danger); border-color:color-mix(in srgb, var(--danger) 35%, var(--line)); }
+
+  .btn{
+    display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); background:var(--paper-raised);
+    color:var(--ink); padding:7px 12px; border-radius:var(--radius-m); font-size:0.85rem; font-weight:500;
+    cursor:pointer; box-shadow:var(--shadow); transition: transform .12s ease, border-color .12s ease;
+  }
+  .btn:hover{ border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
+  .btn:active{ transform: translateY(1px); }
+  .btn-primary{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+  .btn-primary:hover{ filter:brightness(1.05); }
+  .btn-ghost{ background:transparent; box-shadow:none; border-color:transparent; color:var(--muted); }
+  .btn-ghost:hover{ color:var(--ink); background:var(--paper-sunken); }
+  .btn-danger{ color:var(--danger); }
+  .btn-sm{ padding:4px 9px; font-size:0.78rem; border-radius:var(--radius-s); }
+  .btn[disabled]{ opacity:0.5; cursor:default; }
+
+  .banner{ max-width:900px; margin:14px auto 0; padding:10px 20px; }
+  .banner-inner{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    background: color-mix(in srgb, var(--accent) 12%, var(--paper-raised));
+    border:1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+    border-radius:var(--radius-m); padding:10px 14px; font-size:0.85rem;
+  }
+  .banner-inner.danger{ background: color-mix(in srgb, var(--danger) 12%, var(--paper-raised)); border-color: color-mix(in srgb, var(--danger) 35%, var(--line)); }
+  .banner-inner p{ margin:0; flex:1; min-width:220px; color:var(--ink-soft); }
+
+  main{ margin-top:24px; }
+
+  section.heading-card{
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-l);
+    margin-bottom:18px; box-shadow:var(--shadow); overflow:hidden;
+  }
+  .heading-bar{ display:flex; align-items:center; gap:10px; padding:14px 16px; border-left:4px solid var(--accent); }
+  .collapse-btn{ background:none; border:none; color:var(--muted); cursor:pointer; padding:4px; display:flex; align-items:center; justify-content:center; border-radius:4px; }
+  .collapse-btn svg{ transition: transform .15s ease; }
+  .heading-card.collapsed .collapse-btn svg{ transform: rotate(-90deg); }
+  .heading-title{
+    font-size:1.15rem; font-weight:600; flex:1; min-width:0; background:transparent; border:none;
+    color:var(--ink); font-family:"Fraunces",serif; padding:2px 4px; border-radius:4px;
+  }
+  .heading-title:focus{ background:var(--paper-sunken); }
+  .heading-count{ color:var(--muted); font-size:0.78rem; white-space:nowrap; }
+  .heading-actions{ display:flex; gap:4px; }
+  .heading-body{ padding:0 16px 16px; }
+  .heading-card.collapsed .heading-body{ display:none; }
+
+  .sub-block{ margin-top:6px; padding-top:12px; border-top:1px solid var(--line-soft); }
+  .sub-block:first-child{ border-top:none; }
+  .sub-bar{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .sub-title{
+    font-size:0.92rem; font-weight:600; color:var(--ink-soft); flex:1; min-width:0; background:transparent;
+    border:none; padding:2px 4px; border-radius:4px; font-family:"Public Sans",sans-serif; text-transform:uppercase; letter-spacing:0.04em;
+  }
+  .sub-title:focus{ background:var(--paper-sunken); }
+  .sub-actions{ display:flex; gap:2px; }
+  .sub-count{ color:var(--muted); font-size:0.72rem; }
+
+  .task-list{ display:flex; flex-direction:column; }
+  .task-row{ display:flex; align-items:flex-start; gap:10px; padding:7px 4px; border-radius:var(--radius-s); }
+  .task-row:hover{ background:var(--paper-sunken); }
+  .check{
+    width:19px; height:19px; margin-top:2px; border-radius:5px; border:1.5px solid var(--line);
+    background:var(--paper-raised); cursor:pointer; flex-shrink:0; position:relative; appearance:none;
+  }
+  .check:checked{ background:var(--accent-2); border-color:var(--accent-2); }
+  .check:checked::after{ content:""; position:absolute; left:5px; top:1px; width:5px; height:9px; border:solid white; border-width:0 2px 2px 0; transform:rotate(40deg); }
+  .task-main{ flex:1; min-width:0; }
+  .task-text{ width:100%; border:none; background:transparent; color:var(--ink); font:inherit; font-size:0.92rem; padding:2px 4px; border-radius:4px; }
+  .task-text:focus{ background:var(--paper-sunken); }
+  .task-row.done .task-text{ color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line); }
+  .task-meta{ display:flex; align-items:center; gap:8px; margin-top:2px; padding-left:4px; flex-wrap:wrap; }
+  .due-badge{
+    display:inline-flex; align-items:center; gap:5px; font-size:0.74rem; color:var(--muted);
+    border:1px solid var(--line); border-radius:999px; padding:2px 9px 2px 8px; cursor:pointer; background:var(--paper-raised);
+  }
+  .due-badge:hover{ border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
+  .due-badge.set{ color:var(--ink-soft); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+  .due-badge.overdue{ color:var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, var(--line)); }
+  .task-actions{ display:flex; gap:2px; opacity:0; transition:opacity .1s; flex-shrink:0; }
+  .task-row:hover .task-actions, .task-row:focus-within .task-actions{ opacity:1; }
+  .icon-btn{ background:none; border:none; color:var(--muted); cursor:pointer; padding:5px; border-radius:5px; display:flex; align-items:center; justify-content:center; }
+  .icon-btn:hover{ color:var(--ink); background:var(--paper-sunken); }
+  .icon-btn.danger:hover{ color:var(--danger); }
+
+  .due-editor{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; background:var(--paper-sunken); border:1px solid var(--line); border-radius:var(--radius-s); padding:6px 8px; margin-top:4px; }
+  .due-editor input[type="date"], .due-editor input[type="time"]{ font:inherit; font-size:0.8rem; border:1px solid var(--line); border-radius:4px; padding:3px 5px; background:var(--paper-raised); color:var(--ink); }
+  .due-editor label{ display:flex; align-items:center; gap:4px; font-size:0.78rem; color:var(--muted); }
+
+  .ghost-add{
+    display:flex; align-items:center; gap:6px; color:var(--muted); background:none; border:1px dashed var(--line);
+    border-radius:var(--radius-s); padding:6px 10px; font-size:0.82rem; cursor:pointer; margin-top:4px; width:100%; justify-content:flex-start;
+  }
+  .ghost-add:hover{ color:var(--ink); border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
+
+  .empty-state{ text-align:center; padding:64px 20px; color:var(--muted); border:1px dashed var(--line); border-radius:var(--radius-l); margin-top:12px; }
+  .empty-state h2{ font-size:1.3rem; color:var(--ink); margin-bottom:8px; }
+  .empty-state p{ max-width:420px; margin:0 auto 18px; font-size:0.9rem; }
+
+  .save-indicator{
+    position:fixed; bottom:18px; right:18px; z-index:30; background:var(--paper-raised); border:1px solid var(--line);
+    box-shadow:var(--shadow); border-radius:999px; padding:7px 14px; font-size:0.76rem; color:var(--muted);
+    display:flex; align-items:center; gap:6px; opacity:0; transform:translateY(6px); transition:opacity .2s ease, transform .2s ease; pointer-events:none;
+  }
+  .save-indicator.show{ opacity:1; transform:none; }
+  .save-indicator .status-dot{ width:6px; height:6px; }
+
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(10,12,18,0.45); display:flex; align-items:center; justify-content:center; z-index:50; padding:20px; }
+  .modal-box{ background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-l); padding:22px; max-width:420px; width:100%; box-shadow:var(--shadow); max-height:90vh; overflow:auto; }
+  .modal-box h3{ font-size:1.1rem; margin-bottom:6px; }
+  .modal-box p{ font-size:0.85rem; color:var(--muted); margin:0 0 16px; }
+  .modal-actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:16px; flex-wrap:wrap; }
+  .field{ margin-bottom:12px; }
+  .field label{ display:block; font-size:0.78rem; color:var(--muted); margin-bottom:4px; font-weight:600; letter-spacing:0.01em; }
+  .field input{ width:100%; font:inherit; font-size:0.88rem; padding:8px 10px; border-radius:var(--radius-s); border:1px solid var(--line); background:var(--paper-sunken); color:var(--ink); }
+  .field input:focus{ background:var(--paper-raised); }
+  .field-hint{ font-size:0.72rem; color:var(--muted); margin-top:3px; }
+  .field-row{ display:flex; gap:10px; }
+  .field-row .field{ flex:1; }
+  .modal-error{ font-size:0.8rem; color:var(--danger); margin:-6px 0 12px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="top">
+    <div class="top-inner">
+      <div class="brand">
+        <h1>Daybook</h1>
+        <span class="tag">to&#8209;dos, in sections</span>
+      </div>
+      <div class="header-controls">
+        <button class="btn btn-sm" id="sync-now-btn">Sync now</button>
+        <div class="status-pill" id="status-pill" data-state="off">
+          <span class="status-dot"></span><span id="status-text">Not connected</span>
+        </div>
+        <button class="btn btn-sm" id="settings-btn" aria-label="Settings">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.87-.34 1.7 1.7 0 00-1 1.55V21a2 2 0 11-4 0v-.09a1.7 1.7 0 00-1-1.55 1.7 1.7 0 00-1.87.34l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.7 1.7 0 00.34-1.87 1.7 1.7 0 00-1.55-1H3a2 2 0 110-4h.09a1.7 1.7 0 001.55-1 1.7 1.7 0 00-.34-1.87l-.06-.06a2 2 0 112.83-2.83l.06.06a1.7 1.7 0 001.87.34H9a1.7 1.7 0 001-1.55V3a2 2 0 114 0v.09a1.7 1.7 0 001 1.55 1.7 1.7 0 001.87-.34l.06-.06a2 2 0 112.83 2.83l-.06.06a1.7 1.7 0 00-.34 1.87V9a1.7 1.7 0 001.55 1H21a2 2 0 110 4h-.09a1.7 1.7 0 00-1.55 1z"/></svg>
+          Settings
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="banner" id="banner" hidden>
+    <div class="banner-inner" id="banner-inner">
+      <p id="banner-text"></p>
+      <button class="btn btn-sm btn-ghost" id="banner-dismiss">Dismiss</button>
+    </div>
+  </div>
+
+  <main>
+    <div id="headings-root"></div>
+    <div id="empty-state-root"></div>
+    <div class="add-heading-row">
+      <button class="btn btn-primary" id="add-heading-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        Add heading
+      </button>
+    </div>
+  </main>
+</div>
+
+<div class="save-indicator" id="save-indicator"><span class="status-dot"></span><span id="save-indicator-text">Saved</span></div>
+<div id="modal-root"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CONFIG_KEY = "daybook-github-config-v1";
+  var state = null;
+  var sha = null;
+  var config = null;
+  var connectionStatus = "not_configured"; // not_configured | connected | error
+  var pendingSave = false;
+  var saveTimer = null;
+  var lastFetchAt = 0;
+
+  function uid(){
+    if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return "id-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+  }
+  function defaultState(){ return { version: 1, headings: [], updatedAt: null }; }
+  function escapeHtml(s){
+    return (s == null ? "" : String(s)).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  /* ---------------- config (per-device, in this browser only) ---------------- */
+  function loadConfig(){
+    try{ return JSON.parse(localStorage.getItem(CONFIG_KEY) || "null"); }
+    catch(e){ return null; }
+  }
+  function saveConfig(cfg){ localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg)); }
+  function clearConfig(){ localStorage.removeItem(CONFIG_KEY); }
+
+  /* ---------------- base64 <-> utf8 ---------------- */
+  function b64EncodeUtf8(str){ return btoa(unescape(encodeURIComponent(str))); }
+  function b64DecodeUtf8(b64){ return decodeURIComponent(escape(atob(b64.replace(/\n/g, "")))); }
+
+  /* ---------------- GitHub Contents API ---------------- */
+  function contentsUrl(cfg, withRef){
+    var url = "https://api.github.com/repos/" + encodeURIComponent(cfg.owner) + "/" + encodeURIComponent(cfg.repo) + "/contents/" + cfg.path.split("/").map(encodeURIComponent).join("/");
+    if(withRef) url += "?ref=" + encodeURIComponent(cfg.branch);
+    return url;
+  }
+
+  function ghHeaders(cfg, extra){
+    var h = { "Authorization": "Bearer " + cfg.token, "Accept": "application/vnd.github+json" };
+    if(extra) for(var k in extra) h[k] = extra[k];
+    return h;
+  }
+
+  function describeStatus(res, json){
+    if(res.status === 401) return "That token was rejected. Check it's valid and hasn't expired.";
+    if(res.status === 403) return (json && /rate limit/i.test(json.message||"")) ? "GitHub rate limit hit — wait a bit and try again." : "That token doesn't have permission for this repo. It needs Contents: Read and write.";
+    if(res.status === 404) return "Repo, branch, or path not found — double check the owner/repo/branch.";
+    if(res.status === 409) return "conflict";
+    if(res.status === 422) return (json && json.message) || "GitHub rejected the request (422).";
+    return (json && json.message) || ("GitHub error (" + res.status + ")");
+  }
+
+  function ghGet(cfg){
+    return fetch(contentsUrl(cfg, true), { headers: ghHeaders(cfg) }).then(function(res){
+      if(res.status === 404){
+        return { exists:false, sha:null, data:null };
+      }
+      return res.json().then(function(json){
+        if(!res.ok) throw new Error(describeStatus(res, json));
+        var text = b64DecodeUtf8(json.content);
+        var data;
+        try{ data = JSON.parse(text); } catch(e){ throw new Error("The file at that path isn't valid Daybook JSON."); }
+        return { exists:true, sha: json.sha, data: data };
+      });
+    });
+  }
+
+  function ghPut(cfg, dataObj, prevSha){
+    var body = {
+      message: "Update Daybook tasks — " + new Date().toISOString(),
+      content: b64EncodeUtf8(JSON.stringify(dataObj, null, 2)),
+      branch: cfg.branch
+    };
+    if(prevSha) body.sha = prevSha;
+    return fetch(contentsUrl(cfg, false), {
+      method: "PUT", headers: ghHeaders(cfg, {"Content-Type":"application/json"}), body: JSON.stringify(body)
+    }).then(function(res){
+      return res.json().then(function(json){
+        if(!res.ok){
+          var msg = describeStatus(res, json);
+          if(msg === "conflict"){ var err = new Error("conflict"); err.code = "conflict"; throw err; }
+          throw new Error(msg);
+        }
+        return json.content.sha;
+      });
+    });
+  }
+
+  /* ---------------- status / banner ---------------- */
+  function setStatus(kind, detail){
+    connectionStatus = kind;
+    var pill = document.getElementById("status-pill");
+    var text = document.getElementById("status-text");
+    var syncBtn = document.getElementById("sync-now-btn");
+    if(kind === "connected"){
+      pill.setAttribute("data-state", "connected");
+      text.textContent = config.owner + "/" + config.repo;
+      syncBtn.disabled = false;
+    } else if(kind === "not_configured"){
+      pill.setAttribute("data-state", "off");
+      text.textContent = "Not connected";
+      syncBtn.disabled = true;
+    } else if(kind === "syncing"){
+      pill.setAttribute("data-state", "warn");
+      text.textContent = "Syncing…";
+      syncBtn.disabled = true;
+    } else {
+      pill.setAttribute("data-state", "error");
+      text.textContent = "Sync error";
+      syncBtn.disabled = false;
+      if(detail) showBanner(detail, "danger");
+    }
+  }
+
+  var bannerDismissed = {};
+  function showBanner(msg, kind){
+    if(bannerDismissed[msg]) return;
+    var banner = document.getElementById("banner");
+    var inner = document.getElementById("banner-inner");
+    document.getElementById("banner-text").textContent = msg;
+    inner.className = "banner-inner" + (kind === "danger" ? " danger" : "");
+    banner.hidden = false;
+  }
+  document.getElementById("banner-dismiss").addEventListener("click", function(){
+    var msg = document.getElementById("banner-text").textContent;
+    bannerDismissed[msg] = true;
+    document.getElementById("banner").hidden = true;
+  });
+
+  /* ---------------- save indicator ---------------- */
+  var saveIndicatorTimer = null;
+  function setSaveIndicator(kind){
+    var el = document.getElementById("save-indicator");
+    var textEl = document.getElementById("save-indicator-text");
+    var dot = el.querySelector(".status-dot");
+    el.classList.add("show");
+    if(saveIndicatorTimer){ clearTimeout(saveIndicatorTimer); saveIndicatorTimer = null; }
+    if(kind === "pending" || kind === "saving"){
+      textEl.textContent = "Saving…"; dot.style.background = "var(--muted)";
+    } else if(kind === "saved"){
+      textEl.textContent = "Saved to GitHub"; dot.style.background = "var(--accent-2)";
+      saveIndicatorTimer = setTimeout(function(){ el.classList.remove("show"); }, 1800);
+    } else if(kind === "error"){
+      textEl.textContent = "Couldn't save — see banner"; dot.style.background = "var(--danger)";
+    } else if(kind === "offline"){
+      textEl.textContent = "Not connected — changes stay in this tab only"; dot.style.background = "var(--danger)";
+      saveIndicatorTimer = setTimeout(function(){ el.classList.remove("show"); }, 3000);
+    }
+  }
+
+  /* ---------------- load / save ---------------- */
+  function loadFromGithub(){
+    if(!config) { state = state || defaultState(); render(); return Promise.resolve(); }
+    setStatus("syncing");
+    return ghGet(config).then(function(res){
+      lastFetchAt = Date.now();
+      sha = res.sha;
+      state = res.data || defaultState();
+      setStatus("connected");
+      render();
+    }).catch(function(err){
+      state = state || defaultState();
+      setStatus("error", err.message || "Couldn't load from GitHub.");
+      render();
+    });
+  }
+
+  function scheduleSave(){
+    if(!config){ setSaveIndicator("offline"); return; }
+    pendingSave = true;
+    setSaveIndicator("pending");
+    if(saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(doSave, 1100);
+  }
+
+  function doSave(){
+    if(saveTimer){ clearTimeout(saveTimer); saveTimer = null; }
+    if(!config){ pendingSave = false; setSaveIndicator("offline"); return; }
+    state.updatedAt = new Date().toISOString();
+    setSaveIndicator("saving");
+    ghPut(config, state, sha).then(function(newSha){
+      sha = newSha; pendingSave = false; setSaveIndicator("saved");
+      if(connectionStatus !== "connected") setStatus("connected");
+    }).catch(function(err){
+      pendingSave = false;
+      if(err && err.code === "conflict"){
+        showBanner("This file changed on GitHub since you last loaded it (probably from another device). Reloading the latest version — your last change wasn't saved, redo it if needed.", "danger");
+        loadFromGithub();
+        return;
+      }
+      setSaveIndicator("error");
+      showBanner(err.message || "Couldn't save to GitHub.", "danger");
+      setStatus("error");
+    });
+  }
+
+  document.getElementById("sync-now-btn").addEventListener("click", function(){
+    if(pendingSave){ doSave(); } else { loadFromGithub(); }
+  });
+
+  window.addEventListener("focus", function(){
+    if(!config || pendingSave) return;
+    if(Date.now() - lastFetchAt < 15000) return;
+    loadFromGithub();
+  });
+
+  /* ---------------- settings modal ---------------- */
+  function openSettings(){
+    var root = document.getElementById("modal-root");
+    var backdrop = document.createElement("div");
+    backdrop.className = "modal-backdrop";
+    var c = config || { owner:"", repo:"", branch:"main", path:"data/tasks.json", token:"" };
+    backdrop.innerHTML =
+      '<div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="settings-title">' +
+        '<h3 id="settings-title">Connect your GitHub repo</h3>' +
+        '<p>Daybook stores your tasks as a JSON file in a repo you own, so the same list follows you to every device. See the README for how to create a token.</p>' +
+        '<div id="settings-error" class="modal-error" hidden></div>' +
+        '<div class="field-row">' +
+          '<div class="field"><label for="f-owner">Owner</label><input id="f-owner" type="text" placeholder="your-username" value="' + escapeHtml(c.owner) + '"></div>' +
+          '<div class="field"><label for="f-repo">Repository</label><input id="f-repo" type="text" placeholder="daybook" value="' + escapeHtml(c.repo) + '"></div>' +
+        '</div>' +
+        '<div class="field-row">' +
+          '<div class="field"><label for="f-branch">Branch</label><input id="f-branch" type="text" placeholder="main" value="' + escapeHtml(c.branch) + '"></div>' +
+          '<div class="field"><label for="f-path">File path</label><input id="f-path" type="text" placeholder="data/tasks.json" value="' + escapeHtml(c.path) + '"></div>' +
+        '</div>' +
+        '<div class="field">' +
+          '<label for="f-token">Personal access token</label>' +
+          '<input id="f-token" type="password" placeholder="github_pat_…" value="' + escapeHtml(c.token) + '">' +
+          '<div class="field-hint">Fine-grained token, scoped to just this repo, with Contents: Read and write. Stored only in this browser.</div>' +
+        '</div>' +
+        '<div class="modal-actions">' +
+          (config ? '<button class="btn btn-danger btn-ghost" id="settings-disconnect">Disconnect</button>' : '') +
+          '<button class="btn btn-ghost" id="settings-cancel">Cancel</button>' +
+          '<button class="btn btn-primary" id="settings-save">Connect</button>' +
+        '</div>' +
+      '</div>';
+    root.appendChild(backdrop);
+    function close(){ root.removeChild(backdrop); }
+    backdrop.querySelector("#settings-cancel").addEventListener("click", close);
+    backdrop.addEventListener("click", function(e){ if(e.target === backdrop) close(); });
+    var disc = backdrop.querySelector("#settings-disconnect");
+    if(disc) disc.addEventListener("click", function(){
+      clearConfig(); config = null; sha = null; setStatus("not_configured"); close();
+    });
+    backdrop.querySelector("#settings-save").addEventListener("click", function(){
+      var owner = backdrop.querySelector("#f-owner").value.trim();
+      var repo = backdrop.querySelector("#f-repo").value.trim();
+      var branch = backdrop.querySelector("#f-branch").value.trim() || "main";
+      var path = backdrop.querySelector("#f-path").value.trim() || "data/tasks.json";
+      var token = backdrop.querySelector("#f-token").value.trim();
+      var errEl = backdrop.querySelector("#settings-error");
+      if(!owner || !repo || !token){
+        errEl.textContent = "Owner, repository, and token are all required.";
+        errEl.hidden = false;
+        return;
+      }
+      var newCfg = { owner:owner, repo:repo, branch:branch, path:path, token:token };
+      var saveBtn = backdrop.querySelector("#settings-save");
+      saveBtn.disabled = true; saveBtn.textContent = "Connecting…";
+      ghGet(newCfg).then(function(res){
+        config = newCfg; saveConfig(config);
+        sha = res.sha;
+        state = res.data || state || defaultState();
+        lastFetchAt = Date.now();
+        setStatus("connected");
+        render();
+        close();
+        if(!res.exists) scheduleSave();
+      }).catch(function(err){
+        errEl.textContent = err.message || "Couldn't connect — check the details and try again.";
+        errEl.hidden = false;
+        saveBtn.disabled = false; saveBtn.textContent = "Connect";
+      });
+    });
+  }
+  document.getElementById("settings-btn").addEventListener("click", openSettings);
+
+  /* ---------------- confirm modal ---------------- */
+  function openConfirm(opts){
+    var root = document.getElementById("modal-root");
+    var backdrop = document.createElement("div");
+    backdrop.className = "modal-backdrop";
+    backdrop.innerHTML =
+      '<div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="confirm-title" style="max-width:360px;">' +
+        '<h3 id="confirm-title">' + escapeHtml(opts.title) + '</h3>' +
+        '<p>' + escapeHtml(opts.body) + '</p>' +
+        '<div class="modal-actions">' +
+          '<button class="btn btn-ghost" id="confirm-cancel">Cancel</button>' +
+          '<button class="btn ' + (opts.danger ? "btn-danger" : "btn-primary") + '" id="confirm-ok">' + escapeHtml(opts.confirmLabel || "Confirm") + '</button>' +
+        '</div>' +
+      '</div>';
+    root.appendChild(backdrop);
+    function close(){ root.removeChild(backdrop); document.removeEventListener("keydown", onKey); }
+    function onKey(e){ if(e.key === "Escape"){ close(); if(opts.onCancel) opts.onCancel(); } }
+    document.addEventListener("keydown", onKey);
+    backdrop.querySelector("#confirm-cancel").addEventListener("click", function(){ close(); if(opts.onCancel) opts.onCancel(); });
+    backdrop.querySelector("#confirm-ok").addEventListener("click", function(){ close(); opts.onConfirm(); });
+    backdrop.addEventListener("click", function(e){ if(e.target === backdrop){ close(); if(opts.onCancel) opts.onCancel(); } });
+    backdrop.querySelector("#confirm-ok").focus();
+  }
+
+  /* ---------------- data helpers ---------------- */
+  function forEachTask(fn){
+    state.headings.forEach(function(h){ h.subheadings.forEach(function(sh){ sh.tasks.forEach(function(t){ fn(t, sh, h); }); }); });
+  }
+
+  function addHeading(title){
+    var h = { id: uid(), title: title || "New heading", collapsed:false, subheadings: [] };
+    state.headings.push(h); scheduleSave(); render(); return h;
+  }
+  function addSubheading(heading, title){
+    var sh = { id: uid(), title: title || "New sub-heading", collapsed:false, tasks: [] };
+    heading.subheadings.push(sh); scheduleSave(); render(); return sh;
+  }
+  function addTask(sub, text){
+    var t = { id: uid(), text: text || "New task", done:false, due:null };
+    sub.tasks.push(t); scheduleSave(); render(); return t;
+  }
+  function removeHeading(heading){
+    openConfirm({
+      title: "Delete “" + heading.title + "”?",
+      body: "This removes the heading and everything inside it.",
+      confirmLabel: "Delete", danger: true,
+      onConfirm: function(){ state.headings = state.headings.filter(function(h){ return h.id !== heading.id; }); scheduleSave(); render(); }
+    });
+  }
+  function removeSubheading(heading, sub){
+    openConfirm({
+      title: "Delete “" + sub.title + "”?",
+      body: "This removes the sub-heading and its tasks.",
+      confirmLabel: "Delete", danger: true,
+      onConfirm: function(){ heading.subheadings = heading.subheadings.filter(function(s){ return s.id !== sub.id; }); scheduleSave(); render(); }
+    });
+  }
+  function removeTask(sub, task){
+    sub.tasks = sub.tasks.filter(function(t){ return t.id !== task.id; });
+    scheduleSave(); render();
+  }
+
+  /* ---------------- rendering ---------------- */
+  function formatDue(due){
+    if(!due) return "";
+    var d = new Date(due.date + "T00:00:00");
+    var label = d.toLocaleDateString(undefined, {month:"short", day:"numeric"});
+    if(!due.allDay && due.time){
+      var parts = due.time.split(":");
+      var t = new Date(2000,0,1, parseInt(parts[0],10), parseInt(parts[1],10));
+      label += " · " + t.toLocaleTimeString(undefined, {hour:"numeric", minute:"2-digit"});
+    }
+    return label;
+  }
+  function isOverdue(due, done){
+    if(!due || done) return false;
+    var today = new Date(); today.setHours(0,0,0,0);
+    return new Date(due.date + "T00:00:00") < today;
+  }
+
+  function render(){
+    if(!state) return;
+    renderHeadings();
+    renderEmptyState();
+  }
+
+  function renderEmptyState(){
+    var root = document.getElementById("empty-state-root");
+    if(state.headings.length > 0){ root.innerHTML = ""; return; }
+    root.innerHTML =
+      '<div class="empty-state">' +
+        '<h2>Nothing here yet</h2>' +
+        '<p>Start with a heading — like “Work” or “This week” — then add sub-headings and tasks underneath.' +
+        (config ? '' : ' Connect a GitHub repo from Settings so your list follows you across devices.') +
+        '</p>' +
+      '</div>';
+  }
+
+  function renderHeadings(){
+    var root = document.getElementById("headings-root");
+    root.innerHTML = "";
+    state.headings.forEach(function(heading){ root.appendChild(renderHeadingCard(heading)); });
+  }
+
+  function renderHeadingCard(heading){
+    var card = document.createElement("section");
+    card.className = "heading-card" + (heading.collapsed ? " collapsed" : "");
+    var totalTasks = 0, doneTasks = 0;
+    heading.subheadings.forEach(function(sh){ sh.tasks.forEach(function(t){ totalTasks++; if(t.done) doneTasks++; }); });
+
+    var bar = document.createElement("div");
+    bar.className = "heading-bar";
+    bar.innerHTML =
+      '<button class="collapse-btn" aria-label="Toggle section" title="Collapse / expand"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg></button>' +
+      '<input class="heading-title" value="' + escapeHtml(heading.title) + '" aria-label="Heading title" />' +
+      '<span class="heading-count mono">' + doneTasks + '/' + totalTasks + '</span>' +
+      '<div class="heading-actions"><button class="icon-btn danger" title="Delete heading" aria-label="Delete heading"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>';
+    card.appendChild(bar);
+
+    bar.querySelector(".collapse-btn").addEventListener("click", function(){ heading.collapsed = !heading.collapsed; scheduleSave(); render(); });
+    var titleInput = bar.querySelector(".heading-title");
+    titleInput.addEventListener("change", function(){ heading.title = titleInput.value.trim() || "Untitled"; scheduleSave(); });
+    titleInput.addEventListener("keydown", function(e){ if(e.key === "Enter") titleInput.blur(); });
+    bar.querySelector(".icon-btn.danger").addEventListener("click", function(){ removeHeading(heading); });
+
+    var body = document.createElement("div");
+    body.className = "heading-body";
+    heading.subheadings.forEach(function(sub){ body.appendChild(renderSubBlock(heading, sub)); });
+
+    var addSub = document.createElement("button");
+    addSub.className = "ghost-add";
+    addSub.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> Add sub-heading';
+    addSub.addEventListener("click", function(){ addSubheading(heading, "New sub-heading"); });
+    body.appendChild(addSub);
+
+    card.appendChild(body);
+    return card;
+  }
+
+  function renderSubBlock(heading, sub){
+    var block = document.createElement("div");
+    block.className = "sub-block";
+    var bar = document.createElement("div");
+    bar.className = "sub-bar";
+    bar.innerHTML =
+      '<input class="sub-title" value="' + escapeHtml(sub.title) + '" aria-label="Sub-heading title" />' +
+      '<span class="sub-count mono">' + sub.tasks.filter(function(t){return t.done;}).length + '/' + sub.tasks.length + '</span>' +
+      '<div class="sub-actions"><button class="icon-btn danger" title="Delete sub-heading" aria-label="Delete sub-heading"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>';
+    block.appendChild(bar);
+    var subTitleInput = bar.querySelector(".sub-title");
+    subTitleInput.addEventListener("change", function(){ sub.title = subTitleInput.value.trim() || "Untitled"; scheduleSave(); });
+    subTitleInput.addEventListener("keydown", function(e){ if(e.key === "Enter") subTitleInput.blur(); });
+    bar.querySelector(".icon-btn.danger").addEventListener("click", function(){ removeSubheading(heading, sub); });
+
+    var list = document.createElement("div");
+    list.className = "task-list";
+    sub.tasks.forEach(function(task){ list.appendChild(renderTaskRow(sub, task)); });
+    block.appendChild(list);
+
+    var addTaskBtn = document.createElement("button");
+    addTaskBtn.className = "ghost-add";
+    addTaskBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg> Add task';
+    addTaskBtn.addEventListener("click", function(){
+      var t = addTask(sub, "");
+      requestAnimationFrame(function(){ var el = document.querySelector('[data-task-id="' + t.id + '"] .task-text'); if(el) el.focus(); });
+    });
+    block.appendChild(addTaskBtn);
+    return block;
+  }
+
+  function renderTaskRow(sub, task){
+    var row = document.createElement("div");
+    row.className = "task-row" + (task.done ? " done" : "");
+    row.setAttribute("data-task-id", task.id);
+    var due = task.due;
+    var overdue = isOverdue(due, task.done);
+    var dueLabel = due ? formatDue(due) : "Add due date";
+
+    row.innerHTML =
+      '<input type="checkbox" class="check" ' + (task.done ? "checked" : "") + ' aria-label="Mark done" />' +
+      '<div class="task-main">' +
+        '<input class="task-text" value="' + escapeHtml(task.text) + '" aria-label="Task" />' +
+        '<div class="task-meta">' +
+          '<button class="due-badge' + (due ? (overdue ? ' overdue' : ' set') : '') + '" type="button"><span>' + escapeHtml(dueLabel) + '</span></button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="task-actions"><button class="icon-btn danger" title="Delete task" aria-label="Delete task"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>';
+
+    row.querySelector(".check").addEventListener("change", function(e){ task.done = e.target.checked; scheduleSave(); render(); });
+    var textInput = row.querySelector(".task-text");
+    textInput.addEventListener("change", function(){ task.text = textInput.value.trim() || "Untitled task"; scheduleSave(); });
+    textInput.addEventListener("keydown", function(e){ if(e.key === "Enter") textInput.blur(); });
+    row.querySelector(".due-badge").addEventListener("click", function(){ toggleDueEditor(row, task); });
+    row.querySelector(".icon-btn.danger").addEventListener("click", function(){ removeTask(sub, task); });
+    return row;
+  }
+
+  function toggleDueEditor(row, task){
+    var existing = row.querySelector(".due-editor");
+    if(existing){ existing.remove(); return; }
+    document.querySelectorAll(".due-editor").forEach(function(el){ el.remove(); });
+    var editor = document.createElement("div");
+    editor.className = "due-editor";
+    var d = task.due || {};
+    editor.innerHTML =
+      '<input type="date" value="' + (d.date || "") + '" />' +
+      '<input type="time" value="' + (d.time || "") + '" ' + (d.allDay ? "disabled" : "") + ' />' +
+      '<label><input type="checkbox" ' + (d.allDay ? "checked" : "") + ' /> All day</label>' +
+      '<button class="btn btn-sm btn-primary" data-act="save">Save</button>' +
+      (task.due ? '<button class="btn btn-sm btn-ghost" data-act="clear">Clear</button>' : '') +
+      '<button class="btn btn-sm btn-ghost" data-act="close">Close</button>';
+    row.querySelector(".task-main").appendChild(editor);
+    var dateEl = editor.querySelector('input[type="date"]');
+    var timeEl = editor.querySelector('input[type="time"]');
+    var allDayEl = editor.querySelector('input[type="checkbox"]');
+    dateEl.focus();
+    allDayEl.addEventListener("change", function(){ timeEl.disabled = allDayEl.checked; });
+    editor.querySelector('[data-act="save"]').addEventListener("click", function(){
+      if(!dateEl.value){ dateEl.focus(); return; }
+      task.due = { date: dateEl.value, time: allDayEl.checked ? null : (timeEl.value || null), allDay: allDayEl.checked || !timeEl.value };
+      scheduleSave(); render();
+    });
+    var clearBtn = editor.querySelector('[data-act="clear"]');
+    if(clearBtn) clearBtn.addEventListener("click", function(){ task.due = null; scheduleSave(); render(); });
+    editor.querySelector('[data-act="close"]').addEventListener("click", function(){ editor.remove(); });
+  }
+
+  document.getElementById("add-heading-btn").addEventListener("click", function(){
+    addHeading("New heading");
+    requestAnimationFrame(function(){
+      var el = document.querySelector('.heading-card:last-child .heading-title');
+      if(el){ el.focus(); el.select(); }
+    });
+  });
+
+  /* ---------------- boot ---------------- */
+  state = defaultState();
+  config = loadConfig();
+  render();
+  if(config){ setStatus("not_configured"); loadFromGithub(); }
+  else { setStatus("not_configured"); openSettings(); }
+})();
+</script>
+</body>
+</html>
