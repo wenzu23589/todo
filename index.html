@@ -864,6 +864,7 @@
      ================================================================ */
   var GCAL_CONFIG_KEY = "daybook-gcal-config-v1";
   var GCAL_EVER_KEY = "daybook-gcal-everconnected-v1";
+  var GCAL_TOKEN_KEY = "daybook-gcal-token-v1";
   var GCAL_SCOPE = "https://www.googleapis.com/auth/calendar";
   var gcalClientId = null;
   var gcalTokenClient = null;
@@ -876,6 +877,25 @@
 
   function loadGcalConfig(){ try{ return JSON.parse(localStorage.getItem(GCAL_CONFIG_KEY) || "null"); }catch(e){ return null; } }
   function saveGcalConfig(cfg){ localStorage.setItem(GCAL_CONFIG_KEY, JSON.stringify(cfg)); }
+
+  // Access tokens are cached (with their expiry) so a plain page refresh can reuse
+  // the still-valid token instead of re-triggering Google's sign-in flow every time.
+  function saveGcalToken(){
+    try{ localStorage.setItem(GCAL_TOKEN_KEY, JSON.stringify({ token: gcalToken, expiresAt: gcalTokenExpiresAt })); }catch(e){}
+  }
+  function loadCachedGcalToken(){
+    try{
+      var raw = JSON.parse(localStorage.getItem(GCAL_TOKEN_KEY) || "null");
+      if(raw && raw.token && raw.expiresAt && Date.now() < raw.expiresAt - 60000){
+        gcalToken = raw.token; gcalTokenExpiresAt = raw.expiresAt;
+        return true;
+      }
+    }catch(e){}
+    return false;
+  }
+  function clearCachedGcalToken(){
+    try{ localStorage.removeItem(GCAL_TOKEN_KEY); }catch(e){}
+  }
 
   function setGcalStatus(kind, detail){
     gcalStatus = kind; gcalStatusDetail = detail || "";
@@ -917,6 +937,7 @@
         gcalToken = resp.access_token;
         gcalTokenExpiresAt = Date.now() + (parseInt(resp.expires_in, 10) || 3500) * 1000;
         localStorage.setItem(GCAL_EVER_KEY, "1");
+        saveGcalToken();
         resolve(gcalToken);
       };
       tc.requestAccessToken(opts || {});
@@ -1101,6 +1122,23 @@
     if(!gcalClientId){ setGcalStatus("not_configured"); return; }
     if(localStorage.getItem(GCAL_EVER_KEY) !== "1"){ setGcalStatus("not_connected"); return; }
     setGcalStatus("connecting");
+    if(loadCachedGcalToken()){
+      // Still-valid token from a previous visit — reuse it silently, no Google
+      // popup/prompt at all, instead of requesting a brand-new one on every load.
+      loadGoogleCalendars().then(function(){
+        setGcalStatus("connected");
+        reconcileFromCalendar();
+      }).catch(function(){
+        // Cached token turned out to be no good (e.g. revoked) — fall back to a fresh silent request.
+        requestGcalToken({ prompt: "" }).then(function(){
+          return loadGoogleCalendars();
+        }).then(function(){
+          setGcalStatus("connected");
+          reconcileFromCalendar();
+        }).catch(function(){ setGcalStatus("not_connected"); });
+      });
+      return;
+    }
     requestGcalToken({ prompt: "" }).then(function(){
       return loadGoogleCalendars();
     }).then(function(){
@@ -1263,6 +1301,7 @@
         discBtn.addEventListener("click", function(){
           gcalToken = null; gcalTokenExpiresAt = 0;
           localStorage.removeItem(GCAL_EVER_KEY);
+          clearCachedGcalToken();
           setGcalStatus("not_connected");
           close();
         });
