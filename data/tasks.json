@@ -39,32 +39,9 @@
         }
       ],
       "subheadings": []
-    },
-    {
-      "id": "286665fd-800d-47fb-90ae-5531376132ca",
-      "title": "la",
-      "collapsed": false,
-      "color": null,
-      "tasks": [
-        {
-          "id": "9986e6cb-f1fb-4945-aa2e-6e65eced807a",
-          "text": "ff",
-          "done": false,
-          "due": {
-            "date": "2026-08-29",
-            "time": null,
-            "allDay": true
-          },
-          "completedAt": null,
-          "calendarEventId": "mm3fsjm877idstdl9g0u886578",
-          "syncError": null,
-          "syncing": false
-        }
-      ],
-      "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T10:51:41.749Z",
+  "updatedAt": "2026-08-26T11:01:44.129Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
