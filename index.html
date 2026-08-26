@@ -311,6 +311,14 @@
   .theme-swatch{ display:flex; flex-shrink:0; }
   .theme-swatch span{ width:13px; height:13px; border-radius:50%; box-shadow:0 0 0 1px var(--line); }
   .theme-swatch span + span{ margin-left:-4px; }
+  .theme-section-label{ font-size:0.7rem; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:var(--muted); padding:6px 9px 3px; }
+  .theme-appearance-row{ display:flex; gap:2px; background:var(--paper-sunken); padding:3px; border-radius:var(--radius-m); margin:0 4px 8px; }
+  .theme-appearance-btn{
+    flex:1; border:none; background:transparent; padding:6px 4px; border-radius:calc(var(--radius-m) - 3px);
+    font-size:0.78rem; font-weight:500; color:var(--muted); cursor:pointer;
+  }
+  .theme-appearance-btn.active{ background:var(--paper-raised); color:var(--ink); box-shadow:var(--shadow); }
+  .theme-appearance-btn:hover:not(.active){ color:var(--ink); }
 
   /* ---------- calendar view ---------- */
   .cal-head{ display:flex; align-items:center; gap:10px; margin:22px 0 16px; flex-wrap:wrap; }
@@ -465,6 +473,12 @@
   function loadPaletteKey(){
     try{ var k = localStorage.getItem(PALETTE_KEY); return (k && PALETTES[k]) ? k : "ledger"; } catch(e){ return "ledger"; }
   }
+  function effectiveIsDark(){
+    var forced = document.documentElement.getAttribute("data-theme");
+    if(forced === "dark") return true;
+    if(forced === "light") return false;
+    return !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  }
   function applyPalette(key){
     if(!PALETTES[key]) key = "ledger";
     try{ localStorage.setItem(PALETTE_KEY, key); }catch(e){}
@@ -474,14 +488,32 @@
       root.style.removeProperty("--accent-2");
     } else {
       var pal = PALETTES[key];
-      var isDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-      var vals = isDark ? pal.dark : pal.light;
+      var vals = effectiveIsDark() ? pal.dark : pal.light;
       root.style.setProperty("--accent", vals.accent);
       root.style.setProperty("--accent-2", vals.accent2);
     }
     currentPaletteKey = key;
   }
   var currentPaletteKey = "ledger";
+
+  /* ---------------- appearance (light / dark / system) ---------------- */
+  var APPEARANCE_KEY = "daybook-appearance-v1";
+  var currentAppearance = "system";
+  function loadAppearance(){
+    try{
+      var v = localStorage.getItem(APPEARANCE_KEY);
+      return (v === "light" || v === "dark") ? v : "system";
+    }catch(e){ return "system"; }
+  }
+  function applyAppearance(mode){
+    if(mode !== "light" && mode !== "dark") mode = "system";
+    try{ localStorage.setItem(APPEARANCE_KEY, mode); }catch(e){}
+    var root = document.documentElement;
+    if(mode === "system") root.removeAttribute("data-theme");
+    else root.setAttribute("data-theme", mode);
+    currentAppearance = mode;
+    applyPalette(currentPaletteKey);
+  }
   if(window.matchMedia){
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function(){ applyPalette(currentPaletteKey); });
   }
@@ -1430,19 +1462,39 @@
     closeAllPopovers();
     var pop = document.createElement("div");
     pop.className = "theme-popover";
-    pop.innerHTML = Object.keys(PALETTES).map(function(key){
-      var p = PALETTES[key];
-      return '<button class="theme-option' + (key === currentPaletteKey ? " active" : "") + '" type="button" data-key="' + key + '">' +
-        '<span class="theme-swatch"><span style="background:' + p.light.accent + '"></span><span style="background:' + p.light.accent2 + '"></span></span>' +
-        '<span>' + escapeHtml(p.name) + '</span>' +
-      '</button>';
-    }).join("");
+    var isDark = effectiveIsDark();
+    var appearanceRow =
+      '<div class="theme-section-label">Background</div>' +
+      '<div class="theme-appearance-row">' +
+        ["system","light","dark"].map(function(mode){
+          var label = mode === "system" ? "Auto" : (mode === "light" ? "Light" : "Dark");
+          return '<button class="theme-appearance-btn' + (currentAppearance === mode ? " active" : "") + '" type="button" data-mode="' + mode + '">' + label + '</button>';
+        }).join("") +
+      '</div>';
+    var paletteRow =
+      '<div class="theme-section-label">Accent colour</div>' +
+      Object.keys(PALETTES).map(function(key){
+        var p = PALETTES[key];
+        var vals = isDark ? p.dark : p.light;
+        return '<button class="theme-option' + (key === currentPaletteKey ? " active" : "") + '" type="button" data-key="' + key + '">' +
+          '<span class="theme-swatch"><span style="background:' + vals.accent + '"></span><span style="background:' + vals.accent2 + '"></span></span>' +
+          '<span>' + escapeHtml(p.name) + '</span>' +
+        '</button>';
+      }).join("");
+    pop.innerHTML = appearanceRow + paletteRow;
     document.body.appendChild(pop);
     var rect = anchorEl.getBoundingClientRect();
     pop.style.top = (rect.bottom + 6) + "px";
     var left = rect.right - pop.offsetWidth;
     pop.style.left = Math.max(8, left) + "px";
     pop.addEventListener("click", function(e){ e.stopPropagation(); });
+    pop.querySelectorAll(".theme-appearance-btn").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        applyAppearance(btn.getAttribute("data-mode"));
+        pop.remove();
+        openThemePopover(anchorEl);
+      });
+    });
     pop.querySelectorAll(".theme-option").forEach(function(btn){
       btn.addEventListener("click", function(){
         applyPalette(btn.getAttribute("data-key"));
@@ -1763,16 +1815,20 @@
       if(wasSameDate) return;
     }
     closeAllPopovers();
-    if(!state.headings.length){ showBanner("Add a heading first, then you can add tasks from the calendar.", "danger"); return; }
     var pop = document.createElement("div");
     pop.className = "quickadd-popover";
     pop.setAttribute("data-date", dateStr);
     var dObj = new Date(dateStr + "T00:00:00");
     var label = dObj.toLocaleDateString(undefined, {weekday:"long", month:"long", day:"numeric"});
+    var hasHeadings = state.headings.length > 0;
     pop.innerHTML =
       '<div class="qa-title">Add task — ' + escapeHtml(label) + '</div>' +
       '<input type="text" class="qa-text" placeholder="Task title" />' +
-      '<select class="qa-heading">' + state.headings.map(function(h){ return '<option value="' + h.id + '">' + escapeHtml(h.title) + '</option>'; }).join("") + '</select>' +
+      '<select class="qa-heading">' +
+        state.headings.map(function(h){ return '<option value="' + h.id + '">' + escapeHtml(h.title) + '</option>'; }).join("") +
+        '<option value="__new__"' + (hasHeadings ? "" : " selected") + '>+ New heading…</option>' +
+      '</select>' +
+      '<input type="text" class="qa-new-heading" placeholder="New heading name"' + (hasHeadings ? " hidden" : "") + ' />' +
       '<div class="qa-actions"><button class="btn btn-sm btn-ghost" type="button" data-act="cancel">Cancel</button><button class="btn btn-sm btn-primary" type="button" data-act="add">Add</button></div>';
     document.body.appendChild(pop);
     var rect = anchorEl.getBoundingClientRect();
@@ -1785,16 +1841,31 @@
     pop.style.left = Math.max(8, left) + "px";
     pop.addEventListener("click", function(e){ e.stopPropagation(); });
     var textEl = pop.querySelector(".qa-text");
-    textEl.focus();
+    var headingSel = pop.querySelector(".qa-heading");
+    var newHeadingEl = pop.querySelector(".qa-new-heading");
+    (hasHeadings ? textEl : newHeadingEl).focus();
+    headingSel.addEventListener("change", function(){
+      newHeadingEl.hidden = headingSel.value !== "__new__";
+      if(!newHeadingEl.hidden) newHeadingEl.focus();
+    });
     function submit(){
       var text = textEl.value.trim();
       if(!text){ textEl.focus(); return; }
-      var headingId = pop.querySelector(".qa-heading").value;
-      var heading = state.headings.filter(function(h){ return h.id === headingId; })[0] || state.headings[0];
+      var headingId = headingSel.value;
+      var heading;
+      if(headingId === "__new__"){
+        var newTitle = newHeadingEl.value.trim();
+        if(!newTitle){ newHeadingEl.focus(); return; }
+        heading = { id: uid(), title: newTitle, collapsed:false, color:null, tasks: [], subheadings: [] };
+        state.headings.push(heading);
+      } else {
+        heading = state.headings.filter(function(h){ return h.id === headingId; })[0] || state.headings[0];
+      }
       addTaskWithDue(heading, text, dateStr);
       pop.remove();
     }
     textEl.addEventListener("keydown", function(e){ if(e.key === "Enter") submit(); if(e.key === "Escape") pop.remove(); });
+    newHeadingEl.addEventListener("keydown", function(e){ if(e.key === "Enter") submit(); if(e.key === "Escape") pop.remove(); });
     pop.querySelector('[data-act="add"]').addEventListener("click", submit);
     pop.querySelector('[data-act="cancel"]').addEventListener("click", function(){ pop.remove(); });
   }
@@ -2139,6 +2210,8 @@
   });
 
   /* ---------------- boot ---------------- */
+  currentAppearance = loadAppearance();
+  if(currentAppearance !== "system") document.documentElement.setAttribute("data-theme", currentAppearance);
   applyPalette(loadPaletteKey());
   state = defaultState();
   config = loadConfig();
