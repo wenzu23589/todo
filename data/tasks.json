@@ -118,7 +118,9 @@
           "priority": null,
           "tags": [],
           "subtasks": [],
-          "attachments": []
+          "attachments": [],
+          "notesRich": true,
+          "deletedAt": null
         },
         {
           "id": "9741932e-9536-49be-8a28-22416e1982b3",
@@ -134,7 +136,9 @@
           "priority": null,
           "tags": [],
           "subtasks": [],
-          "attachments": []
+          "attachments": [],
+          "notesRich": true,
+          "deletedAt": null
         }
       ],
       "subheadings": []
@@ -418,9 +422,17 @@
         }
       ],
       "subheadings": []
+    },
+    {
+      "id": "08c6c057-2bff-424d-a055-aa9d36d6b4e1",
+      "title": "New heading",
+      "collapsed": false,
+      "color": null,
+      "tasks": [],
+      "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T19:11:37.322Z",
+  "updatedAt": "2026-08-26T19:12:36.072Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
