@@ -162,7 +162,7 @@
           "tasks": [
             {
               "id": "887a8e91-3cf4-4015-9dfc-feb1d8ecf351",
-              "text": "New task",
+              "text": "Set a new deadline.",
               "done": false,
               "due": null,
               "completedAt": null,
@@ -176,11 +176,17 @@
               "subtasks": []
             }
           ]
+        },
+        {
+          "id": "b0248800-270b-4570-a173-37e854232df3",
+          "title": "New sub-heading",
+          "collapsed": false,
+          "tasks": []
         }
       ]
     }
   ],
-  "updatedAt": "2026-08-26T13:39:47.652Z",
+  "updatedAt": "2026-08-26T13:39:53.856Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
