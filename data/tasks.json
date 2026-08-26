@@ -13,9 +13,8 @@
           "done": false,
           "due": {
             "date": "2026-09-20",
-            "time": null,
-            "endTime": null,
-            "allDay": true
+            "time": "07:00",
+            "allDay": false
           },
           "completedAt": null,
           "calendarEventId": "dmfr9kuqi6ih0mt6uil1bf8q3o",
@@ -311,7 +310,7 @@
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T14:48:27.937Z",
+  "updatedAt": "2026-08-26T15:24:16.210Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
