@@ -8,40 +8,9 @@
       "subheadings": [],
       "tasks": [],
       "color": null
-    },
-    {
-      "id": "ef1d3ba6-7c8c-47e9-991a-0b6abc3cac0a",
-      "title": "New heading",
-      "collapsed": false,
-      "color": "#4a5fc1",
-      "tasks": [
-        {
-          "id": "82ed6695-d697-47ac-8015-7d124f23723f",
-          "text": "lala",
-          "done": false,
-          "due": {
-            "date": "2026-08-28",
-            "time": null,
-            "allDay": true
-          },
-          "completedAt": null,
-          "calendarEventId": null,
-          "syncError": null
-        },
-        {
-          "id": "def5ffe8-24fc-4f74-8bf7-06c1ad77421d",
-          "text": "New task",
-          "done": false,
-          "due": null,
-          "completedAt": null,
-          "calendarEventId": null,
-          "syncError": null
-        }
-      ],
-      "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T11:01:44.129Z",
+  "updatedAt": "2026-08-26T11:01:46.329Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
