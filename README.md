@@ -2,11 +2,16 @@
 
 A to-do list with headings and sub-headings, built as a single static page. Tasks are stored as a JSON file in a GitHub repo you own, so the same list follows you across every computer and your phone — just open the page and sign in with a token once per device.
 
-This folder has three files:
+This folder has these files:
 
 - `index.html` — the whole app (one file, no build step)
+- `manifest.json`, `sw.js`, `icons/` — let you install Daybook as an app on your phone or computer (see [Install Daybook as an app](#9-install-daybook-as-an-app))
 - `CNAME` — tells GitHub Pages to serve the site at `todo.lawrencefarrugiacaruana.com`
+- `scripts/sync-ics.js`, `.github/workflows/sync-ics.yml` — the background job for external (iCal) calendars, see section 7
+- `scripts/send-digest.js`, `.github/workflows/daily-digest.yml` — the background job for the daily email digest, see section 8
 - `README.md` — this file
+
+Upload all of these to your repo, keeping the folder structure (`icons/`, `scripts/`, `.github/workflows/`) intact — the same drag-and-drop-with-a-typed-path trick described in section 7B works for any of them.
 
 ## 1. Create the repo
 
@@ -75,6 +80,11 @@ The token is stored only in that browser's local storage — it's never sent any
 - Every change auto-saves to the GitHub file a second or so after you stop typing. The pill in the header shows the connected repo; the little indicator in the bottom-right shows save status.
 - Open the same URL on another device, connect it to the same repo/token, and you'll see the same list. The **Sync now** button force-refreshes from GitHub (handy right after making a change elsewhere).
 - If two devices save at almost the same moment, the second save detects the conflict, reloads the latest version from GitHub, and shows a banner — just redo the change that got dropped.
+- **Sort:** above the list, toggle between **Manual** (your own drag-and-drop order) and **Due date** (soonest first, undated tasks last). Switching back to Manual always restores your original order.
+- **Notes & checklists:** click the notes icon on any task to jot free-text notes and/or add a checklist inside it — handy for a task with sub-steps. The badge on the task shows a quick summary (e.g. "Notes • 2/3") without opening it.
+- **Quick capture:** the **Quick capture** button above the list opens a box where you can paste or type several lines at once — each line becomes its own task, under an existing heading or a new one you name on the spot. Good for brain-dumping a list quickly.
+- **Undo:** deleting a task, sub-heading, or heading shows an **Undo** toast for a few seconds — click it to put the item back exactly where it was, including any linked Google Calendar event.
+- **Archive:** once a task is checked off, an archive icon appears on it — archiving tucks it out of the main list (a "Show archived (N)" toggle on the heading reveals it again) without deleting it. Completed tasks also archive themselves automatically after two weeks, just to keep long-finished items from cluttering the list; nothing is ever deleted unless you delete it yourself, and archived tasks can always be restored or permanently removed (with Undo) from the same panel.
 
 ## 6. Connect Google Calendar (optional, two-way sync)
 
@@ -140,6 +150,48 @@ GitHub Actions is on by default for new repos, so no extra setup is needed there
 The first sync happens automatically within a minute or two of adding it (saving a feed triggers the background job right away). After that, it refreshes roughly every 30 minutes on its own — this is a background sync, not a live feed, so a change made in the source calendar can take up to half an hour to show up in Daybook. You can add as many external calendars as you like; each gets its own colour on the Calendar view, and hovering an event shows which calendar it came from. Remove one any time from the same panel.
 
 This is read-only in every direction: Daybook never writes anything back to these calendars, and all synced events are assumed to be in the `Europe/Malta` timezone (this is fixed in the script, not auto-detected — fine for UM calendars, but worth knowing if you ever add a calendar based somewhere else).
+
+## 8. Set up the daily email digest (optional)
+
+Once a day, Daybook can email you a summary of overdue tasks, tasks due today, and tasks due in the next few days. Like the external-calendar sync, this runs as a background job (a GitHub Action), so it works even if you never open the app that day — sending needs a small one-time setup:
+
+**A. Create a Gmail App Password**
+
+The digest sends through Gmail's SMTP server using an **App Password** — a 16-character code scoped just to sending mail, separate from your real Gmail password (Google requires this for any app that isn't Google itself).
+
+1. This needs 2-Step Verification turned on for the Google account you want to send from — turn it on first at [myaccount.google.com/security](https://myaccount.google.com/security) if it isn't already.
+2. Go to [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords), sign in, name it anything (e.g. "Daybook digest"), and click **Create**.
+3. Copy the 16-character password shown — Google only shows it once.
+
+**B. Add the two extra files to your repo**
+
+1. `scripts/send-digest.js` — upload to a `scripts` folder (same folder `sync-ics.js` lives in, if you set that up already).
+2. `.github/workflows/daily-digest.yml` — upload to `.github/workflows` (alongside `sync-ics.yml`, if present).
+
+**C. Store the Gmail address and App Password as repo secrets**
+
+These are the only credentials Daybook needs outside your browser, so they're kept as GitHub Actions secrets rather than in the app itself:
+
+1. In your repo, go to **Settings → Secrets and variables → Actions → New repository secret**.
+2. Add a secret named `GMAIL_USER` with the Gmail address you're sending from (e.g. `you@gmail.com`).
+3. Add a second secret named `GMAIL_APP_PASSWORD` with the 16-character App Password from step A.
+
+**D. Turn it on in the app**
+
+1. Open `https://todo.lawrencefarrugiacaruana.com` and click the calendar pill (or **Set up Calendar**) in the header — the digest setting lives in the same panel as the calendar settings.
+2. Under **Daily email digest**, tick **Send me the daily digest**, enter the address to send it *to* (this can be the same Gmail address, or any other inbox you check), and click **Save digest settings**.
+
+By default the job runs at 06:00 UTC (07:00 or 08:00 in Malta, depending on daylight saving) — edit the `cron` line near the top of `.github/workflows/daily-digest.yml` if you'd like a different time, or trigger it on demand any time from the repo's **Actions** tab → **Daily email digest** → **Run workflow**. If the toggle is off, or no recipient is set, the job runs but sends nothing.
+
+## 9. Install Daybook as an app
+
+Daybook can be installed like a native app on your phone, tablet, or computer, so it opens in its own window (no browser address bar) with its own icon on your home screen or dock.
+
+- **Desktop Chrome/Edge:** open `https://todo.lawrencefarrugiacaruana.com`, then click **Install app** in the header (or the install icon ⊕ at the right of the address bar).
+- **Android (Chrome):** open the site, tap the **⋮** menu → **Install app** (or use the **Install app** button in the header if it appears).
+- **iPhone/iPad (Safari):** Safari doesn't support the automatic install prompt — instead, open the site, tap the **Share** icon, then **Add to Home Screen**.
+
+Once installed, the app shell (not your tasks) loads instantly even with a flaky connection, since the page itself is cached on your device — your tasks, calendar, and settings still need a live connection to load and save, exactly as in the browser.
 
 ## Notes
 

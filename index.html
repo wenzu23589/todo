@@ -7,6 +7,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link id="font-base-link" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#a8672a">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Daybook">
 <title>Daybook</title>
 <style>
   :root{
@@ -241,11 +248,51 @@
   .due-editor input[type="date"], .due-editor input[type="time"]{ font:inherit; font-size:0.8rem; border:1px solid var(--line); border-radius:4px; padding:3px 5px; background:var(--paper-raised); color:var(--ink); }
   .due-editor label{ display:flex; align-items:center; gap:4px; font-size:0.78rem; color:var(--muted); }
 
+  .notes-badge{
+    display:inline-flex; align-items:center; gap:5px; font-size:0.74rem; color:var(--muted);
+    border:1px solid var(--line); border-radius:999px; padding:2px 9px 2px 8px; cursor:pointer; background:var(--paper-raised);
+  }
+  .notes-badge:hover{ border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
+  .notes-badge.set{ color:var(--ink-soft); border-color: color-mix(in srgb, var(--accent-2) 45%, var(--line)); }
+  .notes-editor{
+    display:flex; flex-direction:column; gap:7px; background:var(--paper-sunken); border:1px solid var(--line);
+    border-radius:var(--radius-s); padding:8px; margin-top:4px;
+  }
+  .notes-textarea{
+    width:100%; font:inherit; font-size:0.85rem; border:1px solid var(--line); border-radius:var(--radius-s);
+    padding:6px 8px; background:var(--paper-raised); color:var(--ink); resize:vertical; min-height:52px;
+  }
+  .checklist-list{ display:flex; flex-direction:column; gap:2px; }
+  .checklist-item{ display:flex; align-items:center; gap:6px; }
+  .checklist-item-check{ flex-shrink:0; }
+  .checklist-item-text{
+    flex:1; min-width:0; border:none; background:transparent; color:var(--ink); font:inherit; font-size:0.85rem; padding:3px 4px; border-radius:4px;
+  }
+  .checklist-item-text:focus{ background:var(--paper-raised); }
+  .checklist-item.done .checklist-item-text{ color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line); }
+  .checklist-item-remove{ opacity:0; padding:3px; flex-shrink:0; }
+  .checklist-item:hover .checklist-item-remove, .checklist-item-text:focus ~ .checklist-item-remove{ opacity:1; }
+  .checklist-add-row{ display:flex; gap:6px; }
+  .checklist-add-input{
+    flex:1; min-width:0; font:inherit; font-size:0.85rem; border:1px solid var(--line); border-radius:var(--radius-s);
+    padding:5px 8px; background:var(--paper-raised); color:var(--ink);
+  }
+  .notes-editor-actions{ display:flex; justify-content:flex-end; }
+
   .ghost-add{
     display:flex; align-items:center; gap:6px; color:var(--muted); background:none; border:1px dashed var(--line);
     border-radius:var(--radius-s); padding:6px 10px; font-size:0.82rem; cursor:pointer; margin-top:4px; width:100%; justify-content:flex-start;
   }
   .ghost-add:hover{ color:var(--ink); border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
+  .archive-toggle{ border-style:solid; background:var(--paper-sunken); }
+  .archive-toggle svg{ transition:transform .15s ease; flex-shrink:0; }
+  .archived-list{ display:flex; flex-direction:column; gap:1px; margin-top:4px; border-radius:var(--radius-s); overflow:hidden; }
+  .archived-row{
+    display:flex; align-items:center; gap:8px; padding:6px 8px; background:var(--paper-sunken); font-size:0.85rem;
+  }
+  .archived-text{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line); }
+  .archived-date{ font-size:0.72rem; color:var(--muted); flex-shrink:0; }
+  .archived-row .btn{ flex-shrink:0; }
 
   .empty-state{ text-align:center; padding:64px 20px; color:var(--muted); border:1px dashed var(--line); border-radius:var(--radius-l); margin-top:12px; }
   .empty-state h2{ font-size:1.3rem; color:var(--ink); margin-bottom:8px; }
@@ -292,8 +339,9 @@
   .modal-actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:16px; flex-wrap:wrap; }
   .field{ margin-bottom:12px; }
   .field label{ display:block; font-size:0.78rem; color:var(--muted); margin-bottom:4px; font-weight:600; letter-spacing:0.01em; }
-  .field input, .field select{ width:100%; font:inherit; font-size:0.88rem; padding:8px 10px; border-radius:var(--radius-s); border:1px solid var(--line); background:var(--paper-sunken); color:var(--ink); }
-  .field input:focus, .field select:focus{ background:var(--paper-raised); }
+  .field input, .field select, .field textarea{ width:100%; font:inherit; font-size:0.88rem; padding:8px 10px; border-radius:var(--radius-s); border:1px solid var(--line); background:var(--paper-sunken); color:var(--ink); }
+  .field input:focus, .field select:focus, .field textarea:focus{ background:var(--paper-raised); }
+  .field textarea{ resize:vertical; min-height:120px; }
   .field-hint{ font-size:0.72rem; color:var(--muted); margin-top:3px; }
   .field-row{ display:flex; gap:10px; }
   .field-row .field{ flex:1; }
@@ -314,6 +362,10 @@
   .ics-add-row{ display:flex; gap:6px; flex-wrap:wrap; }
   .ics-add-row input{ flex:1; min-width:120px; }
   .ics-add-row .btn{ flex-shrink:0; }
+  .digest-field{ margin-top:14px; }
+  .digest-toggle-row{ display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.9rem; margin:8px 0; }
+  .digest-toggle-row input{ width:auto; flex-shrink:0; }
+  .digest-field input[type="email"]{ margin-bottom:8px; }
 
   /* ---------- theme popover ---------- */
   .theme-popover{
@@ -409,7 +461,7 @@
   .cal-week-add{ border:1px dashed var(--line); background:transparent; color:var(--muted); border-radius:6px; padding:5px 6px; font-size:0.72rem; cursor:pointer; }
   .cal-week-add:hover{ color:var(--ink); border-color:color-mix(in srgb, var(--ink) 25%, var(--line)); }
 
-  .list-sort-row{ display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+  .list-sort-row{ display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
   .list-sort-label{ font-size:0.72rem; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:var(--muted); }
   .list-sort-toggle{ display:inline-flex; gap:2px; background:var(--paper-sunken); padding:3px; border-radius:var(--radius-m); }
   .list-sort-btn{
@@ -419,6 +471,16 @@
   .list-sort-btn.active{ background:var(--paper-raised); color:var(--ink); box-shadow:var(--shadow); font-weight:600; }
   .list-sort-btn:hover:not(.active){ color:var(--ink); }
   .grip.inactive{ opacity:0.35; cursor:default; }
+
+  .undo-toast{
+    position:fixed; left:50%; bottom:22px; transform:translateX(-50%); z-index:60;
+    display:flex; align-items:center; gap:12px; background:var(--ink); color:var(--paper);
+    border-radius:var(--radius-m); padding:10px 10px 10px 16px; box-shadow:var(--shadow); font-size:0.85rem;
+    animation: undo-toast-in .18s ease;
+  }
+  .undo-toast .btn{ color:var(--paper); border-color:color-mix(in srgb, var(--paper) 35%, transparent); }
+  .undo-toast .btn:hover{ background:color-mix(in srgb, var(--paper) 15%, transparent); }
+  @keyframes undo-toast-in{ from{ opacity:0; transform:translateX(-50%) translateY(6px); } to{ opacity:1; transform:translateX(-50%) translateY(0); } }
 
   .quickadd-popover{
     position:fixed; z-index:40; background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-m);
@@ -450,6 +512,10 @@
           Theme
         </button>
         <button class="btn btn-sm" id="sync-now-btn">Sync now</button>
+        <button class="btn btn-sm" id="install-app-btn" hidden>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 19h14"/></svg>
+          Install app
+        </button>
         <div class="status-pill" id="status-pill" data-state="off">
           <span class="status-dot"></span><span id="status-text">Not connected</span>
         </div>
@@ -479,6 +545,10 @@
           <button class="list-sort-btn active" id="sort-manual-btn" type="button">Manual</button>
           <button class="list-sort-btn" id="sort-due-btn" type="button">Due date</button>
         </div>
+        <button class="btn btn-sm" id="quick-capture-btn" type="button" style="margin-left:auto;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 5v14M5 12h14"/></svg>
+          Quick capture
+        </button>
       </div>
       <div id="headings-root"></div>
       <div id="empty-state-root"></div>
@@ -697,10 +767,20 @@
     s.version = 3;
     return s;
   }
+  var ARCHIVE_AFTER_DAYS = 14;
   function normalizeTask(t){
     if(t.completedAt === undefined) t.completedAt = null;
     if(t.calendarEventId === undefined) t.calendarEventId = null;
     if(t.syncError === undefined) t.syncError = null;
+    if(typeof t.notes !== "string") t.notes = "";
+    if(!Array.isArray(t.checklist)) t.checklist = [];
+    if(t.archivedAt === undefined) t.archivedAt = null;
+    // Auto-archive tasks completed a while ago, so the list doesn't accumulate old
+    // check marks forever — still visible under "Show archived", not deleted.
+    if(t.done && t.completedAt && !t.archivedAt){
+      var ageMs = Date.now() - new Date(t.completedAt).getTime();
+      if(ageMs > ARCHIVE_AFTER_DAYS * 24 * 60 * 60 * 1000) t.archivedAt = new Date().toISOString();
+    }
   }
 
   /* ---------------- config (per-device, in this browser only) ---------------- */
@@ -1361,6 +1441,15 @@
       html += '<div id="ics-add-error" class="modal-error" hidden></div>';
       html += '</div>';
 
+      html += '<div class="field digest-field"><label>Daily email digest</label>';
+      html += '<div class="modal-note">A once-a-day email listing overdue tasks, tasks due today, and tasks due in the next few days. Sent by a GitHub Actions job — see the README for the one-time setup (a Gmail address + App Password stored as repo secrets).</div>';
+      html += '<label class="digest-toggle-row"><input type="checkbox" id="digest-enabled"' + (digestSettings.enabled ? " checked" : "") + '> <span>Send me the daily digest</span></label>';
+      html += '<input type="email" id="digest-email" placeholder="you@example.com" value="' + escapeHtml(digestSettings.email) + '">';
+      html += '<div id="digest-error" class="modal-error" hidden></div>';
+      html += '<button type="button" class="btn btn-ghost btn-sm" id="digest-save">Save digest settings</button>';
+      html += '<span id="digest-saved-note" class="field-hint" hidden>Saved.</span>';
+      html += '</div>';
+
       html += trailingActionsHtml;
 
       html += '</div>';
@@ -1486,9 +1575,38 @@
           });
         });
       });
+
+      var digestSaveBtn = backdrop.querySelector("#digest-save");
+      if(digestSaveBtn){
+        digestSaveBtn.addEventListener("click", function(){
+          var emailEl = backdrop.querySelector("#digest-email");
+          var errEl = backdrop.querySelector("#digest-error");
+          var savedNote = backdrop.querySelector("#digest-saved-note");
+          var enabled = backdrop.querySelector("#digest-enabled").checked;
+          var email = emailEl.value.trim();
+          errEl.hidden = true; savedNote.hidden = true;
+          if(enabled && !email){
+            errEl.textContent = "Add the email address to send the digest to, or turn the toggle off.";
+            errEl.hidden = false;
+            return;
+          }
+          if(!config){
+            errEl.textContent = "Connect Daybook to a GitHub repo first (see Settings) before enabling the digest.";
+            errEl.hidden = false;
+            return;
+          }
+          digestSettings = { enabled: enabled, email: email };
+          digestSaveBtn.disabled = true; digestSaveBtn.textContent = "Saving…";
+          saveDigestSettings().then(function(){
+            digestSaveBtn.disabled = false; digestSaveBtn.textContent = "Save digest settings";
+            savedNote.hidden = false;
+          });
+        });
+      }
     }
     paint();
     if(config && !icsFeedsLoaded) loadIcsFeeds().then(paint);
+    if(config && !digestSettingsLoaded) loadDigestSettings().then(paint);
   }
   document.getElementById("gcal-pill").addEventListener("click", openCalendarSettings);
 
@@ -1827,6 +1945,7 @@
   });
   document.getElementById("sort-manual-btn").addEventListener("click", function(){ setTaskSortMode("manual"); });
   document.getElementById("sort-due-btn").addEventListener("click", function(){ setTaskSortMode("due"); });
+  document.getElementById("quick-capture-btn").addEventListener("click", function(){ openQuickCapture(); });
   function wireColorDot(dot, bar, heading){
     dot.addEventListener("click", function(e){
       e.stopPropagation();
@@ -1859,15 +1978,43 @@
     heading.subheadings.push(sh); lastAddedId = sh.id; scheduleSave(); render(); return sh;
   }
   function addTask(container, text){
-    var t = { id: uid(), text: text || "New task", done:false, due:null, completedAt:null, calendarEventId:null, syncError:null };
+    var t = { id: uid(), text: text || "New task", done:false, due:null, completedAt:null, calendarEventId:null, syncError:null, notes:"", checklist:[], archivedAt:null };
     container.tasks.push(t); lastAddedId = t.id; scheduleSave(); render(); return t;
   }
+  /* ---------------- undo toast ---------------- */
+  var undoToastTimer = null;
+  function showUndoToast(message, undoFn){
+    var existing = document.getElementById("undo-toast");
+    if(existing) existing.remove();
+    if(undoToastTimer) clearTimeout(undoToastTimer);
+    var toast = document.createElement("div");
+    toast.id = "undo-toast";
+    toast.className = "undo-toast";
+    toast.innerHTML = '<span>' + escapeHtml(message) + '</span><button type="button" class="btn btn-sm btn-ghost" id="undo-toast-btn">Undo</button>';
+    document.body.appendChild(toast);
+    toast.querySelector("#undo-toast-btn").addEventListener("click", function(){
+      clearTimeout(undoToastTimer);
+      toast.remove();
+      undoFn();
+    });
+    undoToastTimer = setTimeout(function(){ if(toast.parentNode) toast.remove(); }, 7000);
+  }
+
   function removeHeading(heading){
     openConfirm({
       title: "Delete “" + heading.title + "”?",
       body: "This removes the heading and everything inside it.",
       confirmLabel: "Delete", danger: true,
-      onConfirm: function(){ state.headings = state.headings.filter(function(h){ return h.id !== heading.id; }); scheduleSave(); render(); }
+      onConfirm: function(){
+        var idx = state.headings.findIndex(function(h){ return h.id === heading.id; });
+        if(idx < 0) return;
+        state.headings.splice(idx, 1);
+        scheduleSave(); render();
+        showUndoToast("Heading deleted", function(){
+          state.headings.splice(Math.min(idx, state.headings.length), 0, heading);
+          scheduleSave(); render();
+        });
+      }
     });
   }
   function removeSubheading(heading, sub){
@@ -1875,13 +2022,31 @@
       title: "Delete “" + sub.title + "”?",
       body: "This removes the sub-heading and its tasks.",
       confirmLabel: "Delete", danger: true,
-      onConfirm: function(){ heading.subheadings = heading.subheadings.filter(function(s){ return s.id !== sub.id; }); scheduleSave(); render(); }
+      onConfirm: function(){
+        var idx = heading.subheadings.findIndex(function(s){ return s.id === sub.id; });
+        if(idx < 0) return;
+        heading.subheadings.splice(idx, 1);
+        scheduleSave(); render();
+        showUndoToast("Sub-heading deleted", function(){
+          heading.subheadings.splice(Math.min(idx, heading.subheadings.length), 0, sub);
+          scheduleSave(); render();
+        });
+      }
     });
   }
   function removeTask(container, task){
     deleteRemoteEventBestEffort(task).then(function(){
-      container.tasks = container.tasks.filter(function(t){ return t.id !== task.id; });
+      var idx = container.tasks.findIndex(function(t){ return t.id === task.id; });
+      if(idx < 0) return;
+      var hadCalendarEvent = !!task.calendarEventId;
+      container.tasks.splice(idx, 1);
       scheduleSave(); render();
+      showUndoToast("Task deleted", function(){
+        if(hadCalendarEvent) task.calendarEventId = null; // the remote event is already gone — recreate it below if still due
+        container.tasks.splice(Math.min(idx, container.tasks.length), 0, task);
+        scheduleSave(); render();
+        if(task.due) syncTaskToCalendar(task);
+      });
     });
   }
 
@@ -1967,6 +2132,43 @@
       showBanner((err && err.message) || "Couldn't save your external calendar list.", "danger");
     });
   }
+
+  /* ---- daily email digest (toggleable) ---- */
+  var DIGEST_SETTINGS_PATH = "data/digest-settings.json";
+  var digestSettings = { enabled: false, email: "" };
+  var digestSettingsSha = null;
+  var digestSettingsLoaded = false;
+  var digestSettingsLoading = false;
+
+  function loadDigestSettings(){
+    if(!config || digestSettingsLoading) return Promise.resolve();
+    digestSettingsLoading = true;
+    return ghGet(cfgFor(DIGEST_SETTINGS_PATH)).then(function(res){
+      digestSettings = (res.exists && res.data) ? { enabled: !!res.data.enabled, email: res.data.email || "" } : { enabled: false, email: "" };
+      digestSettingsSha = res.sha;
+      digestSettingsLoaded = true;
+    }).catch(function(){
+      digestSettings = { enabled: false, email: "" }; digestSettingsLoaded = true;
+    }).then(function(){
+      digestSettingsLoading = false;
+    });
+  }
+  function saveDigestSettings(){
+    if(!config) return Promise.resolve();
+    return ghPut(cfgFor(DIGEST_SETTINGS_PATH), digestSettings, digestSettingsSha).then(function(newSha){
+      digestSettingsSha = newSha;
+    }).catch(function(err){
+      if(err && err.code === "conflict"){
+        return ghGet(cfgFor(DIGEST_SETTINGS_PATH)).then(function(res){
+          digestSettings = (res.exists && res.data) ? { enabled: !!res.data.enabled, email: res.data.email || "" } : { enabled: false, email: "" };
+          digestSettingsSha = res.sha;
+          showBanner("Your digest settings changed elsewhere and were reloaded — redo your edit if needed.", "danger");
+        });
+      }
+      showBanner((err && err.message) || "Couldn't save your digest settings.", "danger");
+    });
+  }
+
   function ensureIcsEvents(force){
     if(!config || !icsFeeds.length) return;
     if(icsEventsLoading) return;
@@ -2314,6 +2516,70 @@
     pop.querySelector('[data-act="cancel"]').addEventListener("click", function(){ pop.remove(); });
   }
 
+  /* ---------------- quick capture ---------------- */
+  function openQuickCapture(){
+    var root = document.getElementById("modal-root");
+    var backdrop = document.createElement("div");
+    backdrop.className = "modal-backdrop";
+    function close(){ if(backdrop.parentNode) root.removeChild(backdrop); }
+    backdrop.addEventListener("click", function(e){ if(e.target === backdrop) close(); });
+    var hasHeadings = state.headings.length > 0;
+    backdrop.innerHTML =
+      '<div class="modal-box" role="dialog" aria-modal="true"><h3>Quick capture</h3>' +
+      '<p>Paste or type multiple lines — each non-empty line becomes its own task.</p>' +
+      '<div class="field"><textarea id="qc-textarea" rows="8" placeholder="Buy milk&#10;Call dentist&#10;Finish slides for Monday"></textarea></div>' +
+      '<div class="field"><label for="qc-heading">Add to</label><select id="qc-heading">' +
+        state.headings.map(function(h){ return '<option value="' + h.id + '">' + escapeHtml(h.title) + '</option>'; }).join("") +
+        '<option value="__new__"' + (hasHeadings ? "" : " selected") + '>+ New heading…</option>' +
+      '</select></div>' +
+      '<div class="field" id="qc-new-heading-field"' + (hasHeadings ? " hidden" : "") + '><input type="text" id="qc-new-heading" placeholder="New heading name"></div>' +
+      '<div id="qc-error" class="modal-error" hidden></div>' +
+      '<div class="modal-actions"><button class="btn btn-ghost" id="qc-cancel">Cancel</button><button class="btn btn-primary" id="qc-add">Add tasks</button></div>' +
+      '</div>';
+    root.appendChild(backdrop);
+
+    var textarea = backdrop.querySelector("#qc-textarea");
+    var headingSel = backdrop.querySelector("#qc-heading");
+    var newHeadingField = backdrop.querySelector("#qc-new-heading-field");
+    var newHeadingInput = backdrop.querySelector("#qc-new-heading");
+    var errEl = backdrop.querySelector("#qc-error");
+    textarea.focus();
+
+    headingSel.addEventListener("change", function(){
+      newHeadingField.hidden = headingSel.value !== "__new__";
+      if(!newHeadingField.hidden) newHeadingInput.focus();
+    });
+    backdrop.querySelector("#qc-cancel").addEventListener("click", close);
+
+    function submit(){
+      errEl.hidden = true;
+      var lines = textarea.value.split("\n").map(function(l){ return l.trim(); }).filter(Boolean);
+      if(!lines.length){ errEl.textContent = "Add at least one line."; errEl.hidden = false; textarea.focus(); return; }
+      var headingId = headingSel.value;
+      var heading;
+      if(headingId === "__new__"){
+        var title = newHeadingInput.value.trim();
+        if(!title){ errEl.textContent = "Name the new heading, or pick an existing one."; errEl.hidden = false; newHeadingInput.focus(); return; }
+        heading = { id: uid(), title: title, collapsed:false, color:null, tasks: [], subheadings: [] };
+        state.headings.push(heading);
+      } else {
+        heading = state.headings.filter(function(h){ return h.id === headingId; })[0];
+        if(!heading){ errEl.textContent = "Pick a heading."; errEl.hidden = false; return; }
+      }
+      lines.forEach(function(line){
+        heading.tasks.push({ id: uid(), text: line, done:false, due:null, completedAt:null, calendarEventId:null, syncError:null, notes:"", checklist:[], archivedAt:null });
+      });
+      scheduleSave();
+      render();
+      close();
+    }
+    backdrop.querySelector("#qc-add").addEventListener("click", submit);
+    textarea.addEventListener("keydown", function(e){
+      if(e.key === "Enter" && (e.metaKey || e.ctrlKey)){ e.preventDefault(); submit(); }
+      if(e.key === "Escape") close();
+    });
+  }
+
   function render(){
     if(!state) return;
     renderHeadings();
@@ -2347,8 +2613,10 @@
   function renderHeadingCard(heading){
     var card = document.createElement("section");
     card.className = "heading-card" + (heading.collapsed ? " collapsed" : "");
-    var totalTasks = heading.tasks.length, doneTasks = heading.tasks.filter(function(t){return t.done;}).length;
-    heading.subheadings.forEach(function(sh){ sh.tasks.forEach(function(t){ totalTasks++; if(t.done) doneTasks++; }); });
+    var visibleHeadingTasks = heading.tasks.filter(function(t){ return !t.archivedAt; });
+    var archivedHeadingTasks = heading.tasks.filter(function(t){ return t.archivedAt; });
+    var totalTasks = visibleHeadingTasks.length, doneTasks = visibleHeadingTasks.filter(function(t){return t.done;}).length;
+    heading.subheadings.forEach(function(sh){ sh.tasks.forEach(function(t){ if(t.archivedAt) return; totalTasks++; if(t.done) doneTasks++; }); });
 
     var bar = document.createElement("div");
     bar.className = "heading-bar";
@@ -2381,7 +2649,7 @@
 
     var directList = document.createElement("div");
     directList.className = "task-list";
-    sortedTaskList(heading.tasks).forEach(function(task){ directList.appendChild(renderTaskRow(heading, task)); });
+    sortedTaskList(visibleHeadingTasks).forEach(function(task){ directList.appendChild(renderTaskRow(heading, task)); });
     wireTaskListContainer(directList, heading);
     bodyContent.appendChild(directList);
 
@@ -2393,6 +2661,8 @@
       requestAnimationFrame(function(){ var el = document.querySelector('[data-task-id="' + t.id + '"] .task-text'); if(el) el.focus(); });
     });
     bodyContent.appendChild(addTaskBtn);
+
+    bodyContent.appendChild(renderArchiveToggle(heading, archivedHeadingTasks));
 
     heading.subheadings.forEach(function(sub){ bodyContent.appendChild(renderSubBlock(heading, sub)); });
 
@@ -2420,6 +2690,8 @@
   }
 
   function renderSubBlock(heading, sub){
+    var visibleSubTasks = sub.tasks.filter(function(t){ return !t.archivedAt; });
+    var archivedSubTasks = sub.tasks.filter(function(t){ return t.archivedAt; });
     var block = document.createElement("div");
     block.className = "sub-block" + (sub.collapsed ? " collapsed" : "");
     var bar = document.createElement("div");
@@ -2428,7 +2700,7 @@
       gripHtml("grip-sm") +
       '<button class="collapse-btn" aria-label="Toggle sub-section" title="Collapse / expand"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg></button>' +
       '<input class="sub-title" value="' + escapeHtml(sub.title) + '" aria-label="Sub-heading title" />' +
-      '<span class="sub-count mono">' + sub.tasks.filter(function(t){return t.done;}).length + '/' + sub.tasks.length + '</span>' +
+      '<span class="sub-count mono">' + visibleSubTasks.filter(function(t){return t.done;}).length + '/' + visibleSubTasks.length + '</span>' +
       '<div class="sub-actions"><button class="icon-btn danger" title="Delete sub-heading" aria-label="Delete sub-heading"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>';
     block.appendChild(bar);
 
@@ -2448,7 +2720,7 @@
 
     var list = document.createElement("div");
     list.className = "task-list";
-    sortedTaskList(sub.tasks).forEach(function(task){ list.appendChild(renderTaskRow(sub, task)); });
+    sortedTaskList(visibleSubTasks).forEach(function(task){ list.appendChild(renderTaskRow(sub, task)); });
     wireTaskListContainer(list, sub);
     subBodyInner.appendChild(list);
 
@@ -2461,6 +2733,8 @@
     });
     subBodyInner.appendChild(addTaskBtn);
 
+    subBodyInner.appendChild(renderArchiveToggle(sub, archivedSubTasks));
+
     subBody.appendChild(subBodyInner);
     block.appendChild(subBody);
 
@@ -2470,6 +2744,50 @@
       lastAddedId = null;
     }
     return block;
+  }
+
+  /* ---------------- archive ---------------- */
+  var expandedArchives = {}; // heading/sub id -> expanded?, transient UI state (not persisted)
+  var ICON_RESTORE = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M3 12a9 9 0 1 1 2.64 6.36M3 12V6m0 6h6"/></svg>';
+  function renderArchivedRow(container, task){
+    var row = document.createElement("div");
+    row.className = "archived-row";
+    row.setAttribute("data-task-id", task.id);
+    var dateLabel = task.completedAt ? new Date(task.completedAt).toLocaleDateString(undefined, {month:"short", day:"numeric"}) : "";
+    row.innerHTML =
+      '<span class="archived-text">' + escapeHtml(task.text) + '</span>' +
+      '<span class="archived-date mono">' + escapeHtml(dateLabel) + '</span>' +
+      '<button type="button" class="btn btn-sm btn-ghost" data-act="restore">' + ICON_RESTORE + ' Restore</button>' +
+      '<button type="button" class="icon-btn danger" title="Delete permanently" aria-label="Delete permanently"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>';
+    row.querySelector('[data-act="restore"]').addEventListener("click", function(){
+      task.archivedAt = null;
+      scheduleSave();
+      render();
+    });
+    row.querySelector(".icon-btn.danger").addEventListener("click", function(){ removeTask(container, task); });
+    return row;
+  }
+  function renderArchiveToggle(ownerObj, archivedTasks){
+    var wrap = document.createElement("div");
+    if(!archivedTasks.length) return wrap;
+    var expanded = !!expandedArchives[ownerObj.id];
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "ghost-add archive-toggle";
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transform:rotate(' + (expanded ? "90" : "0") + 'deg)"><path d="M9 6l6 6-6 6"/></svg> ' +
+      (expanded ? "Hide" : "Show") + " archived (" + archivedTasks.length + ")";
+    btn.addEventListener("click", function(){
+      expandedArchives[ownerObj.id] = !expanded;
+      render();
+    });
+    wrap.appendChild(btn);
+    if(expanded){
+      var list = document.createElement("div");
+      list.className = "archived-list";
+      archivedTasks.forEach(function(t){ list.appendChild(renderArchivedRow(ownerObj, t)); });
+      wrap.appendChild(list);
+    }
+    return wrap;
   }
 
   function renderTaskRow(container, task){
@@ -2488,10 +2806,14 @@
         '<input class="task-text" value="' + escapeHtml(task.text) + '" aria-label="Task" />' +
         '<div class="task-meta">' +
           '<button class="due-badge' + (due ? (overdue ? ' overdue' : ' set') : '') + '" type="button">' + syncBadge + '<span>' + escapeHtml(dueLabel) + '</span></button>' +
+          '<button class="notes-badge' + (notesBadgeSet(task) ? ' set' : '') + '" type="button" title="Notes & checklist">' + notesBadgeHtml(task) + '</button>' +
           (task.syncError ? '<span class="sync-note" title="' + escapeHtml(task.syncError) + '">' + escapeHtml(task.syncError) + '</span>' : '') +
         '</div>' +
       '</div>' +
-      '<div class="task-actions"><button class="icon-btn danger" title="Delete task" aria-label="Delete task"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>';
+      '<div class="task-actions">' +
+        (task.done ? '<button class="icon-btn" title="Archive task" aria-label="Archive task" data-act="archive"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8M10 13h4"/></svg></button>' : '') +
+        '<button class="icon-btn danger" title="Delete task" aria-label="Delete task"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>' +
+      '</div>';
 
     if(taskSortMode === "due"){
       var grip = row.querySelector(".grip");
@@ -2517,7 +2839,14 @@
     });
     textInput.addEventListener("keydown", function(e){ if(e.key === "Enter") textInput.blur(); });
     row.querySelector(".due-badge").addEventListener("click", function(){ toggleDueEditor(row, task); });
+    row.querySelector(".notes-badge").addEventListener("click", function(){ toggleNotesEditor(row, task); });
     row.querySelector(".icon-btn.danger").addEventListener("click", function(){ removeTask(container, task); });
+    var archiveBtn = row.querySelector('[data-act="archive"]');
+    if(archiveBtn) archiveBtn.addEventListener("click", function(){
+      task.archivedAt = new Date().toISOString();
+      scheduleSave();
+      render();
+    });
 
     if(task.id === lastAddedId){
       row.classList.add("enter");
@@ -2563,6 +2892,103 @@
       syncTaskToCalendar(task);
     });
     editor.querySelector('[data-act="close"]').addEventListener("click", function(){ editor.remove(); });
+  }
+
+  /* ---------------- notes & checklist ---------------- */
+  var NOTES_ICON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11l2 2 4-4"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg>';
+  function notesBadgeSet(task){
+    return !!(task.notes && task.notes.trim()) || (task.checklist && task.checklist.length > 0);
+  }
+  function notesBadgeHtml(task){
+    var hasNotes = !!(task.notes && task.notes.trim());
+    var total = task.checklist ? task.checklist.length : 0;
+    var done = total ? task.checklist.filter(function(c){ return c.done; }).length : 0;
+    var parts = [];
+    if(hasNotes) parts.push("Notes");
+    if(total) parts.push(done + "/" + total);
+    return NOTES_ICON + (parts.length ? "<span>" + escapeHtml(parts.join(" · ")) + "</span>" : "");
+  }
+  function updateNotesBadge(row, task){
+    var btn = row.querySelector(".notes-badge");
+    if(!btn) return;
+    btn.classList.toggle("set", notesBadgeSet(task));
+    btn.innerHTML = notesBadgeHtml(task);
+  }
+  function renderChecklistItemRow(row, task, item){
+    var itemRow = document.createElement("div");
+    itemRow.className = "checklist-item" + (item.done ? " done" : "");
+    itemRow.setAttribute("data-item-id", item.id);
+    itemRow.innerHTML =
+      '<input type="checkbox" class="checklist-item-check" ' + (item.done ? "checked" : "") + ' aria-label="Mark checklist item done" />' +
+      '<input type="text" class="checklist-item-text" value="' + escapeHtml(item.text) + '" aria-label="Checklist item" />' +
+      '<button type="button" class="icon-btn danger checklist-item-remove" title="Remove item" aria-label="Remove item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
+    itemRow.querySelector(".checklist-item-check").addEventListener("change", function(e){
+      item.done = e.target.checked;
+      itemRow.classList.toggle("done", item.done);
+      scheduleSave();
+      updateNotesBadge(row, task);
+    });
+    var textEl = itemRow.querySelector(".checklist-item-text");
+    textEl.addEventListener("change", function(){
+      item.text = textEl.value.trim() || "Item";
+      scheduleSave();
+    });
+    textEl.addEventListener("keydown", function(e){ if(e.key === "Enter") textEl.blur(); });
+    itemRow.querySelector(".checklist-item-remove").addEventListener("click", function(){
+      task.checklist = task.checklist.filter(function(c){ return c.id !== item.id; });
+      itemRow.remove();
+      scheduleSave();
+      updateNotesBadge(row, task);
+    });
+    return itemRow;
+  }
+  function toggleNotesEditor(row, task){
+    var existing = row.querySelector(".notes-editor");
+    if(existing){ existing.remove(); return; }
+    document.querySelectorAll(".notes-editor").forEach(function(el){ el.remove(); });
+    var editor = document.createElement("div");
+    editor.className = "notes-editor";
+    editor.innerHTML =
+      '<textarea class="notes-textarea" placeholder="Notes…" rows="3">' + escapeHtml(task.notes || "") + '</textarea>' +
+      '<div class="checklist-list"></div>' +
+      '<div class="checklist-add-row"><input type="text" class="checklist-add-input" placeholder="Add checklist item…" aria-label="Add checklist item"><button type="button" class="btn btn-sm btn-ghost" data-act="add-item">Add</button></div>' +
+      '<div class="notes-editor-actions"><button type="button" class="btn btn-sm btn-ghost" data-act="close">Close</button></div>';
+    row.querySelector(".task-main").appendChild(editor);
+
+    var listEl = editor.querySelector(".checklist-list");
+    task.checklist.forEach(function(item){ listEl.appendChild(renderChecklistItemRow(row, task, item)); });
+
+    var textarea = editor.querySelector(".notes-textarea");
+    textarea.addEventListener("blur", function(){
+      var v = textarea.value.trim();
+      if(v !== (task.notes || "")){
+        task.notes = v;
+        scheduleSave();
+        updateNotesBadge(row, task);
+      }
+    });
+    textarea.focus();
+
+    var addInput = editor.querySelector(".checklist-add-input");
+    function addItem(){
+      var text = addInput.value.trim();
+      if(!text) return;
+      var item = { id: uid(), text: text, done: false };
+      task.checklist.push(item);
+      listEl.appendChild(renderChecklistItemRow(row, task, item));
+      addInput.value = "";
+      addInput.focus();
+      scheduleSave();
+      updateNotesBadge(row, task);
+    }
+    editor.querySelector('[data-act="add-item"]').addEventListener("click", addItem);
+    addInput.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); addItem(); } });
+
+    editor.querySelector('[data-act="close"]').addEventListener("click", function(){
+      // Blur first so an in-progress notes edit is saved before closing.
+      if(document.activeElement === textarea) textarea.blur();
+      editor.remove();
+    });
   }
 
   /* ---------------- stats page ---------------- */
@@ -2670,7 +3096,7 @@
   state = defaultState();
   config = loadConfig();
   render();
-  if(config){ setStatus("not_configured"); loadFromGithub(); loadIcsFeeds(); }
+  if(config){ setStatus("not_configured"); loadFromGithub(); loadIcsFeeds(); loadDigestSettings(); }
   else { setStatus("not_configured"); openSettings(); }
 
   var gcfgBoot = loadGcalConfig();
@@ -2680,6 +3106,34 @@
   } else {
     setGcalStatus("not_configured");
   }
+
+  /* ---------------- PWA: install prompt + service worker ---------------- */
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("sw.js").catch(function(){ /* offline shell is a nice-to-have, not critical */ });
+    });
+  }
+  var deferredInstallPrompt = null;
+  var installBtn = document.getElementById("install-app-btn");
+  function isStandalone(){
+    return (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true;
+  }
+  window.addEventListener("beforeinstallprompt", function(e){
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    if(!isStandalone()) installBtn.hidden = false;
+  });
+  installBtn.addEventListener("click", function(){
+    if(!deferredInstallPrompt) return;
+    installBtn.disabled = true;
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.finally(function(){
+      deferredInstallPrompt = null;
+      installBtn.hidden = true;
+      installBtn.disabled = false;
+    });
+  });
+  window.addEventListener("appinstalled", function(){ installBtn.hidden = true; });
 })();
 </script>
 </body>
