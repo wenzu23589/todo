@@ -312,9 +312,14 @@
               "id": "33b3416d-1dba-435f-9018-fbae87ac2b37",
               "text": "Sort out issue with timetables.",
               "done": false,
-              "due": null,
+              "due": {
+                "date": "2026-09-04",
+                "time": null,
+                "endTime": null,
+                "allDay": true
+              },
               "completedAt": null,
-              "calendarEventId": null,
+              "calendarEventId": "hs33q7ram8fbdt7ules3886c58",
               "syncError": null,
               "notes": "",
               "checklist": [],
@@ -322,7 +327,8 @@
               "priority": null,
               "tags": [],
               "subtasks": [],
-              "attachments": []
+              "attachments": [],
+              "syncing": false
             }
           ]
         }
@@ -337,7 +343,7 @@
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T16:35:42.330Z",
+  "updatedAt": "2026-08-26T16:36:00.579Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
