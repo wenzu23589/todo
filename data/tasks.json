@@ -28,7 +28,7 @@
       "id": "ef1d3ba6-7c8c-47e9-991a-0b6abc3cac0a",
       "title": "New heading",
       "collapsed": false,
-      "color": null,
+      "color": "#4a5fc1",
       "tasks": [
         {
           "id": "82ed6695-d697-47ac-8015-7d124f23723f",
@@ -56,6 +56,6 @@
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T09:26:27.209Z",
+  "updatedAt": "2026-08-26T09:56:38.892Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com"
 }
