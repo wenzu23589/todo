@@ -36,8 +36,16 @@
         }
       ],
       "color": null
+    },
+    {
+      "id": "ef1d3ba6-7c8c-47e9-991a-0b6abc3cac0a",
+      "title": "New heading",
+      "collapsed": false,
+      "color": null,
+      "tasks": [],
+      "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T09:24:50.785Z",
+  "updatedAt": "2026-08-26T09:26:17.563Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com"
 }
