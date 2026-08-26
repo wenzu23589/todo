@@ -5,7 +5,14 @@
       "id": "id-2ktak66jcy1mt9qg1jg",
       "title": "Test",
       "collapsed": false,
-      "subheadings": []
+      "subheadings": [
+        {
+          "id": "id-5yvswwjkdwymt9qgz2h",
+          "title": "New sub-heading",
+          "collapsed": false,
+          "tasks": []
+        }
+      ]
     },
     {
       "id": "id-n0ivs05yyimt9qg493",
@@ -14,5 +21,5 @@
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T06:48:36.565Z"
+  "updatedAt": "2026-08-26T06:49:16.501Z"
 }
