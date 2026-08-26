@@ -1,7 +1,16 @@
 {
   "version": 3,
-  "headings": [],
-  "updatedAt": "2026-08-26T11:48:06.953Z",
+  "headings": [
+    {
+      "id": "ace7e236-d0b0-4b7d-b2f6-01a2377bdb22",
+      "title": "New heading",
+      "collapsed": false,
+      "color": null,
+      "tasks": [],
+      "subheadings": []
+    }
+  ],
+  "updatedAt": "2026-08-26T12:01:35.036Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
