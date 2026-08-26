@@ -4,7 +4,7 @@
     {
       "id": "e985053c-a298-4b4a-a681-91bb245f0585",
       "title": "CARS",
-      "collapsed": true,
+      "collapsed": false,
       "color": "#b8452f",
       "tasks": [
         {
@@ -246,7 +246,8 @@
               "archivedAt": null,
               "priority": null,
               "tags": [],
-              "subtasks": []
+              "subtasks": [],
+              "notesRich": true
             },
             {
               "id": "21baad90-9c13-449c-bcb0-30d61611939f",
@@ -261,7 +262,8 @@
               "archivedAt": null,
               "priority": null,
               "tags": [],
-              "subtasks": []
+              "subtasks": [],
+              "notesRich": true
             }
           ]
         }
@@ -297,7 +299,7 @@
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T14:07:48.055Z",
+  "updatedAt": "2026-08-26T14:08:07.244Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
