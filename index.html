@@ -433,6 +433,7 @@
     display:flex; align-items:center; gap:8px; padding:6px 8px; background:var(--paper-sunken); font-size:0.85rem;
   }
   .archived-text{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line); }
+  .trash-row-path{ font-size:0.78rem; text-decoration:none; opacity:0.8; }
   .archived-date{ font-size:0.72rem; color:var(--muted); flex-shrink:0; }
   .archived-row .btn{ flex-shrink:0; }
 
@@ -617,6 +618,15 @@
   .cal-week-add{ border:1px dashed var(--line); background:transparent; color:var(--muted); border-radius:6px; padding:5px 6px; font-size:0.72rem; cursor:pointer; }
   .cal-week-add:hover{ color:var(--ink); border-color:color-mix(in srgb, var(--ink) 25%, var(--line)); }
 
+  .search-row{ display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+  .search-input-wrap{ position:relative; flex:1; min-width:200px; max-width:420px; }
+  .search-icon{ position:absolute; left:9px; top:50%; transform:translateY(-50%); color:var(--muted); pointer-events:none; }
+  .search-input{
+    width:100%; font:inherit; font-size:0.88rem; border:1px solid var(--line); border-radius:999px;
+    padding:7px 10px 7px 30px; background:var(--paper-raised); color:var(--ink);
+  }
+  .search-input:focus{ border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+  .search-status{ font-size:0.78rem; color:var(--muted); }
   .list-sort-row{ display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
   .list-sort-label{ font-size:0.72rem; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:var(--muted); }
   .list-sort-toggle{ display:inline-flex; gap:2px; background:var(--paper-sunken); padding:3px; border-radius:var(--radius-m); }
@@ -662,6 +672,7 @@
         <button class="tab-btn" id="tab-today" data-view="today">Today</button>
         <button class="tab-btn" id="tab-cal" data-view="cal">Calendar</button>
         <button class="tab-btn" id="tab-stats" data-view="stats">Stats</button>
+        <button class="tab-btn" id="tab-trash" data-view="trash">Trash</button>
       </div>
       <div class="header-controls">
         <button class="btn btn-sm" id="theme-btn" aria-label="Choose theme">
@@ -696,6 +707,13 @@
 
   <main>
     <div id="list-view">
+      <div class="search-row" id="search-row">
+        <div class="search-input-wrap">
+          <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="search" id="task-search-input" class="search-input" placeholder="Search tasks, notes, tags, attachments…" autocomplete="off" aria-label="Search tasks" />
+        </div>
+        <span class="search-status" id="search-status"></span>
+      </div>
       <div class="list-sort-row" id="list-sort-row">
         <span class="list-sort-label">Sort</span>
         <div class="list-sort-toggle">
@@ -732,6 +750,7 @@
     <div id="today-view" hidden></div>
     <div id="cal-view" hidden></div>
     <div id="stats-view" hidden></div>
+    <div id="trash-view" hidden></div>
   </main>
 </div>
 
@@ -984,15 +1003,17 @@
     }
     if(!Array.isArray(t.checklist)) t.checklist = [];
     if(t.archivedAt === undefined) t.archivedAt = null;
+    if(t.deletedAt === undefined) t.deletedAt = null;
     if(t.priority !== "low" && t.priority !== "medium" && t.priority !== "high") t.priority = null;
     if(!Array.isArray(t.tags)) t.tags = [];
     if(!Array.isArray(t.attachments)) t.attachments = [];
+    t.attachments.forEach(normalizeAttachment);
     if(!Array.isArray(t.subtasks)) t.subtasks = [];
     t.subtasks.forEach(normalizeSubtask);
     if(t.due && t.due.endTime === undefined) t.due.endTime = null;
     // Auto-archive tasks completed a while ago, so the list doesn't accumulate old
     // check marks forever — still visible under "Show archived", not deleted.
-    if(t.done && t.completedAt && !t.archivedAt){
+    if(t.done && t.completedAt && !t.archivedAt && !t.deletedAt){
       var ageMs = Date.now() - new Date(t.completedAt).getTime();
       if(ageMs > ARCHIVE_AFTER_DAYS * 24 * 60 * 60 * 1000) t.archivedAt = new Date().toISOString();
     }
@@ -1007,6 +1028,13 @@
     if(st.due && st.due.endTime === undefined) st.due.endTime = null;
     if(st.completedAt === undefined) st.completedAt = null;
     if(!Array.isArray(st.attachments)) st.attachments = [];
+    st.attachments.forEach(normalizeAttachment);
+  }
+  // Attachments created before search/OCR shipped won't have these fields — mark them
+  // "pending" so the next time their editor is opened, extraction runs and catches them up.
+  function normalizeAttachment(a){
+    if(typeof a.extractedText !== "string") a.extractedText = "";
+    if(a.textStatus === undefined) a.textStatus = a.extractedText ? "done" : "pending";
   }
 
   /* ---------------- config (per-device, in this browser only) ---------------- */
@@ -1932,18 +1960,22 @@
     document.getElementById("today-view").hidden = mode !== "today";
     document.getElementById("cal-view").hidden = mode !== "cal";
     document.getElementById("stats-view").hidden = mode !== "stats";
+    document.getElementById("trash-view").hidden = mode !== "trash";
     document.getElementById("tab-list").classList.toggle("active", mode === "list");
     document.getElementById("tab-today").classList.toggle("active", mode === "today");
     document.getElementById("tab-cal").classList.toggle("active", mode === "cal");
     document.getElementById("tab-stats").classList.toggle("active", mode === "stats");
+    document.getElementById("tab-trash").classList.toggle("active", mode === "trash");
     if(mode === "today") renderTodayView();
     if(mode === "stats") renderStats();
     if(mode === "cal") renderCalendar();
+    if(mode === "trash") renderTrashView();
   }
   document.getElementById("tab-list").addEventListener("click", function(){ setView("list"); });
   document.getElementById("tab-today").addEventListener("click", function(){ setView("today"); });
   document.getElementById("tab-cal").addEventListener("click", function(){ setView("cal"); });
   document.getElementById("tab-stats").addEventListener("click", function(){ setView("stats"); });
+  document.getElementById("tab-trash").addEventListener("click", function(){ setView("trash"); });
 
   /* ---------------- data helpers ---------------- */
   function forEachTask(fn){
@@ -2276,6 +2308,21 @@
     e.stopPropagation();
     openDueFilterPopover(e.currentTarget);
   });
+  (function(){
+    var searchDebounceTimer = null;
+    var searchInput = document.getElementById("task-search-input");
+    function applySearch(){
+      searchQuery = searchInput.value.trim().toLowerCase();
+      render();
+    }
+    searchInput.addEventListener("input", function(){
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(applySearch, 150);
+    });
+    // Covers the native clear (×) button some browsers show on type="search" inputs,
+    // which doesn't always also fire "input" — apply immediately, no debounce needed.
+    searchInput.addEventListener("search", function(){ clearTimeout(searchDebounceTimer); applySearch(); });
+  })();
   document.getElementById("sort-manual-btn").addEventListener("click", function(){ setTaskSortMode("manual"); });
   document.getElementById("sort-priority-btn").addEventListener("click", function(){ setTaskSortMode("priority"); });
   document.getElementById("sort-due-btn").addEventListener("click", function(){ setTaskSortMode("due"); });
@@ -2368,20 +2415,55 @@
       }
     });
   }
-  function removeTask(container, task){
+  // Deleting a task from the live list is a *soft* delete: it stays right where it is
+  // in container.tasks (so restoring it needs no bookkeeping about where it came from)
+  // but gets flagged deletedAt, which every visible/archived task list filters out.
+  // The Recycle Bin view lists every deletedAt task across the whole board. This is
+  // deliberately separate from permanentlyDeleteTask below, which is the one truly
+  // irreversible action (used by the Recycle Bin's own "Delete forever", and by the
+  // Archive panel's "Delete permanently" — both already said permanent, so neither of
+  // those should route through the recycle bin instead of actually deleting).
+  function trashTask(container, task){
     deleteRemoteEventBestEffort(task).then(function(){
-      var idx = container.tasks.findIndex(function(t){ return t.id === task.id; });
-      if(idx < 0) return;
       var hadCalendarEvent = !!task.calendarEventId;
-      container.tasks.splice(idx, 1);
+      if(hadCalendarEvent) task.calendarEventId = null; // the remote event is already gone — recreate it below if restored while still due
+      task.deletedAt = new Date().toISOString();
       scheduleSave(); render();
       showUndoToast("Task deleted", function(){
-        if(hadCalendarEvent) task.calendarEventId = null; // the remote event is already gone — recreate it below if still due
-        container.tasks.splice(Math.min(idx, container.tasks.length), 0, task);
+        task.deletedAt = null;
         scheduleSave(); render();
         if(task.due) syncTaskToCalendar(task);
       });
     });
+  }
+  function restoreTrashedTask(entry){
+    entry.task.deletedAt = null;
+    scheduleSave();
+    render();
+    if(entry.task.due) syncTaskToCalendar(entry.task);
+  }
+  function permanentlyDeleteTask(container, task){
+    openConfirm({
+      title: "Delete “" + task.text + "” permanently?",
+      body: "This can't be undone — it won't be in the recycle bin.",
+      confirmLabel: "Delete forever", danger: true,
+      onConfirm: function(){
+        deleteRemoteEventBestEffort(task).then(function(){
+          var idx = container.tasks.findIndex(function(t){ return t.id === task.id; });
+          if(idx < 0) return;
+          container.tasks.splice(idx, 1);
+          scheduleSave(); render();
+        });
+      }
+    });
+  }
+  function collectTrashedTasks(){
+    var out = [];
+    forEachTask(function(t, h, sh){
+      if(t.deletedAt) out.push({ task: t, container: sh || h, heading: h, sub: sh });
+    });
+    out.sort(function(a, b){ return (b.task.deletedAt || "").localeCompare(a.task.deletedAt || ""); });
+    return out;
   }
 
   /* ---------------- rendering ---------------- */
@@ -3050,9 +3132,18 @@
     refreshTagFilterButton();
     refreshPriorityFilterButton();
     refreshDueFilterButton();
+    updateSearchStatus();
     if(viewMode === "today") renderTodayView();
     if(viewMode === "stats") renderStats();
     if(viewMode === "cal") renderCalendar();
+    if(viewMode === "trash") renderTrashView();
+    refreshTrashTabLabel();
+  }
+  function refreshTrashTabLabel(){
+    var tab = document.getElementById("tab-trash");
+    if(!tab || !state) return;
+    var n = collectTrashedTasks().length;
+    tab.textContent = n ? "Trash (" + n + ")" : "Trash";
   }
 
   function renderEmptyState(){
@@ -3081,10 +3172,10 @@
     var card = document.createElement("section");
     card.className = "heading-card" + (heading.collapsed ? " collapsed" : "");
     if(heading.color) card.style.background = "color-mix(in srgb, " + heading.color + " 10%, var(--paper-raised))";
-    var visibleHeadingTasks = heading.tasks.filter(function(t){ return !t.archivedAt; });
-    var archivedHeadingTasks = heading.tasks.filter(function(t){ return t.archivedAt; });
+    var visibleHeadingTasks = heading.tasks.filter(function(t){ return !t.archivedAt && !t.deletedAt; });
+    var archivedHeadingTasks = heading.tasks.filter(function(t){ return t.archivedAt && !t.deletedAt; });
     var totalTasks = visibleHeadingTasks.length, doneTasks = visibleHeadingTasks.filter(function(t){return t.done;}).length;
-    heading.subheadings.forEach(function(sh){ sh.tasks.forEach(function(t){ if(t.archivedAt) return; totalTasks++; if(t.done) doneTasks++; }); });
+    heading.subheadings.forEach(function(sh){ sh.tasks.forEach(function(t){ if(t.archivedAt || t.deletedAt) return; totalTasks++; if(t.done) doneTasks++; }); });
 
     var bar = document.createElement("div");
     bar.className = "heading-bar";
@@ -3158,8 +3249,8 @@
   }
 
   function renderSubBlock(heading, sub){
-    var visibleSubTasks = sub.tasks.filter(function(t){ return !t.archivedAt; });
-    var archivedSubTasks = sub.tasks.filter(function(t){ return t.archivedAt; });
+    var visibleSubTasks = sub.tasks.filter(function(t){ return !t.archivedAt && !t.deletedAt; });
+    var archivedSubTasks = sub.tasks.filter(function(t){ return t.archivedAt && !t.deletedAt; });
     var block = document.createElement("div");
     block.className = "sub-block" + (sub.collapsed ? " collapsed" : "");
     var bar = document.createElement("div");
@@ -3222,7 +3313,7 @@
     var todayStr = todayDateStr();
     var overdue = [], dueToday = [], flagged = [];
     forEachTask(function(t, h, sub){
-      if(t.done || t.archivedAt) return;
+      if(t.done || t.archivedAt || t.deletedAt) return;
       var container = sub || h;
       if(t.due && t.due.date < todayStr){ overdue.push({ task:t, container:container, heading:h, sub:sub }); }
       else if(t.due && t.due.date === todayStr){ dueToday.push({ task:t, container:container, heading:h, sub:sub }); }
@@ -3279,7 +3370,7 @@
       scheduleSave();
       render();
     });
-    row.querySelector(".icon-btn.danger").addEventListener("click", function(){ removeTask(container, task); });
+    row.querySelector(".icon-btn.danger").addEventListener("click", function(){ permanentlyDeleteTask(container, task); });
     return row;
   }
   function renderArchiveToggle(ownerObj, archivedTasks){
@@ -3303,6 +3394,45 @@
       wrap.appendChild(list);
     }
     return wrap;
+  }
+
+  /* ---------------- recycle bin (deleted tasks) ---------------- */
+  function renderTrashRow(entry){
+    var task = entry.task, container = entry.container;
+    var row = document.createElement("div");
+    row.className = "archived-row";
+    row.setAttribute("data-task-id", task.id);
+    var dateLabel = task.deletedAt ? new Date(task.deletedAt).toLocaleDateString(undefined, {month:"short", day:"numeric"}) : "";
+    var pathLabel = escapeHtml(entry.heading.title) + (entry.sub ? ' <span class="today-task-path-sep">&rsaquo;</span> ' + escapeHtml(entry.sub.title) : "");
+    row.innerHTML =
+      '<span class="archived-text" title="' + escapeHtml(task.text) + '">' + escapeHtml(task.text) + ' <span class="trash-row-path">— ' + pathLabel + '</span></span>' +
+      '<span class="archived-date mono">' + escapeHtml(dateLabel) + '</span>' +
+      '<button type="button" class="btn btn-sm btn-ghost" data-act="restore">' + ICON_RESTORE + ' Restore</button>' +
+      '<button type="button" class="icon-btn danger" title="Delete forever" aria-label="Delete forever"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>';
+    row.querySelector('[data-act="restore"]').addEventListener("click", function(){ restoreTrashedTask(entry); });
+    row.querySelector(".icon-btn.danger").addEventListener("click", function(){ permanentlyDeleteTask(container, task); });
+    return row;
+  }
+  function renderTrashView(){
+    var root = document.getElementById("trash-view");
+    if(!state){ root.innerHTML = ""; return; }
+    root.innerHTML = "";
+    var trashed = collectTrashedTasks();
+    if(!trashed.length){
+      root.innerHTML = '<div class="empty-state"><h2>Recycle bin is empty</h2><p>Delete a task from the list and it lands here instead of disappearing for good — restore it, or delete it forever, whenever you\'re ready.</p></div>';
+      return;
+    }
+    var section = document.createElement("section");
+    section.className = "today-section";
+    var head = document.createElement("div");
+    head.className = "today-section-head";
+    head.innerHTML = '<h2 class="today-section-title">Deleted tasks</h2><span class="today-section-count mono">' + trashed.length + '</span>';
+    section.appendChild(head);
+    var list = document.createElement("div");
+    list.className = "archived-list";
+    trashed.forEach(function(entry){ list.appendChild(renderTrashRow(entry)); });
+    section.appendChild(list);
+    root.appendChild(section);
   }
 
   function renderTaskRow(container, task){
@@ -3383,7 +3513,7 @@
     row.querySelector(".attachments-badge").addEventListener("click", function(){ toggleAttachmentsEditor(row, task); });
     var subtaskToggleBtn = row.querySelector(".task-subtask-toggle");
     if(subtaskToggleBtn) subtaskToggleBtn.addEventListener("click", function(){ toggleSubtasksEditor(row, task); });
-    row.querySelector(".icon-btn.danger").addEventListener("click", function(){ removeTask(container, task); });
+    row.querySelector(".icon-btn.danger").addEventListener("click", function(){ trashTask(container, task); });
     var archiveBtn = row.querySelector('[data-act="archive"]');
     if(archiveBtn) archiveBtn.addEventListener("click", function(){
       task.archivedAt = new Date().toISOString();
@@ -3868,11 +3998,44 @@
     }
     return false;
   }
+  // Free-text search — like the filters above, session-only and not persisted. Matches
+  // across the task's own text/notes/tags, its subtasks' text, and any attachment's
+  // filename or extracted text (OCR'd from images, read from a PDF's text layer or OCR'd
+  // off its pages when it doesn't have one) — see the attachment text-extraction section
+  // further down for how extractedText gets populated.
+  var searchQuery = "";
+  function attachmentSearchParts(attachments){
+    var parts = [];
+    (attachments || []).forEach(function(a){ parts.push(a.name || ""); parts.push(a.extractedText || ""); });
+    return parts;
+  }
+  function taskSearchHaystack(task){
+    var parts = [task.text || "", stripHtmlToText(task.notes || ""), (task.tags || []).join(" ")];
+    (task.subtasks || []).forEach(function(st){
+      parts.push(st.text || "");
+      parts.push.apply(parts, attachmentSearchParts(st.attachments));
+    });
+    parts.push.apply(parts, attachmentSearchParts(task.attachments));
+    return parts.join(" \n ").toLowerCase();
+  }
+  function taskPassesSearch(task){
+    if(!searchQuery) return true;
+    return taskSearchHaystack(task).indexOf(searchQuery) !== -1;
+  }
   // The single predicate every task-list rendering site filters through: passes
-  // only if it clears the tag filter AND the priority filter AND the due filter
-  // (each individual filter is itself OR logic across its own selected options).
+  // only if it clears the tag filter AND the priority filter AND the due filter AND
+  // the search query (each individual filter is itself OR logic across its own
+  // selected options; search is a plain substring match against the haystack above).
   function taskPassesFilters(task){
-    return taskPassesTagFilter(task) && taskPassesPriorityFilter(task) && taskPassesDueFilter(task);
+    return taskPassesTagFilter(task) && taskPassesPriorityFilter(task) && taskPassesDueFilter(task) && taskPassesSearch(task);
+  }
+  function updateSearchStatus(){
+    var statusEl = document.getElementById("search-status");
+    if(!statusEl) return;
+    if(!searchQuery){ statusEl.textContent = ""; return; }
+    var count = 0;
+    forEachTask(function(t){ if(!t.archivedAt && !t.deletedAt && taskPassesFilters(t)) count++; });
+    statusEl.textContent = count === 0 ? "No matches" : (count === 1 ? "1 task found" : count + " tasks found");
   }
 
   function refreshPriorityFilterButton(){
@@ -4233,6 +4396,130 @@
     return p;
   }
 
+  /* ---------------- attachment text extraction (OCR + PDF text layer, for search) ----------------
+     Runs entirely client-side, no server or API key: Tesseract.js OCRs images, and
+     pdfjs-dist reads a PDF's own text layer when it has one (fast, exact) or renders its
+     pages to a canvas and OCRs those when it doesn't (a scanned/photographed PDF). Both
+     libraries are loaded lazily from a CDN, only the first time they're actually needed,
+     so nobody pays for them just by opening the app. Pinned to exact versions so a future
+     release of either library can't change behavior underneath this without a deliberate
+     version bump here. */
+  var TESSERACT_CDN = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+  var PDFJS_CDN = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs";
+  var PDFJS_WORKER_CDN = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs";
+  var EXTRACTED_TEXT_MAX_CHARS = 20000; // plenty for search; keeps tasks.json from bloating on a text-heavy PDF
+  var PDF_TEXT_LAYER_MAX_PAGES = 20; // safety cap on very long PDFs when a text layer already exists (fast path)
+  var PDF_OCR_MAX_PAGES = 5; // OCR fallback is slow — first few pages are usually enough to make a scan findable
+
+  function loadScriptOnce(src){
+    return new Promise(function(resolve, reject){
+      var existing = document.querySelector('script[src="' + src + '"]');
+      if(existing){ existing.addEventListener("load", function(){ resolve(); }); if(existing.getAttribute("data-loaded")) resolve(); return; }
+      var s = document.createElement("script");
+      s.src = src;
+      s.onload = function(){ s.setAttribute("data-loaded", "1"); resolve(); };
+      s.onerror = function(){ reject(new Error("Couldn't load " + src)); };
+      document.head.appendChild(s);
+    });
+  }
+  var tesseractWorkerPromise = null;
+  function getTesseractWorker(){
+    if(tesseractWorkerPromise) return tesseractWorkerPromise;
+    // Reused for the rest of the session once created — Tesseract.js's own guidance is to
+    // create one worker and run every recognize() through it, rather than spinning up a
+    // fresh worker (and re-downloading language data) per image.
+    tesseractWorkerPromise = loadScriptOnce(TESSERACT_CDN).then(function(){
+      return window.Tesseract.createWorker("eng");
+    }).catch(function(e){ tesseractWorkerPromise = null; throw e; });
+    return tesseractWorkerPromise;
+  }
+  function ocrImageSource(source){
+    return getTesseractWorker().then(function(worker){
+      return worker.recognize(source).then(function(result){
+        return (result && result.data && result.data.text) || "";
+      });
+    });
+  }
+  var pdfjsLibPromise = null;
+  function getPdfjsLib(){
+    if(pdfjsLibPromise) return pdfjsLibPromise;
+    pdfjsLibPromise = import(PDFJS_CDN).then(function(mod){
+      mod.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_CDN;
+      return mod;
+    }).catch(function(e){ pdfjsLibPromise = null; throw e; });
+    return pdfjsLibPromise;
+  }
+  function ocrPdfPages(pdf, pageNums){
+    var pagesToOcr = pageNums.slice(0, PDF_OCR_MAX_PAGES);
+    return getTesseractWorker().then(function(worker){
+      return pagesToOcr.reduce(function(chain, pageNum){
+        return chain.then(function(acc){
+          return pdf.getPage(pageNum).then(function(page){
+            var viewport = page.getViewport({ scale: 2 });
+            var canvas = document.createElement("canvas");
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            var ctx = canvas.getContext("2d");
+            return page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function(){
+              return worker.recognize(canvas);
+            }).then(function(result){
+              return acc + ((result && result.data && result.data.text) || "") + "\n";
+            });
+          });
+        });
+      }, Promise.resolve(""));
+    }).then(function(text){ return text.trim(); });
+  }
+  function extractPdfText(blob){
+    return Promise.all([blob.arrayBuffer(), getPdfjsLib()]).then(function(res){
+      var buf = res[0], pdfjsLib = res[1];
+      return pdfjsLib.getDocument({ data: buf }).promise.then(function(pdf){
+        var maxPages = Math.min(pdf.numPages, PDF_TEXT_LAYER_MAX_PAGES);
+        var pageNums = [];
+        for(var i = 1; i <= maxPages; i++) pageNums.push(i);
+        return pageNums.reduce(function(chain, pageNum){
+          return chain.then(function(acc){
+            return pdf.getPage(pageNum).then(function(page){
+              return page.getTextContent().then(function(content){
+                return acc + content.items.map(function(it){ return it.str || ""; }).join(" ") + "\n";
+              });
+            });
+          });
+        }, Promise.resolve("")).then(function(text){
+          var trimmed = text.replace(/\s+/g, " ").trim();
+          // A real text layer almost always yields more than a token or two; anything
+          // shorter is treated as "no usable text layer" — most likely a scanned/
+          // photographed PDF with no embedded text at all — and falls back to OCR.
+          if(trimmed.length >= 20) return trimmed;
+          return ocrPdfPages(pdf, pageNums);
+        });
+      });
+    });
+  }
+  function extractAttachmentText(att, fileOrBlob){
+    var srcPromise = fileOrBlob ? Promise.resolve(fileOrBlob) : fetchAttachmentBlob(att);
+    return srcPromise.then(function(blob){
+      if(att.type === "image") return ocrImageSource(blob);
+      if(att.type === "pdf") return extractPdfText(blob);
+      return "";
+    });
+  }
+  function ensureAttachmentTextExtracted(ownerObj, att, itemRow, onChange, fileOrBlob){
+    if(att.textStatus === "done" || att.textStatus === "unavailable" || att.textStatus === "extracting") return;
+    att.textStatus = "extracting";
+    paintAttachmentRow(itemRow, ownerObj, att, onChange);
+    extractAttachmentText(att, fileOrBlob).then(function(text){
+      att.extractedText = (text || "").slice(0, EXTRACTED_TEXT_MAX_CHARS);
+      att.textStatus = "done";
+      scheduleSave();
+      if(document.body.contains(itemRow)) paintAttachmentRow(itemRow, ownerObj, att, onChange);
+    }).catch(function(){
+      att.textStatus = "unavailable";
+      scheduleSave();
+      if(document.body.contains(itemRow)) paintAttachmentRow(itemRow, ownerObj, att, onChange);
+    });
+  }
+
   function attachmentsBadgeSet(ownerObj){ return !!(ownerObj.attachments && ownerObj.attachments.length); }
   function attachmentsBadgeHtml(ownerObj){
     var atts = ownerObj.attachments || [];
@@ -4279,17 +4566,19 @@
 
   function paintAttachmentRow(itemRow, ownerObj, att, onChange){
     var icon = att.type === "image" ? ATTACH_IMAGE_ICON : ATTACH_PDF_ICON;
+    var statusLine = att.uploading ? "Uploading…" : (att.textStatus === "extracting" ? "Reading text…" : formatFileSize(att.size));
+    var searchableTitle = att.textStatus === "done" && att.extractedText ? "This file's text is included in search" : "";
     itemRow.innerHTML =
-      '<div class="attachment-thumb">' + (att.uploading ? ICON_SPIN : icon) + '</div>' +
+      '<div class="attachment-thumb"' + (searchableTitle ? ' title="' + escapeHtml(searchableTitle) + '"' : '') + '>' + (att.uploading || att.textStatus === "extracting" ? ICON_SPIN : icon) + '</div>' +
       '<div class="attachment-info">' +
         '<button type="button" class="attachment-name-btn"' + (att.uploading ? " disabled" : "") + '>' + escapeHtml(att.name) + '</button>' +
-        '<span class="attachment-size">' + (att.uploading ? "Uploading…" : formatFileSize(att.size)) + '</span>' +
+        '<span class="attachment-size">' + escapeHtml(statusLine) + '</span>' +
       '</div>' +
       (att.uploading ? '' : '<button type="button" class="icon-btn danger attachment-remove" title="Remove attachment" aria-label="Remove attachment"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>');
     if(!att.uploading){
       itemRow.querySelector(".attachment-name-btn").addEventListener("click", function(){ openAttachment(att, itemRow); });
       itemRow.querySelector(".attachment-remove").addEventListener("click", function(){ removeAttachmentFrom(ownerObj, att, itemRow, onChange); });
-      if(att.type === "image") loadAttachmentThumb(itemRow, att);
+      if(att.type === "image" && att.textStatus !== "extracting") loadAttachmentThumb(itemRow, att);
     }
   }
   function appendAttachmentRow(listEl, ownerObj, att, onChange){
@@ -4298,6 +4587,14 @@
     itemRow.setAttribute("data-attachment-id", att.id);
     paintAttachmentRow(itemRow, ownerObj, att, onChange);
     listEl.appendChild(itemRow);
+    // Catches up any attachment that was never extracted — either it predates this
+    // feature (migrated to textStatus "pending" on load) or a previous extraction
+    // attempt was interrupted (page closed mid-OCR). Triggered lazily here, only when
+    // its editor is actually opened, rather than for every attachment on every load.
+    // Skipped while still uploading — uploadAttachment triggers extraction itself once
+    // the upload succeeds, passing the in-memory File directly (faster, and avoids a
+    // race trying to fetch a file from GitHub before it's actually finished uploading).
+    if(att.textStatus === "pending" && !att.uploading) ensureAttachmentTextExtracted(ownerObj, att, itemRow, onChange);
     return itemRow;
   }
   function removeAttachmentFrom(ownerObj, att, itemRow, onChange){
@@ -4330,7 +4627,7 @@
       errEl.hidden = false;
       return;
     }
-    var att = { id: uid(), name: file.name || "file", path: null, mime: file.type || (isPdf ? "application/pdf" : "application/octet-stream"), type: isImage ? "image" : "pdf", size: file.size, sha: null, uploading: true };
+    var att = { id: uid(), name: file.name || "file", path: null, mime: file.type || (isPdf ? "application/pdf" : "application/octet-stream"), type: isImage ? "image" : "pdf", size: file.size, sha: null, uploading: true, extractedText: "", textStatus: "pending" };
     att.path = attachmentPathFor(att.id, att.name);
     if(!Array.isArray(ownerObj.attachments)) ownerObj.attachments = [];
     ownerObj.attachments.push(att);
@@ -4343,6 +4640,7 @@
       scheduleSave();
       if(onChange) onChange();
       paintAttachmentRow(itemRow, ownerObj, att, onChange);
+      ensureAttachmentTextExtracted(ownerObj, att, itemRow, onChange, file);
     }).catch(function(e){
       ownerObj.attachments = ownerObj.attachments.filter(function(a){ return a.id !== att.id; });
       itemRow.remove();
@@ -4407,6 +4705,7 @@
     state.headings.forEach(function(h){
       var hTotal=0, hDone=0;
       function tally(t){
+        if(t.deletedAt) return; // in the recycle bin — not part of the live list, don't count it
         total++; hTotal++;
         if(t.done){
           done++; hDone++;
