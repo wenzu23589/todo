@@ -258,6 +258,8 @@
   .due-editor{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; background:var(--paper-sunken); border:1px solid var(--line); border-radius:var(--radius-s); padding:6px 8px; margin-top:4px; }
   .due-editor input[type="date"], .due-editor input[type="time"]{ font:inherit; font-size:0.8rem; border:1px solid var(--line); border-radius:4px; padding:3px 5px; background:var(--paper-raised); color:var(--ink); }
   .due-editor label{ display:flex; align-items:center; gap:4px; font-size:0.78rem; color:var(--muted); }
+  .snooze-row{ display:flex; align-items:center; gap:6px; width:100%; padding-top:6px; margin-top:2px; border-top:1px solid var(--line); }
+  .snooze-label{ font-size:0.72rem; color:var(--muted); margin-right:2px; }
 
   .notes-badge{
     display:inline-flex; align-items:center; gap:5px; font-size:0.74rem; color:var(--muted);
@@ -326,6 +328,34 @@
   .tag-filter-row input{ width:auto; flex-shrink:0; }
   .tag-chip-dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
 
+  .subtasks-badge{
+    display:inline-flex; align-items:center; gap:5px; font-size:0.74rem; color:var(--muted);
+    border:1px solid var(--line); border-radius:999px; padding:2px 9px 2px 8px; cursor:pointer; background:var(--paper-raised);
+  }
+  .subtasks-badge:hover{ border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
+  .subtasks-badge.set{ color:var(--ink-soft); border-color: color-mix(in srgb, var(--accent-2) 45%, var(--line)); }
+  .subtasks-editor{
+    display:flex; flex-direction:column; gap:7px; background:var(--paper-sunken); border:1px solid var(--line);
+    border-radius:var(--radius-s); padding:8px; margin-top:4px;
+  }
+  .subtask-list{ display:flex; flex-direction:column; gap:3px; }
+  .subtask-item{ display:flex; flex-direction:column; gap:4px; }
+  .subtask-item-row{ display:flex; align-items:center; gap:6px; }
+  .subtask-check{ flex-shrink:0; }
+  .subtask-text{
+    flex:1; min-width:0; border:none; background:transparent; color:var(--ink); font:inherit; font-size:0.85rem; padding:3px 4px; border-radius:4px;
+  }
+  .subtask-text:focus{ background:var(--paper-raised); }
+  .subtask-item.done .subtask-text{ color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line); }
+  .due-badge-sm{ font-size:0.7rem; padding:1px 7px; flex-shrink:0; }
+  .subtask-remove{ opacity:0; padding:3px; flex-shrink:0; }
+  .subtask-item:hover .subtask-remove, .subtask-text:focus ~ .subtask-remove{ opacity:1; }
+  .subtask-add-row{ display:flex; gap:6px; }
+  .subtask-add-input{
+    flex:1; min-width:0; font:inherit; font-size:0.85rem; border:1px solid var(--line); border-radius:var(--radius-s);
+    padding:5px 8px; background:var(--paper-raised); color:var(--ink);
+  }
+
   .ghost-add{
     display:flex; align-items:center; gap:6px; color:var(--muted); background:none; border:1px dashed var(--line);
     border-radius:var(--radius-s); padding:6px 10px; font-size:0.82rem; cursor:pointer; margin-top:4px; width:100%; justify-content:flex-start;
@@ -344,6 +374,17 @@
   .empty-state{ text-align:center; padding:64px 20px; color:var(--muted); border:1px dashed var(--line); border-radius:var(--radius-l); margin-top:12px; }
   .empty-state h2{ font-size:1.3rem; color:var(--ink); margin-bottom:8px; }
   .empty-state p{ max-width:420px; margin:0 auto 18px; font-size:0.9rem; }
+
+  /* ---------- today view ---------- */
+  .today-section{ background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-l); box-shadow:var(--shadow); padding:14px 16px; margin-bottom:16px; }
+  .today-section-head{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .today-section-title{ font-size:1rem; font-weight:600; }
+  .today-section-count{ color:var(--muted); font-size:0.78rem; }
+  .today-task-wrap{ padding-top:6px; }
+  .today-task-wrap:first-of-type{ padding-top:0; }
+  .today-task-path{ font-size:0.72rem; color:var(--muted); padding:4px 4px 0; }
+  .today-task-path-sep{ opacity:0.6; }
+  #today-view .grip{ display:none; }
 
   /* ---------- stats page ---------- */
   .stats-head{ margin-bottom:18px; }
@@ -552,6 +593,7 @@
       </div>
       <div class="view-tabs" role="tablist">
         <button class="tab-btn active" id="tab-list" data-view="list">List</button>
+        <button class="tab-btn" id="tab-today" data-view="today">Today</button>
         <button class="tab-btn" id="tab-cal" data-view="cal">Calendar</button>
         <button class="tab-btn" id="tab-stats" data-view="stats">Stats</button>
       </div>
@@ -613,6 +655,7 @@
         </button>
       </div>
     </div>
+    <div id="today-view" hidden></div>
     <div id="cal-view" hidden></div>
     <div id="stats-view" hidden></div>
   </main>
@@ -857,12 +900,23 @@
     if(t.archivedAt === undefined) t.archivedAt = null;
     if(t.priority !== "low" && t.priority !== "medium" && t.priority !== "high") t.priority = null;
     if(!Array.isArray(t.tags)) t.tags = [];
+    if(!Array.isArray(t.subtasks)) t.subtasks = [];
+    t.subtasks.forEach(normalizeSubtask);
     // Auto-archive tasks completed a while ago, so the list doesn't accumulate old
     // check marks forever — still visible under "Show archived", not deleted.
     if(t.done && t.completedAt && !t.archivedAt){
       var ageMs = Date.now() - new Date(t.completedAt).getTime();
       if(ageMs > ARCHIVE_AFTER_DAYS * 24 * 60 * 60 * 1000) t.archivedAt = new Date().toISOString();
     }
+  }
+  // Subtasks are deliberately lighter than top-level tasks: text, done, and an
+  // optional due date — no notes/checklist/tags/priority/calendar sync of their own.
+  function normalizeSubtask(st){
+    if(!st.id) st.id = uid();
+    if(typeof st.text !== "string") st.text = "";
+    st.done = !!st.done;
+    if(st.due !== null && typeof st.due !== "object") st.due = null;
+    if(st.completedAt === undefined) st.completedAt = null;
   }
 
   /* ---------------- config (per-device, in this browser only) ---------------- */
@@ -1720,15 +1774,19 @@
   function setView(mode){
     viewMode = mode;
     document.getElementById("list-view").hidden = mode !== "list";
+    document.getElementById("today-view").hidden = mode !== "today";
     document.getElementById("cal-view").hidden = mode !== "cal";
     document.getElementById("stats-view").hidden = mode !== "stats";
     document.getElementById("tab-list").classList.toggle("active", mode === "list");
+    document.getElementById("tab-today").classList.toggle("active", mode === "today");
     document.getElementById("tab-cal").classList.toggle("active", mode === "cal");
     document.getElementById("tab-stats").classList.toggle("active", mode === "stats");
+    if(mode === "today") renderTodayView();
     if(mode === "stats") renderStats();
     if(mode === "cal") renderCalendar();
   }
   document.getElementById("tab-list").addEventListener("click", function(){ setView("list"); });
+  document.getElementById("tab-today").addEventListener("click", function(){ setView("today"); });
   document.getElementById("tab-cal").addEventListener("click", function(){ setView("cal"); });
   document.getElementById("tab-stats").addEventListener("click", function(){ setView("stats"); });
 
@@ -2089,7 +2147,7 @@
     heading.subheadings.push(sh); lastAddedId = sh.id; scheduleSave(); render(); return sh;
   }
   function addTask(container, text){
-    var t = { id: uid(), text: text || "New task", done:false, due:null, completedAt:null, calendarEventId:null, syncError:null, notes:"", checklist:[], archivedAt:null, priority:null, tags:[] };
+    var t = { id: uid(), text: text || "New task", done:false, due:null, completedAt:null, calendarEventId:null, syncError:null, notes:"", checklist:[], archivedAt:null, priority:null, tags:[], subtasks:[] };
     container.tasks.push(t); lastAddedId = t.id; scheduleSave(); render(); return t;
   }
   /* ---------------- undo toast ---------------- */
@@ -2177,6 +2235,10 @@
     if(!due || done) return false;
     var today = new Date(); today.setHours(0,0,0,0);
     return new Date(due.date + "T00:00:00") < today;
+  }
+  function todayDateStr(){
+    var d = new Date();
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
   }
 
   var ICON_LINK = '<svg class="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 12h6M8 17H6a4 4 0 010-8h2m8 0h2a4 4 0 010 8h-2"/></svg>';
@@ -2796,7 +2858,7 @@
       var createdWithDue = [];
       lines.forEach(function(line){
         var parsed = parseQuickCaptureLine(line, now);
-        var t = { id: uid(), text: parsed.text, done:false, due: parsed.due, completedAt:null, calendarEventId:null, syncError:null, notes:"", checklist:[], archivedAt:null, priority:null, tags:[] };
+        var t = { id: uid(), text: parsed.text, done:false, due: parsed.due, completedAt:null, calendarEventId:null, syncError:null, notes:"", checklist:[], archivedAt:null, priority:null, tags:[], subtasks:[] };
         heading.tasks.push(t);
         if(parsed.due) createdWithDue.push(t);
       });
@@ -2817,6 +2879,7 @@
     renderHeadings();
     renderEmptyState();
     refreshTagFilterButton();
+    if(viewMode === "today") renderTodayView();
     if(viewMode === "stats") renderStats();
     if(viewMode === "cal") renderCalendar();
   }
@@ -2979,6 +3042,53 @@
     return block;
   }
 
+  /* ---------------- today view ---------------- */
+  function renderTodayView(){
+    var root = document.getElementById("today-view");
+    if(!state){ root.innerHTML = ""; return; }
+    root.innerHTML = "";
+    var todayStr = todayDateStr();
+    var overdue = [], dueToday = [], flagged = [];
+    forEachTask(function(t, h, sub){
+      if(t.done || t.archivedAt) return;
+      var container = sub || h;
+      if(t.due && t.due.date < todayStr){ overdue.push({ task:t, container:container, heading:h, sub:sub }); }
+      else if(t.due && t.due.date === todayStr){ dueToday.push({ task:t, container:container, heading:h, sub:sub }); }
+      else if(t.priority === "high"){ flagged.push({ task:t, container:container, heading:h, sub:sub }); }
+    });
+
+    if(!overdue.length && !dueToday.length && !flagged.length){
+      root.innerHTML = '<div class="empty-state"><h2>All clear for today</h2><p>Nothing overdue, nothing due today, and nothing flagged as high priority.</p></div>';
+      return;
+    }
+
+    root.appendChild(renderTodaySection("Overdue", overdue));
+    root.appendChild(renderTodaySection("Due today", dueToday));
+    root.appendChild(renderTodaySection("Flagged", flagged));
+  }
+
+  function renderTodaySection(title, items){
+    var section = document.createElement("section");
+    section.className = "today-section";
+    if(!items.length) return section; // skip empty sections entirely (empty <section> renders nothing)
+    var head = document.createElement("div");
+    head.className = "today-section-head";
+    head.innerHTML = '<h2 class="today-section-title">' + escapeHtml(title) + '</h2><span class="today-section-count mono">' + items.length + '</span>';
+    section.appendChild(head);
+    var list = document.createElement("div");
+    list.className = "task-list today-task-list";
+    items.forEach(function(item){
+      var wrap = document.createElement("div");
+      wrap.className = "today-task-wrap";
+      var pathLabel = escapeHtml(item.heading.title) + (item.sub ? ' <span class="today-task-path-sep">&rsaquo;</span> ' + escapeHtml(item.sub.title) : "");
+      wrap.innerHTML = '<div class="today-task-path">' + pathLabel + '</div>';
+      wrap.appendChild(renderTaskRow(item.container, item.task));
+      list.appendChild(wrap);
+    });
+    section.appendChild(list);
+    return section;
+  }
+
   /* ---------------- archive ---------------- */
   var expandedArchives = {}; // heading/sub id -> expanded?, transient UI state (not persisted)
   var ICON_RESTORE = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M3 12a9 9 0 1 1 2.64 6.36M3 12V6m0 6h6"/></svg>';
@@ -3042,6 +3152,7 @@
           '<button class="due-badge' + (due ? (overdue ? ' overdue' : ' set') : '') + '" type="button">' + syncBadge + '<span>' + escapeHtml(dueLabel) + '</span></button>' +
           '<button class="notes-badge' + (notesBadgeSet(task) ? ' set' : '') + '" type="button" title="Notes & checklist">' + notesBadgeHtml(task) + '</button>' +
           '<button class="tags-badge' + (tagsBadgeSet(task) ? ' set' : '') + '" type="button" title="Tags">' + tagsBadgeHtml(task) + '</button>' +
+          '<button class="subtasks-badge' + (subtasksBadgeSet(task) ? ' set' : '') + '" type="button" title="Subtasks">' + subtasksBadgeHtml(task) + '</button>' +
           (task.syncError ? '<span class="sync-note" title="' + escapeHtml(task.syncError) + '">' + escapeHtml(task.syncError) + '</span>' : '') +
         '</div>' +
       '</div>' +
@@ -3093,6 +3204,7 @@
     row.querySelector(".due-badge").addEventListener("click", function(){ toggleDueEditor(row, task); });
     row.querySelector(".notes-badge").addEventListener("click", function(){ toggleNotesEditor(row, task); });
     row.querySelector(".tags-badge").addEventListener("click", function(){ toggleTagsEditor(row, task); });
+    row.querySelector(".subtasks-badge").addEventListener("click", function(){ toggleSubtasksEditor(row, task); });
     row.querySelector(".icon-btn.danger").addEventListener("click", function(){ removeTask(container, task); });
     var archiveBtn = row.querySelector('[data-act="archive"]');
     if(archiveBtn) archiveBtn.addEventListener("click", function(){
@@ -3109,6 +3221,20 @@
     return row;
   }
 
+  // Adds n days to a "YYYY-MM-DD" string, returning a new "YYYY-MM-DD" string.
+  function addDaysToDateStr(dateStr, n){
+    var d = new Date(dateStr + "T00:00:00");
+    d.setDate(d.getDate() + n);
+    return d.getFullYear() + "-" + pad2(d.getMonth()+1) + "-" + pad2(d.getDate());
+  }
+  function snoozeTask(task, days){
+    if(!task.due) return;
+    task.due = { date: addDaysToDateStr(task.due.date, days), time: task.due.time, allDay: task.due.allDay };
+    task.syncError = null;
+    scheduleSave();
+    render();
+    syncTaskToCalendar(task);
+  }
   function toggleDueEditor(row, task){
     var existing = row.querySelector(".due-editor");
     if(existing){ existing.remove(); return; }
@@ -3122,7 +3248,8 @@
       '<label><input type="checkbox" ' + (d.allDay ? "checked" : "") + ' /> All day</label>' +
       '<button class="btn btn-sm btn-primary" data-act="save">Save</button>' +
       (task.due ? '<button class="btn btn-sm btn-ghost" data-act="clear">Clear</button>' : '') +
-      '<button class="btn btn-sm btn-ghost" data-act="close">Close</button>';
+      '<button class="btn btn-sm btn-ghost" data-act="close">Close</button>' +
+      (task.due ? '<div class="snooze-row"><span class="snooze-label">Snooze</span><button type="button" class="btn btn-sm btn-ghost" data-act="snooze-1d">+1 day</button><button type="button" class="btn btn-sm btn-ghost" data-act="snooze-1w">+1 week</button></div>' : '');
     row.querySelector(".task-main").appendChild(editor);
     var dateEl = editor.querySelector('input[type="date"]');
     var timeEl = editor.querySelector('input[type="time"]');
@@ -3144,6 +3271,10 @@
       render();
       syncTaskToCalendar(task);
     });
+    var snooze1d = editor.querySelector('[data-act="snooze-1d"]');
+    if(snooze1d) snooze1d.addEventListener("click", function(){ snoozeTask(task, 1); });
+    var snooze1w = editor.querySelector('[data-act="snooze-1w"]');
+    if(snooze1w) snooze1w.addEventListener("click", function(){ snoozeTask(task, 7); });
     editor.querySelector('[data-act="close"]').addEventListener("click", function(){ editor.remove(); });
   }
 
@@ -3388,6 +3519,137 @@
       render();
       buildTagFilterPopover(anchorEl);
     });
+  }
+
+  /* ---------------- subtasks ---------------- */
+  // Subtasks are a lighter-weight nested task: text, done, and an optional due date —
+  // no notes/checklist/tags/priority/calendar sync of their own. Distinct from the
+  // notes checklist, which is plain text items with no dates.
+  var SUBTASK_ICON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01" stroke-width="3" stroke-linecap="round"/></svg>';
+  function subtasksBadgeSet(task){ return !!(task.subtasks && task.subtasks.length); }
+  function subtasksBadgeHtml(task){
+    var subs = task.subtasks || [];
+    if(!subs.length) return SUBTASK_ICON;
+    var done = subs.filter(function(s){ return s.done; }).length;
+    return SUBTASK_ICON + '<span>' + done + '/' + subs.length + '</span>';
+  }
+  function updateSubtasksBadge(row, task){
+    var btn = row.querySelector(".subtasks-badge");
+    if(!btn) return;
+    btn.classList.toggle("set", subtasksBadgeSet(task));
+    btn.innerHTML = subtasksBadgeHtml(task);
+  }
+  function updateSubtaskDueBadge(itemRow, subtask){
+    var btn = itemRow.querySelector(".subtask-due-badge");
+    if(!btn) return;
+    var due = subtask.due;
+    var overdue = isOverdue(due, subtask.done);
+    btn.className = "due-badge due-badge-sm subtask-due-badge" + (due ? (overdue ? " overdue" : " set") : "");
+    btn.textContent = due ? formatDue(due) : "Add date";
+  }
+  function toggleSubtaskDueEditor(itemRow, task, subtask){
+    var existing = itemRow.querySelector(".due-editor");
+    if(existing){ existing.remove(); return; }
+    document.querySelectorAll(".due-editor").forEach(function(el){ el.remove(); });
+    var editor = document.createElement("div");
+    editor.className = "due-editor";
+    var d = subtask.due || {};
+    editor.innerHTML =
+      '<input type="date" value="' + (d.date || "") + '" />' +
+      '<input type="time" value="' + (d.time || "") + '" ' + (d.allDay ? "disabled" : "") + ' />' +
+      '<label><input type="checkbox" ' + (d.allDay ? "checked" : "") + ' /> All day</label>' +
+      '<button class="btn btn-sm btn-primary" data-act="save">Save</button>' +
+      (subtask.due ? '<button class="btn btn-sm btn-ghost" data-act="clear">Clear</button>' : '') +
+      '<button class="btn btn-sm btn-ghost" data-act="close">Close</button>';
+    itemRow.appendChild(editor);
+    var dateEl = editor.querySelector('input[type="date"]');
+    var timeEl = editor.querySelector('input[type="time"]');
+    var allDayEl = editor.querySelector('input[type="checkbox"]');
+    dateEl.focus();
+    allDayEl.addEventListener("change", function(){ timeEl.disabled = allDayEl.checked; });
+    editor.querySelector('[data-act="save"]').addEventListener("click", function(){
+      if(!dateEl.value){ dateEl.focus(); return; }
+      subtask.due = { date: dateEl.value, time: allDayEl.checked ? null : (timeEl.value || null), allDay: allDayEl.checked || !timeEl.value };
+      scheduleSave();
+      updateSubtaskDueBadge(itemRow, subtask);
+      editor.remove();
+    });
+    var clearBtn = editor.querySelector('[data-act="clear"]');
+    if(clearBtn) clearBtn.addEventListener("click", function(){
+      subtask.due = null;
+      scheduleSave();
+      updateSubtaskDueBadge(itemRow, subtask);
+      editor.remove();
+    });
+    editor.querySelector('[data-act="close"]').addEventListener("click", function(){ editor.remove(); });
+  }
+  function renderSubtaskRow(listEl, row, task, subtask){
+    var itemRow = document.createElement("div");
+    itemRow.className = "subtask-item" + (subtask.done ? " done" : "");
+    itemRow.setAttribute("data-subtask-id", subtask.id);
+    itemRow.innerHTML =
+      '<div class="subtask-item-row">' +
+        '<input type="checkbox" class="subtask-check" ' + (subtask.done ? "checked" : "") + ' aria-label="Mark subtask done" />' +
+        '<input type="text" class="subtask-text" value="' + escapeHtml(subtask.text) + '" aria-label="Subtask" />' +
+        '<button type="button" class="due-badge due-badge-sm subtask-due-badge' + (subtask.due ? (isOverdue(subtask.due, subtask.done) ? " overdue" : " set") : "") + '">' + (subtask.due ? escapeHtml(formatDue(subtask.due)) : "Add date") + '</button>' +
+        '<button type="button" class="icon-btn danger subtask-remove" title="Remove subtask" aria-label="Remove subtask"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
+      '</div>';
+    itemRow.querySelector(".subtask-check").addEventListener("change", function(e){
+      subtask.done = e.target.checked;
+      subtask.completedAt = subtask.done ? new Date().toISOString() : null;
+      itemRow.classList.toggle("done", subtask.done);
+      scheduleSave();
+      updateSubtasksBadge(row, task);
+    });
+    var textEl = itemRow.querySelector(".subtask-text");
+    textEl.addEventListener("change", function(){
+      subtask.text = textEl.value.trim() || "Untitled subtask";
+      textEl.value = subtask.text;
+      scheduleSave();
+    });
+    textEl.addEventListener("keydown", function(e){ if(e.key === "Enter") textEl.blur(); });
+    itemRow.querySelector(".subtask-due-badge").addEventListener("click", function(){ toggleSubtaskDueEditor(itemRow, task, subtask); });
+    itemRow.querySelector(".subtask-remove").addEventListener("click", function(){
+      task.subtasks = task.subtasks.filter(function(s){ return s.id !== subtask.id; });
+      itemRow.remove();
+      scheduleSave();
+      updateSubtasksBadge(row, task);
+    });
+    listEl.appendChild(itemRow);
+  }
+  function toggleSubtasksEditor(row, task){
+    var existing = row.querySelector(".subtasks-editor");
+    if(existing){ existing.remove(); return; }
+    document.querySelectorAll(".subtasks-editor").forEach(function(el){ el.remove(); });
+    if(!Array.isArray(task.subtasks)) task.subtasks = [];
+    var editor = document.createElement("div");
+    editor.className = "subtasks-editor";
+    editor.innerHTML =
+      '<div class="subtask-list"></div>' +
+      '<div class="subtask-add-row"><input type="text" class="subtask-add-input" placeholder="Add subtask…" aria-label="Add subtask"><button type="button" class="btn btn-sm btn-ghost" data-act="add-subtask">Add</button></div>' +
+      '<div class="notes-editor-actions"><button type="button" class="btn btn-sm btn-ghost" data-act="close">Close</button></div>';
+    row.querySelector(".task-main").appendChild(editor);
+
+    var listEl = editor.querySelector(".subtask-list");
+    task.subtasks.forEach(function(subtask){ renderSubtaskRow(listEl, row, task, subtask); });
+
+    var addInput = editor.querySelector(".subtask-add-input");
+    function addSubtask(){
+      var text = addInput.value.trim();
+      if(!text) return;
+      var subtask = { id: uid(), text: text, done: false, due: null, completedAt: null };
+      task.subtasks.push(subtask);
+      renderSubtaskRow(listEl, row, task, subtask);
+      addInput.value = "";
+      addInput.focus();
+      scheduleSave();
+      updateSubtasksBadge(row, task);
+    }
+    editor.querySelector('[data-act="add-subtask"]').addEventListener("click", addSubtask);
+    addInput.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); addSubtask(); } });
+    addInput.focus();
+
+    editor.querySelector('[data-act="close"]').addEventListener("click", function(){ editor.remove(); });
   }
 
   /* ---------------- stats page ---------------- */
