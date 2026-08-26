@@ -229,6 +229,14 @@
   .task-text:focus{ background:var(--paper-sunken); }
   .task-row.done .task-text{ color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line); transition: color .2s ease; }
   .task-meta{ display:flex; align-items:center; gap:8px; margin-top:2px; padding-left:4px; flex-wrap:wrap; }
+  .priority-flag{
+    display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; flex-shrink:0;
+    border:1px solid var(--line); border-radius:999px; padding:0; cursor:pointer; background:var(--paper-raised); color:var(--muted);
+  }
+  .priority-flag:hover{ border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
+  .priority-flag.p-high{ color:#b8452f; border-color: color-mix(in srgb, #b8452f 45%, var(--line)); }
+  .priority-flag.p-medium{ color:#a8672a; border-color: color-mix(in srgb, #a8672a 45%, var(--line)); }
+  .priority-flag.p-low{ color:#4a5fc1; border-color: color-mix(in srgb, #4a5fc1 45%, var(--line)); }
   .due-badge{
     display:inline-flex; align-items:center; gap:5px; font-size:0.74rem; color:var(--muted);
     border:1px solid var(--line); border-radius:999px; padding:2px 9px 2px 8px; cursor:pointer; background:var(--paper-raised);
@@ -278,6 +286,42 @@
     padding:5px 8px; background:var(--paper-raised); color:var(--ink);
   }
   .notes-editor-actions{ display:flex; justify-content:flex-end; }
+
+  .tags-badge{
+    display:inline-flex; align-items:center; gap:5px; font-size:0.74rem; color:var(--muted); max-width:220px;
+    border:1px solid var(--line); border-radius:999px; padding:2px 9px 2px 8px; cursor:pointer; background:var(--paper-raised);
+  }
+  .tags-badge span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tags-badge:hover{ border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
+  .tags-badge.set{ color:var(--ink-soft); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+  .tags-editor{
+    display:flex; flex-direction:column; gap:7px; background:var(--paper-sunken); border:1px solid var(--line);
+    border-radius:var(--radius-s); padding:8px; margin-top:4px;
+  }
+  .tag-chip-list{ display:flex; flex-wrap:wrap; gap:6px; }
+  .tag-chip{
+    display:inline-flex; align-items:center; gap:5px; font-size:0.78rem; color:var(--ink-soft);
+    background:var(--paper-raised); border:1px solid color-mix(in srgb, var(--tag-color) 45%, var(--line));
+    border-radius:999px; padding:3px 5px 3px 10px;
+  }
+  .tag-chip::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--tag-color); flex-shrink:0; }
+  .tag-chip-remove{ background:none; border:none; color:var(--muted); cursor:pointer; padding:2px; display:flex; border-radius:50%; }
+  .tag-chip-remove:hover{ color:var(--danger); background:var(--paper-sunken); }
+  .tag-add-row{ display:flex; gap:6px; }
+  .tag-add-input{
+    flex:1; min-width:0; font:inherit; font-size:0.85rem; border:1px solid var(--line); border-radius:var(--radius-s);
+    padding:5px 8px; background:var(--paper-raised); color:var(--ink);
+  }
+  .tag-filter-toggle-btn.active{ color:var(--ink-soft); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); background:var(--paper-sunken); }
+  .tag-filter-toggle-btn svg{ vertical-align:-1px; margin-right:4px; }
+  .tag-filter-popover{
+    position:fixed; z-index:60; background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-s);
+    box-shadow:0 8px 24px rgba(0,0,0,0.18); padding:8px; min-width:180px; max-height:280px; overflow-y:auto;
+  }
+  .tag-filter-row{ display:flex; align-items:center; gap:8px; padding:6px 7px; border-radius:var(--radius-s); font-size:0.85rem; cursor:pointer; }
+  .tag-filter-row:hover{ background:var(--paper-sunken); }
+  .tag-filter-row input{ width:auto; flex-shrink:0; }
+  .tag-chip-dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
 
   .ghost-add{
     display:flex; align-items:center; gap:6px; color:var(--muted); background:none; border:1px dashed var(--line);
@@ -363,6 +407,8 @@
   .ics-add-row input{ flex:1; min-width:120px; }
   .ics-add-row .btn{ flex-shrink:0; }
   .digest-field{ margin-top:14px; }
+  .export-field{ margin-top:14px; padding-top:14px; border-top:1px solid var(--line-soft); }
+  .export-field .field-hint{ margin-bottom:8px; }
   .digest-toggle-row{ display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.9rem; margin:8px 0; }
   .digest-toggle-row input{ width:auto; flex-shrink:0; }
   .digest-field input[type="email"]{ margin-bottom:8px; }
@@ -543,9 +589,14 @@
         <span class="list-sort-label">Sort</span>
         <div class="list-sort-toggle">
           <button class="list-sort-btn active" id="sort-manual-btn" type="button">Manual</button>
+          <button class="list-sort-btn" id="sort-priority-btn" type="button">Priority</button>
           <button class="list-sort-btn" id="sort-due-btn" type="button">Due date</button>
         </div>
-        <button class="btn btn-sm" id="quick-capture-btn" type="button" style="margin-left:auto;">
+        <button class="btn btn-sm tag-filter-toggle-btn" id="tag-filter-btn" type="button" style="margin-left:auto;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.59 13.41L11 3.83A2 2 0 009.59 3.17H4a1 1 0 00-1 1v5.59a2 2 0 00.59 1.41l9.59 9.59a2 2 0 002.82 0l4.59-4.59a2 2 0 000-2.82z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+          Tags
+        </button>
+        <button class="btn btn-sm" id="quick-capture-btn" type="button">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 5v14M5 12h14"/></svg>
           Quick capture
         </button>
@@ -684,20 +735,22 @@
 
   /* ---------------- task sort (manual vs due date) ---------------- */
   var TASK_SORT_KEY = "daybook-tasksort-v1";
+  var TASK_SORT_MODES = ["manual", "priority", "due"];
   var taskSortMode = "manual";
   function loadTaskSortMode(){
-    try{ return localStorage.getItem(TASK_SORT_KEY) === "due" ? "due" : "manual"; }catch(e){ return "manual"; }
+    try{ var v = localStorage.getItem(TASK_SORT_KEY); return TASK_SORT_MODES.indexOf(v) !== -1 ? v : "manual"; }catch(e){ return "manual"; }
   }
   function setTaskSortMode(mode){
-    taskSortMode = (mode === "due") ? "due" : "manual";
+    taskSortMode = TASK_SORT_MODES.indexOf(mode) !== -1 ? mode : "manual";
     try{ localStorage.setItem(TASK_SORT_KEY, taskSortMode); }catch(e){}
     syncSortButtons();
     render();
   }
   function syncSortButtons(){
-    var mb = document.getElementById("sort-manual-btn"), db = document.getElementById("sort-due-btn");
+    var mb = document.getElementById("sort-manual-btn"), db = document.getElementById("sort-due-btn"), pb = document.getElementById("sort-priority-btn");
     if(mb) mb.classList.toggle("active", taskSortMode === "manual");
     if(db) db.classList.toggle("active", taskSortMode === "due");
+    if(pb) pb.classList.toggle("active", taskSortMode === "priority");
   }
   // Undated tasks all get this same (very late) key, so a stable sort keeps them
   // in their original relative order, trailing after every dated task.
@@ -706,12 +759,34 @@
     var time = (t.due.allDay || !t.due.time) ? "00:00" : t.due.time;
     return t.due.date + "T" + time;
   }
+  var PRIORITY_RANK = { high: 0, medium: 1, low: 2 };
+  function priorityRank(t){
+    return (t.priority && PRIORITY_RANK[t.priority] !== undefined) ? PRIORITY_RANK[t.priority] : 3;
+  }
+  var PRIORITY_CYCLE = [null, "high", "medium", "low"];
+  var PRIORITY_FLAG_ICON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 3v18"/><path d="M5 4h11l-2.5 4L16 12H5"/></svg>';
+  function cyclePriority(row, task){
+    var idx = PRIORITY_CYCLE.indexOf(task.priority || null);
+    task.priority = PRIORITY_CYCLE[(idx + 1) % PRIORITY_CYCLE.length];
+    scheduleSave();
+    render();
+  }
   function sortedTaskList(tasks){
-    if(taskSortMode !== "due") return tasks;
-    return tasks.slice().sort(function(a, b){
-      var ka = dueSortKey(a), kb = dueSortKey(b);
-      return ka < kb ? -1 : (ka > kb ? 1 : 0);
-    });
+    if(taskSortMode === "due"){
+      return tasks.slice().sort(function(a, b){
+        var ka = dueSortKey(a), kb = dueSortKey(b);
+        return ka < kb ? -1 : (ka > kb ? 1 : 0);
+      });
+    }
+    if(taskSortMode === "priority"){
+      return tasks.slice().sort(function(a, b){
+        var ra = priorityRank(a), rb = priorityRank(b);
+        if(ra !== rb) return ra - rb;
+        var ka = dueSortKey(a), kb = dueSortKey(b);
+        return ka < kb ? -1 : (ka > kb ? 1 : 0);
+      });
+    }
+    return tasks;
   }
 
   /* ---------------- appearance (light / dark / system) ---------------- */
@@ -775,6 +850,8 @@
     if(typeof t.notes !== "string") t.notes = "";
     if(!Array.isArray(t.checklist)) t.checklist = [];
     if(t.archivedAt === undefined) t.archivedAt = null;
+    if(t.priority !== "low" && t.priority !== "medium" && t.priority !== "high") t.priority = null;
+    if(!Array.isArray(t.tags)) t.tags = [];
     // Auto-archive tasks completed a while ago, so the list doesn't accumulate old
     // check marks forever — still visible under "Show archived", not deleted.
     if(t.done && t.completedAt && !t.archivedAt){
@@ -975,6 +1052,23 @@
   });
 
   /* ---------------- GitHub settings modal ---------------- */
+  // Downloads the current in-memory state as a dated .json file — entirely client-side,
+  // no server round-trip, works whether or not a GitHub repo is connected.
+  function exportBackup(){
+    if(!state) return;
+    var now = new Date();
+    var fname = "daybook-backup-" + now.getFullYear() + "-" + pad2(now.getMonth()+1) + "-" + pad2(now.getDate()) + ".json";
+    var blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = fname;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+  }
+
   function openSettings(){
     var root = document.getElementById("modal-root");
     var backdrop = document.createElement("div");
@@ -998,6 +1092,11 @@
           '<input id="f-token" type="password" placeholder="github_pat_…" value="' + escapeHtml(c.token) + '">' +
           '<div class="field-hint">Fine-grained token, scoped to just this repo, with Contents: Read and write. Stored only in this browser.</div>' +
         '</div>' +
+        '<div class="field export-field">' +
+          '<label>Local backup</label>' +
+          '<div class="field-hint">Download the current list as a dated .json file — a copy on your own device, separate from GitHub, for peace of mind.</div>' +
+          '<button type="button" class="btn btn-ghost btn-sm" id="settings-export"' + (state ? "" : " disabled") + '>Download backup (.json)</button>' +
+        '</div>' +
         '<div class="modal-actions">' +
           (config ? '<button class="btn btn-danger btn-ghost" id="settings-disconnect">Disconnect</button>' : '') +
           '<button class="btn btn-ghost" id="settings-cancel">Cancel</button>' +
@@ -1012,6 +1111,8 @@
     if(disc) disc.addEventListener("click", function(){
       clearConfig(); config = null; sha = null; setStatus("not_configured"); close();
     });
+    var exportBtn = backdrop.querySelector("#settings-export");
+    if(exportBtn) exportBtn.addEventListener("click", function(){ exportBackup(); });
     backdrop.querySelector("#settings-save").addEventListener("click", function(){
       var owner = backdrop.querySelector("#f-owner").value.trim();
       var repo = backdrop.querySelector("#f-repo").value.trim();
@@ -1872,7 +1973,7 @@
   /* ---------------- color popover ---------------- */
   var HEADING_COLORS = ["#a8672a","#3f7d6e","#4a5fc1","#b3486b","#6f7d3a","#7a4fa0","#55606e","#b8452f"];
   function closeAllPopovers(){
-    document.querySelectorAll(".color-popover, .theme-popover, .quickadd-popover").forEach(function(p){ p.remove(); });
+    document.querySelectorAll(".color-popover, .theme-popover, .quickadd-popover, .tag-filter-popover").forEach(function(p){ p.remove(); });
   }
   document.addEventListener("click", function(){ closeAllPopovers(); });
 
@@ -1943,7 +2044,12 @@
     e.stopPropagation();
     openThemePopover(e.currentTarget);
   });
+  document.getElementById("tag-filter-btn").addEventListener("click", function(e){
+    e.stopPropagation();
+    openTagFilterPopover(e.currentTarget);
+  });
   document.getElementById("sort-manual-btn").addEventListener("click", function(){ setTaskSortMode("manual"); });
+  document.getElementById("sort-priority-btn").addEventListener("click", function(){ setTaskSortMode("priority"); });
   document.getElementById("sort-due-btn").addEventListener("click", function(){ setTaskSortMode("due"); });
   document.getElementById("quick-capture-btn").addEventListener("click", function(){ openQuickCapture(); });
   function wireColorDot(dot, bar, heading){
@@ -1978,7 +2084,7 @@
     heading.subheadings.push(sh); lastAddedId = sh.id; scheduleSave(); render(); return sh;
   }
   function addTask(container, text){
-    var t = { id: uid(), text: text || "New task", done:false, due:null, completedAt:null, calendarEventId:null, syncError:null, notes:"", checklist:[], archivedAt:null };
+    var t = { id: uid(), text: text || "New task", done:false, due:null, completedAt:null, calendarEventId:null, syncError:null, notes:"", checklist:[], archivedAt:null, priority:null, tags:[] };
     container.tasks.push(t); lastAddedId = t.id; scheduleSave(); render(); return t;
   }
   /* ---------------- undo toast ---------------- */
@@ -2517,6 +2623,121 @@
   }
 
   /* ---------------- quick capture ---------------- */
+  /* ---------------- natural-language date parsing (Quick capture) ---------------- */
+  var QC_WEEKDAY_PATTERN = "(?:sun|mon|tue|tues|wed|weds|thu|thur|thurs|fri|sat|sunday|monday|tuesday|wednesday|thursday|friday|saturday)";
+  var QC_WEEKDAY_TO_INDEX = {
+    sun:0, sunday:0, mon:1, monday:1, tue:2, tues:2, tuesday:2, wed:3, weds:3, wednesday:3,
+    thu:4, thur:4, thurs:4, thursday:4, fri:5, friday:5, sat:6, saturday:6
+  };
+  var QC_MONTH_PATTERN = "(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t|tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)";
+  var QC_MONTH_TO_INDEX = {
+    jan:0,january:0, feb:1,february:1, mar:2,march:2, apr:3,april:3, may:4, jun:5,june:5,
+    jul:6,july:6, aug:7,august:7, sep:8,sept:8,september:8, oct:9,october:9, nov:10,november:10, dec:11,december:11
+  };
+  function qcPad2(n){ return n < 10 ? "0" + n : "" + n; }
+  function qcYmd(d){ return d.getFullYear() + "-" + qcPad2(d.getMonth()+1) + "-" + qcPad2(d.getDate()); }
+  function qcDayOnly(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+
+  // Finds the first recognizable date phrase in text (checked most-specific-first so
+  // e.g. an ISO date doesn't get shadowed by a looser pattern). Returns the matched
+  // substring (so callers can strip it back out) plus the Date it resolves to, or
+  // null if nothing in the line looks like a date.
+  function qcParseDatePhrase(text, now){
+    var today = qcDayOnly(now);
+    var m = text.match(/\b(\d{4})-(\d{2})-(\d{2})\b/);
+    if(m){
+      var dIso = new Date(parseInt(m[1],10), parseInt(m[2],10)-1, parseInt(m[3],10));
+      if(!isNaN(dIso.getTime())) return { match: m[0], date: dIso };
+    }
+    m = text.match(/\bin\s+(\d+)\s+day(?:s)?\b/i);
+    if(m){ var d1 = new Date(today); d1.setDate(d1.getDate() + parseInt(m[1],10)); return { match: m[0], date: d1 }; }
+    m = text.match(/\bin\s+(a|\d+)\s+week(?:s)?\b/i);
+    if(m){ var n = (m[1].toLowerCase() === "a") ? 1 : parseInt(m[1],10); var d2 = new Date(today); d2.setDate(d2.getDate() + n*7); return { match: m[0], date: d2 }; }
+    m = text.match(/\b(today|tonight)\b/i);
+    if(m) return { match: m[0], date: new Date(today) };
+    m = text.match(/\b(tomorrow|tmrw|tmr)\b/i);
+    if(m){ var d3 = new Date(today); d3.setDate(d3.getDate()+1); return { match: m[0], date: d3 }; }
+    var wdRe = new RegExp("\\b(next\\s+)?(" + QC_WEEKDAY_PATTERN + ")\\b", "i");
+    m = text.match(wdRe);
+    if(m){
+      var hasNext = !!m[1];
+      var idx = QC_WEEKDAY_TO_INDEX[m[2].toLowerCase()];
+      var diff = (idx - today.getDay() + 7) % 7;
+      if(hasNext) diff += 7;
+      var d4 = new Date(today); d4.setDate(d4.getDate() + diff); return { match: m[0], date: d4 };
+    }
+    var mdRe = new RegExp("\\b(" + QC_MONTH_PATTERN + ")\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b", "i");
+    m = text.match(mdRe);
+    if(m){
+      var monthIdx = QC_MONTH_TO_INDEX[m[1].toLowerCase()], day = parseInt(m[2],10), year = today.getFullYear();
+      var d5 = new Date(year, monthIdx, day);
+      if(d5 < today) d5 = new Date(year+1, monthIdx, day);
+      return { match: m[0], date: d5 };
+    }
+    var dmRe = new RegExp("\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+(" + QC_MONTH_PATTERN + ")\\.?\\b", "i");
+    m = text.match(dmRe);
+    if(m){
+      var day2 = parseInt(m[1],10), monthIdx2 = QC_MONTH_TO_INDEX[m[2].toLowerCase()], year2 = today.getFullYear();
+      var d6 = new Date(year2, monthIdx2, day2);
+      if(d6 < today) d6 = new Date(year2+1, monthIdx2, day2);
+      return { match: m[0], date: d6 };
+    }
+    m = text.match(/\b(\d{1,2})\/(\d{1,2})\b/);
+    if(m){
+      var mo = parseInt(m[1],10)-1, da = parseInt(m[2],10), year3 = today.getFullYear();
+      var d7 = new Date(year3, mo, da);
+      if(!isNaN(d7.getTime())){
+        if(d7 < today) d7 = new Date(year3+1, mo, da);
+        return { match: m[0], date: d7 };
+      }
+    }
+    return null;
+  }
+  function qcParseTimePhrase(text){
+    var m = text.match(/\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/i);
+    if(m){
+      var h = parseInt(m[1],10) % 12;
+      if(/pm/i.test(m[3])) h += 12;
+      var min = m[2] ? parseInt(m[2],10) : 0;
+      return { match: m[0], hh: qcPad2(h), mm: qcPad2(min) };
+    }
+    m = text.match(/\b([01]?\d|2[0-3]):([0-5]\d)\b/);
+    if(m) return { match: m[0], hh: qcPad2(parseInt(m[1],10)), mm: m[2] };
+    return null;
+  }
+  function qcCleanText(text){
+    return text
+      .replace(/\s+/g, " ")
+      .replace(/\b(on|by|due|at|for)\s*$/i, "")
+      .replace(/^\s*(on|by|due|at|for)\b/i, "")
+      .replace(/[,;–—-]\s*$/, "")
+      .replace(/^\s*[,;–—-]\s*/, "")
+      .trim();
+  }
+  // Pulls a due date (and optional time) out of a Quick capture line, if it looks like
+  // one is there — "Call dentist Friday 3pm" becomes text "Call dentist" plus a due
+  // date. Lines with no recognizable date phrase come back untouched.
+  function parseQuickCaptureLine(line, now){
+    now = now || new Date();
+    var working = line;
+    var dateResult = qcParseDatePhrase(working, now);
+    if(dateResult) working = working.replace(dateResult.match, " ");
+    var timeResult = qcParseTimePhrase(working);
+    if(timeResult) working = working.replace(timeResult.match, " ");
+    var cleaned = line.trim();
+    if(dateResult || timeResult){
+      cleaned = qcCleanText(working);
+      if(!cleaned) cleaned = line.trim();
+    }
+    var due = null;
+    if(dateResult){
+      due = { date: qcYmd(dateResult.date), time: timeResult ? (timeResult.hh + ":" + timeResult.mm) : null, allDay: !timeResult };
+    } else if(timeResult){
+      due = { date: qcYmd(qcDayOnly(now)), time: timeResult.hh + ":" + timeResult.mm, allDay: false };
+    }
+    return { text: cleaned, due: due };
+  }
+
   function openQuickCapture(){
     var root = document.getElementById("modal-root");
     var backdrop = document.createElement("div");
@@ -2526,8 +2747,8 @@
     var hasHeadings = state.headings.length > 0;
     backdrop.innerHTML =
       '<div class="modal-box" role="dialog" aria-modal="true"><h3>Quick capture</h3>' +
-      '<p>Paste or type multiple lines — each non-empty line becomes its own task.</p>' +
-      '<div class="field"><textarea id="qc-textarea" rows="8" placeholder="Buy milk&#10;Call dentist&#10;Finish slides for Monday"></textarea></div>' +
+      '<p>Paste or type multiple lines — each non-empty line becomes its own task. Mention a date (like "Friday", "tomorrow 3pm", or "Aug 30") and Daybook picks it up as the due date automatically.</p>' +
+      '<div class="field"><textarea id="qc-textarea" rows="8" placeholder="Buy milk&#10;Call dentist tomorrow 3pm&#10;Finish slides for Friday"></textarea></div>' +
       '<div class="field"><label for="qc-heading">Add to</label><select id="qc-heading">' +
         state.headings.map(function(h){ return '<option value="' + h.id + '">' + escapeHtml(h.title) + '</option>'; }).join("") +
         '<option value="__new__"' + (hasHeadings ? "" : " selected") + '>+ New heading…</option>' +
@@ -2566,11 +2787,17 @@
         heading = state.headings.filter(function(h){ return h.id === headingId; })[0];
         if(!heading){ errEl.textContent = "Pick a heading."; errEl.hidden = false; return; }
       }
+      var now = new Date();
+      var createdWithDue = [];
       lines.forEach(function(line){
-        heading.tasks.push({ id: uid(), text: line, done:false, due:null, completedAt:null, calendarEventId:null, syncError:null, notes:"", checklist:[], archivedAt:null });
+        var parsed = parseQuickCaptureLine(line, now);
+        var t = { id: uid(), text: parsed.text, done:false, due: parsed.due, completedAt:null, calendarEventId:null, syncError:null, notes:"", checklist:[], archivedAt:null, priority:null, tags:[] };
+        heading.tasks.push(t);
+        if(parsed.due) createdWithDue.push(t);
       });
       scheduleSave();
       render();
+      createdWithDue.forEach(function(t){ syncTaskToCalendar(t); });
       close();
     }
     backdrop.querySelector("#qc-add").addEventListener("click", submit);
@@ -2584,6 +2811,7 @@
     if(!state) return;
     renderHeadings();
     renderEmptyState();
+    refreshTagFilterButton();
     if(viewMode === "stats") renderStats();
     if(viewMode === "cal") renderCalendar();
   }
@@ -2649,7 +2877,7 @@
 
     var directList = document.createElement("div");
     directList.className = "task-list";
-    sortedTaskList(visibleHeadingTasks).forEach(function(task){ directList.appendChild(renderTaskRow(heading, task)); });
+    sortedTaskList(visibleHeadingTasks.filter(taskPassesTagFilter)).forEach(function(task){ directList.appendChild(renderTaskRow(heading, task)); });
     wireTaskListContainer(directList, heading);
     bodyContent.appendChild(directList);
 
@@ -2720,7 +2948,7 @@
 
     var list = document.createElement("div");
     list.className = "task-list";
-    sortedTaskList(visibleSubTasks).forEach(function(task){ list.appendChild(renderTaskRow(sub, task)); });
+    sortedTaskList(visibleSubTasks.filter(taskPassesTagFilter)).forEach(function(task){ list.appendChild(renderTaskRow(sub, task)); });
     wireTaskListContainer(list, sub);
     subBodyInner.appendChild(list);
 
@@ -2805,8 +3033,10 @@
       '<div class="task-main">' +
         '<input class="task-text" value="' + escapeHtml(task.text) + '" aria-label="Task" />' +
         '<div class="task-meta">' +
+          '<button class="priority-flag' + (task.priority ? ' p-' + task.priority : '') + '" type="button" title="' + (task.priority ? "Priority: " + task.priority[0].toUpperCase() + task.priority.slice(1) + " (click to change)" : "Set priority") + '" aria-label="Priority">' + PRIORITY_FLAG_ICON + '</button>' +
           '<button class="due-badge' + (due ? (overdue ? ' overdue' : ' set') : '') + '" type="button">' + syncBadge + '<span>' + escapeHtml(dueLabel) + '</span></button>' +
           '<button class="notes-badge' + (notesBadgeSet(task) ? ' set' : '') + '" type="button" title="Notes & checklist">' + notesBadgeHtml(task) + '</button>' +
+          '<button class="tags-badge' + (tagsBadgeSet(task) ? ' set' : '') + '" type="button" title="Tags">' + tagsBadgeHtml(task) + '</button>' +
           (task.syncError ? '<span class="sync-note" title="' + escapeHtml(task.syncError) + '">' + escapeHtml(task.syncError) + '</span>' : '') +
         '</div>' +
       '</div>' +
@@ -2815,7 +3045,7 @@
         '<button class="icon-btn danger" title="Delete task" aria-label="Delete task"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>' +
       '</div>';
 
-    if(taskSortMode === "due"){
+    if(taskSortMode !== "manual"){
       var grip = row.querySelector(".grip");
       grip.classList.add("inactive");
       grip.removeAttribute("draggable");
@@ -2838,8 +3068,10 @@
       if(task.calendarEventId) syncTaskToCalendar(task);
     });
     textInput.addEventListener("keydown", function(e){ if(e.key === "Enter") textInput.blur(); });
+    row.querySelector(".priority-flag").addEventListener("click", function(){ cyclePriority(row, task); });
     row.querySelector(".due-badge").addEventListener("click", function(){ toggleDueEditor(row, task); });
     row.querySelector(".notes-badge").addEventListener("click", function(){ toggleNotesEditor(row, task); });
+    row.querySelector(".tags-badge").addEventListener("click", function(){ toggleTagsEditor(row, task); });
     row.querySelector(".icon-btn.danger").addEventListener("click", function(){ removeTask(container, task); });
     var archiveBtn = row.querySelector('[data-act="archive"]');
     if(archiveBtn) archiveBtn.addEventListener("click", function(){
@@ -2988,6 +3220,152 @@
       // Blur first so an in-progress notes edit is saved before closing.
       if(document.activeElement === textarea) textarea.blur();
       editor.remove();
+    });
+  }
+
+  /* ---------------- tags & tag filter ---------------- */
+  var TAG_COLORS = ["#4a5fc1","#b3486b","#6f7d3a","#7a4fa0","#55606e","#b8452f","#2f7d8c","#a8672a"];
+  function tagColor(tag){
+    var hash = 0;
+    for(var i=0;i<tag.length;i++){ hash = (hash*31 + tag.charCodeAt(i)) | 0; }
+    return TAG_COLORS[Math.abs(hash) % TAG_COLORS.length];
+  }
+  var TAG_ICON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.59 13.41L11 3.83A2 2 0 009.59 3.17H4a1 1 0 00-1 1v5.59a2 2 0 00.59 1.41l9.59 9.59a2 2 0 002.82 0l4.59-4.59a2 2 0 000-2.82z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg>';
+  function tagsBadgeSet(task){ return !!(task.tags && task.tags.length); }
+  function tagsBadgeHtml(task){
+    var tags = task.tags || [];
+    if(!tags.length) return TAG_ICON;
+    return TAG_ICON + '<span>' + escapeHtml(tags.join(", ")) + '</span>';
+  }
+  function updateTagsBadge(row, task){
+    var btn = row.querySelector(".tags-badge");
+    if(!btn) return;
+    btn.classList.toggle("set", tagsBadgeSet(task));
+    btn.innerHTML = tagsBadgeHtml(task);
+  }
+  function renderTagChip(chipsEl, row, task, tag){
+    var chip = document.createElement("span");
+    chip.className = "tag-chip";
+    chip.style.setProperty("--tag-color", tagColor(tag));
+    chip.innerHTML = '<span class="tag-chip-text"></span><button type="button" class="tag-chip-remove" aria-label="Remove tag ' + escapeHtml(tag) + '"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
+    chip.querySelector(".tag-chip-text").textContent = tag;
+    chip.querySelector(".tag-chip-remove").addEventListener("click", function(){
+      task.tags = task.tags.filter(function(t){ return t !== tag; });
+      chip.remove();
+      scheduleSave();
+      updateTagsBadge(row, task);
+      refreshTagFilterButton();
+    });
+    chipsEl.appendChild(chip);
+  }
+  function toggleTagsEditor(row, task){
+    var existing = row.querySelector(".tags-editor");
+    if(existing){ existing.remove(); return; }
+    document.querySelectorAll(".tags-editor").forEach(function(el){ el.remove(); });
+    var editor = document.createElement("div");
+    editor.className = "tags-editor";
+    editor.innerHTML =
+      '<div class="tag-chip-list"></div>' +
+      '<div class="tag-add-row"><input type="text" class="tag-add-input" placeholder="Add tag…" aria-label="Add tag"><button type="button" class="btn btn-sm btn-ghost" data-act="add-tag">Add</button></div>' +
+      '<div class="notes-editor-actions"><button type="button" class="btn btn-sm btn-ghost" data-act="close">Close</button></div>';
+    row.querySelector(".task-main").appendChild(editor);
+
+    var chipsEl = editor.querySelector(".tag-chip-list");
+    (task.tags || []).forEach(function(tag){ renderTagChip(chipsEl, row, task, tag); });
+
+    var addInput = editor.querySelector(".tag-add-input");
+    function addTag(){
+      var tag = addInput.value.trim().replace(/\s+/g, " ");
+      if(!tag) return;
+      if(!task.tags) task.tags = [];
+      if(task.tags.indexOf(tag) === -1){
+        task.tags.push(tag);
+        renderTagChip(chipsEl, row, task, tag);
+        scheduleSave();
+        updateTagsBadge(row, task);
+        refreshTagFilterButton();
+      }
+      addInput.value = "";
+      addInput.focus();
+    }
+    editor.querySelector('[data-act="add-tag"]').addEventListener("click", addTag);
+    addInput.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); addTag(); } });
+    addInput.focus();
+
+    editor.querySelector('[data-act="close"]').addEventListener("click", function(){ editor.remove(); });
+  }
+
+  // Which tags are currently selected to filter the list by (OR logic: a task shows
+  // if it has ANY selected tag). Session-only, not persisted — a transient lens on
+  // the list rather than a saved preference.
+  var activeTagFilters = [];
+  function allTagsInUse(){
+    var set = {};
+    forEachTask(function(t){ (t.tags || []).forEach(function(tag){ set[tag] = true; }); });
+    return Object.keys(set).sort(function(a,b){ return a.localeCompare(b); });
+  }
+  function taskPassesTagFilter(task){
+    if(!activeTagFilters.length) return true;
+    var tags = task.tags || [];
+    return activeTagFilters.some(function(tag){ return tags.indexOf(tag) !== -1; });
+  }
+  function refreshTagFilterButton(){
+    var btn = document.getElementById("tag-filter-btn");
+    if(!btn) return;
+    var n = activeTagFilters.length;
+    btn.classList.toggle("active", n > 0);
+    btn.innerHTML = TAG_ICON + '<span>' + (n ? "Tags (" + n + ")" : "Tags") + '</span>';
+  }
+  // Opens the popover if none is showing, closes it if one already is — this is what
+  // the "Tags" button itself toggles. Checkbox/clear actions inside the popover call
+  // buildTagFilterPopover() directly instead, so they refresh it in place rather than
+  // closing it (see the toggle-shaped check at the top here).
+  function openTagFilterPopover(anchorEl){
+    var existing = document.querySelector(".tag-filter-popover");
+    if(existing){ existing.remove(); return; }
+    closeAllPopovers();
+    buildTagFilterPopover(anchorEl);
+  }
+  function buildTagFilterPopover(anchorEl){
+    var old = document.querySelector(".tag-filter-popover");
+    if(old) old.remove();
+    var pop = document.createElement("div");
+    pop.className = "tag-filter-popover";
+    var tags = allTagsInUse();
+    if(!tags.length){
+      pop.innerHTML = '<div class="field-hint" style="padding:4px 6px;">No tags yet — add one from a task first.</div>';
+    } else {
+      pop.innerHTML = tags.map(function(tag){
+        var checked = activeTagFilters.indexOf(tag) !== -1;
+        return '<label class="tag-filter-row"><input type="checkbox" class="tag-filter-cb" value="' + escapeHtml(tag) + '"' + (checked ? " checked" : "") + '>' +
+          '<span class="tag-chip-dot" style="background:' + tagColor(tag) + '"></span><span>' + escapeHtml(tag) + '</span></label>';
+      }).join("");
+      if(activeTagFilters.length){
+        pop.innerHTML += '<button type="button" class="btn btn-sm btn-ghost" id="tag-filter-clear" style="margin-top:4px;width:100%;">Clear filter</button>';
+      }
+    }
+    document.body.appendChild(pop);
+    var rect = anchorEl.getBoundingClientRect();
+    pop.style.top = (rect.bottom + 6) + "px";
+    pop.style.left = Math.max(8, rect.left) + "px";
+    pop.addEventListener("click", function(e){ e.stopPropagation(); });
+    pop.querySelectorAll(".tag-filter-cb").forEach(function(cb){
+      cb.addEventListener("change", function(){
+        var tag = cb.value;
+        var idx = activeTagFilters.indexOf(tag);
+        if(cb.checked){ if(idx === -1) activeTagFilters.push(tag); }
+        else if(idx !== -1){ activeTagFilters.splice(idx, 1); }
+        refreshTagFilterButton();
+        render();
+        buildTagFilterPopover(anchorEl);
+      });
+    });
+    var clearBtn = pop.querySelector("#tag-filter-clear");
+    if(clearBtn) clearBtn.addEventListener("click", function(){
+      activeTagFilters = [];
+      refreshTagFilterButton();
+      render();
+      buildTagFilterPopover(anchorEl);
     });
   }
 
