@@ -3,13 +3,23 @@
   "headings": [
     {
       "id": "id-dsycrwthexmt9uykep",
-      "title": "New heading",
+      "title": "Test",
       "collapsed": false,
       "subheadings": [],
-      "tasks": [],
+      "tasks": [
+        {
+          "id": "37d44df1-ee80-4cda-b795-4c3e51a32346",
+          "text": "New task",
+          "done": false,
+          "due": null,
+          "completedAt": null,
+          "calendarEventId": null,
+          "syncError": null
+        }
+      ],
       "color": null
     }
   ],
-  "updatedAt": "2026-08-26T09:02:40.717Z",
+  "updatedAt": "2026-08-26T09:08:39.109Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com"
 }
