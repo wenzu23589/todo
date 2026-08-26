@@ -13,8 +13,9 @@
           "done": false,
           "due": {
             "date": "2026-09-20",
-            "time": "07:00",
-            "allDay": false
+            "time": null,
+            "endTime": null,
+            "allDay": true
           },
           "completedAt": null,
           "calendarEventId": "dmfr9kuqi6ih0mt6uil1bf8q3o",
@@ -338,7 +339,9 @@
           "priority": null,
           "tags": [],
           "subtasks": [],
-          "attachments": []
+          "attachments": [],
+          "notesRich": true,
+          "deletedAt": null
         },
         {
           "id": "e35c491c-cc77-4a9b-985c-535c6e43e22d",
@@ -355,7 +358,8 @@
           "tags": [],
           "subtasks": [],
           "attachments": [],
-          "deletedAt": "2026-08-26T16:14:21.326Z"
+          "deletedAt": "2026-08-26T16:14:21.326Z",
+          "notesRich": true
         },
         {
           "id": "65a09ef2-8c67-4d66-b011-e44f80916fc6",
@@ -372,13 +376,14 @@
           "tags": [],
           "subtasks": [],
           "attachments": [],
-          "deletedAt": "2026-08-26T16:14:19.888Z"
+          "deletedAt": "2026-08-26T16:14:19.888Z",
+          "notesRich": true
         }
       ],
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T16:15:07.335Z",
+  "updatedAt": "2026-08-26T16:16:07.054Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
