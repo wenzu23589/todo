@@ -1,0 +1,67 @@
+name: Deploy site to Pages
+
+# Only rebuilds the live site when a file that actually affects it changes —
+# NOT on every commit to the branch. Daybook autosaves your tasks as commits
+# to data/*.json (and the calendar-sync workflow does the same to
+# data/ics-events.json every 30 minutes); without this path filter, GitHub's
+# default "Pages build and deployment" workflow reruns on every single one of
+# those, which is why dozens of deployments were queuing up from nothing more
+# than normal use of the app.
+#
+# This REPLACES the automatic "pages-build-deployment" workflow. For this to
+# take effect, go to Settings > Pages > Build and deployment > Source, and
+# switch it from "Deploy from a branch" to "GitHub Actions".
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "manifest.json"
+      - "sw.js"
+      - "CNAME"
+      - "icons/**"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Stage only the public site files
+        # Copies just what the site needs into its own folder before
+        # publishing, instead of the whole repo root. The old branch-based
+        # Pages build published everything at the repo root — including
+        # data/tasks.json and attachments/ — meaning your task data and
+        # attachments were being served publicly at your site's URL. This
+        # keeps that data out of the published site entirely.
+        run: |
+          mkdir -p _site_public
+          cp index.html manifest.json sw.js CNAME _site_public/
+          cp -r icons _site_public/
+
+      - name: Upload site as Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "_site_public"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
