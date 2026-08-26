@@ -76,12 +76,31 @@
           "archivedAt": null,
           "priority": null,
           "tags": []
+        },
+        {
+          "id": "2de60fd6-3499-4e20-ad1d-8d4bcbfb2201",
+          "text": "Call dentsit tommorrow",
+          "done": false,
+          "due": {
+            "date": "2026-08-26",
+            "time": "16:00",
+            "allDay": false
+          },
+          "completedAt": null,
+          "calendarEventId": "t2071tvidra95suicnbni20ipo",
+          "syncError": null,
+          "notes": "",
+          "checklist": [],
+          "archivedAt": null,
+          "priority": null,
+          "tags": [],
+          "syncing": false
         }
       ],
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T11:45:54.044Z",
+  "updatedAt": "2026-08-26T11:47:46.299Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
