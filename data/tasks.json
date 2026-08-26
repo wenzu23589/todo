@@ -19,6 +19,12 @@
             },
             {
               "id": "id-so7wy6mm0wmt9qh3ys",
+              "text": "2New task",
+              "done": false,
+              "due": null
+            },
+            {
+              "id": "id-bt2fdgxcthmt9qh52u",
               "text": "New task",
               "done": false,
               "due": null
@@ -34,5 +40,5 @@
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T06:49:22.855Z"
+  "updatedAt": "2026-08-26T06:49:24.296Z"
 }
