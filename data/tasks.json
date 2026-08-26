@@ -332,7 +332,7 @@
             },
             {
               "id": "a32de340-a227-44db-958a-84390d3fa9f7",
-              "text": "New task",
+              "text": "Confirm final timetable.",
               "done": false,
               "due": null,
               "completedAt": null,
@@ -359,7 +359,7 @@
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T16:36:04.725Z",
+  "updatedAt": "2026-08-26T16:36:15.631Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
