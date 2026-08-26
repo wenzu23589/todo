@@ -26,6 +26,11 @@
               "id": "7f206010-b6a2-4ccd-b7ff-a3f8998e9324",
               "text": "WP Report",
               "done": false
+            },
+            {
+              "id": "69e41fc3-86c5-4e3c-930d-de81e851c416",
+              "text": "Deliverables",
+              "done": false
             }
           ],
           "archivedAt": null,
@@ -37,7 +42,7 @@
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T13:03:09.672Z",
+  "updatedAt": "2026-08-26T13:03:12.952Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
