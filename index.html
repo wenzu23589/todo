@@ -443,6 +443,9 @@
     display:flex; flex-direction:column; gap:7px; background:var(--paper-sunken); border:1px solid var(--line);
     border-radius:var(--radius-s); padding:8px; margin-top:4px;
   }
+  /* Focused programmatically (see the paste-image handler below) so Cmd/Ctrl+V works the
+     moment the panel opens — not via Tab, so the default focus ring would look stray here. */
+  .attachments-editor:focus{ outline:none; }
   .attachment-list{ display:flex; flex-direction:column; gap:6px; }
   .attachment-item{ display:flex; align-items:center; gap:8px; }
   .attachment-thumb{
@@ -4957,13 +4960,14 @@
   function buildAttachmentsEditorEl(ownerObj, onChange){
     var editor = document.createElement("div");
     editor.className = "attachments-editor";
+    editor.setAttribute("tabindex", "-1"); // programmatically focusable so Cmd/Ctrl+V pastes here on open — see below
     editor.innerHTML =
       '<div class="attachment-list"></div>' +
       '<div class="attachment-add-row">' +
         '<label class="btn btn-sm btn-ghost attachment-add-label">' +
           '<input type="file" class="attachment-file-input" accept="image/*,application/pdf" hidden />+ Add attachment' +
         '</label>' +
-        '<span class="attachment-hint">Images or PDFs, up to 12MB</span>' +
+        '<span class="attachment-hint">Images or PDFs, up to 12MB — or paste an image</span>' +
       '</div>' +
       '<div class="attachment-error" hidden></div>' +
       '<div class="notes-editor-actions"><button type="button" class="btn btn-sm btn-ghost" data-act="close">Close</button></div>';
@@ -4978,6 +4982,10 @@
       uploadAttachment(ownerObj, file, listEl, errEl, onChange);
     });
     editor.querySelector('[data-act="close"]').addEventListener("click", function(){ editor.remove(); });
+    // Read fresh from the live DOM element at paste time (see the document-level "paste"
+    // listener near boot) rather than relying on a separately-tracked "currently open editor"
+    // variable, which could go stale if the editor were removed by some other code path.
+    editor.__attachCtx = { ownerObj: ownerObj, listEl: listEl, errEl: errEl, onChange: onChange };
     return editor;
   }
   function toggleAttachmentsEditor(row, task){
@@ -4987,6 +4995,7 @@
     if(!Array.isArray(task.attachments)) task.attachments = [];
     var editor = buildAttachmentsEditorEl(task, function(){ updateAttachmentsBadge(row, task); });
     row.querySelector(".task-main").appendChild(editor);
+    editor.focus({ preventScroll: true });
   }
   function toggleSubtaskAttachmentsEditor(itemRow, subtask){
     var existing = itemRow.querySelector(".attachments-editor");
@@ -4995,6 +5004,7 @@
     if(!Array.isArray(subtask.attachments)) subtask.attachments = [];
     var editor = buildAttachmentsEditorEl(subtask, function(){ updateSubtaskAttachmentsBadge(itemRow, subtask); });
     itemRow.appendChild(editor);
+    editor.focus({ preventScroll: true });
   }
 
   /* ---------------- stats page ---------------- */
@@ -5113,6 +5123,37 @@
   } else {
     setGcalStatus("not_configured");
   }
+
+  /* ---------------- paste an image from the clipboard into an open attachments panel ----------------
+     Reuses uploadAttachment() as-is — a pasted image arrives as a File via getAsFile(), same
+     shape as one picked through the file input. Only intercepts when an attachments panel is
+     actually open AND focus isn't sitting in some unrelated field (notes, task title, search),
+     so pasting text elsewhere on the page is never affected. */
+  document.addEventListener("paste", function(e){
+    var editor = document.querySelector(".attachments-editor");
+    if(!editor || !editor.__attachCtx) return;
+    var active = document.activeElement;
+    var focusIsElsewhere = active && active !== document.body && !editor.contains(active);
+    if(focusIsElsewhere) return;
+    var items = e.clipboardData && e.clipboardData.items;
+    if(!items) return;
+    var imageFile = null;
+    for(var i=0; i<items.length; i++){
+      if(/^image\//.test(items[i].type)){ imageFile = items[i].getAsFile(); break; }
+    }
+    if(!imageFile) return; // nothing image-shaped on the clipboard — leave normal paste alone
+    e.preventDefault();
+    // Clipboard images usually have no real filename (every browser calls it "image.png" even
+    // for a copied JPEG), so give each paste a distinct name rather than letting them all look
+    // identical in the list. Works for any image/* type (png, jpeg, gif, webp, …) — not just
+    // PNG — since the detection above never checked for a specific subtype.
+    var extBySubtype = { jpeg: "jpg" };
+    var subtype = (imageFile.type.split("/")[1] || "png").split("+")[0];
+    var ext = extBySubtype[subtype] || subtype;
+    var named = new File([imageFile], "pasted-" + Date.now() + "." + ext, { type: imageFile.type });
+    var ctx = editor.__attachCtx;
+    uploadAttachment(ctx.ownerObj, named, ctx.listEl, ctx.errEl, ctx.onChange);
+  });
 
   /* ---------------- PWA: install prompt + service worker ---------------- */
   if("serviceWorker" in navigator){

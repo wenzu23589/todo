@@ -147,6 +147,54 @@ async function main() {
   console.log("Badge count drops back to 1 after removal:", /1/.test(badgeAfterRemove) ? "PASS" : "FAIL (" + badgeAfterRemove + ")");
   console.log("Removing also deletes the file from the repo:", deleteCalls.some(p => p.includes("contract.pdf")) ? "PASS" : "FAIL (" + JSON.stringify(deleteCalls) + ")");
 
+  // --- Paste an image from the clipboard while the panel is open ---
+  async function dispatchImagePaste(mimeType, base64Bytes) {
+    await page.evaluate(({ mimeType, base64Bytes }) => {
+      const bytes = Uint8Array.from(atob(base64Bytes), c => c.charCodeAt(0));
+      const file = new File([bytes], "image", { type: mimeType }); // no extension — matches what real clipboards give us
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      const ev = new ClipboardEvent("paste", { bubbles: true, cancelable: true });
+      Object.defineProperty(ev, "clipboardData", { value: dt });
+      document.dispatchEvent(ev);
+    }, { mimeType, base64Bytes });
+  }
+  const ONE_PX_PNG = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+  const ONE_PX_JPG = "/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAAAP/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==";
+
+  console.log("(paste tests use the task's own attachments panel, already open with photo.png)");
+  const beforePasteCount = await page.locator('.task-row[data-task-id="t1"] .attachment-item').count();
+
+  await dispatchImagePaste("image/png", ONE_PX_PNG);
+  await page.waitForTimeout(300);
+  const afterPngPasteCount = await page.locator('.task-row[data-task-id="t1"] .attachment-item').count();
+  console.log("Pasting a PNG image attaches it:", afterPngPasteCount === beforePasteCount + 1 ? "PASS" : "FAIL (" + beforePasteCount + " -> " + afterPngPasteCount + ")");
+  const pngPastedName = await page.locator('.task-row[data-task-id="t1"] .attachment-name-btn', { hasText: "pasted-" }).last().textContent();
+  console.log("Pasted PNG gets an auto-generated .png filename:", /^pasted-\d+\.png$/.test(pngPastedName.trim()) ? "PASS" : "FAIL (" + pngPastedName + ")");
+
+  await dispatchImagePaste("image/jpeg", ONE_PX_JPG);
+  await page.waitForTimeout(300);
+  const afterJpgPasteCount = await page.locator('.task-row[data-task-id="t1"] .attachment-item').count();
+  console.log("Pasting a JPEG image also attaches it:", afterJpgPasteCount === afterPngPasteCount + 1 ? "PASS" : "FAIL (" + afterPngPasteCount + " -> " + afterJpgPasteCount + ")");
+  const jpgPastedName = await page.locator('.task-row[data-task-id="t1"] .attachment-name-btn', { hasText: "pasted-" }).last().textContent();
+  console.log("Pasted JPEG gets a natural .jpg filename (not .jpeg):", /^pasted-\d+\.jpg$/.test(jpgPastedName.trim()) ? "PASS" : "FAIL (" + jpgPastedName + ")");
+
+  // --- Pasting while focus is in an unrelated field (not the open attachments panel) is ignored ---
+  await page.click('.task-row[data-task-id="t1"] .task-text');
+  await dispatchImagePaste("image/png", ONE_PX_PNG);
+  await page.waitForTimeout(300);
+  const afterElsewherePasteCount = await page.locator('.task-row[data-task-id="t1"] .attachment-item').count();
+  console.log("Pasting an image while focus is elsewhere (not the attachments panel) is ignored:", afterElsewherePasteCount === afterJpgPasteCount ? "PASS" : "FAIL (" + afterJpgPasteCount + " -> " + afterElsewherePasteCount + ")");
+
+  // Clean up the two pasted-in test attachments so the persistence/reload/subtask checks
+  // below (written against "just photo.png") don't need to change.
+  await page.locator('.task-row[data-task-id="t1"] .attachment-item', { hasText: "pasted-" }).locator(".attachment-remove").first().click();
+  await page.waitForTimeout(150);
+  await page.locator('.task-row[data-task-id="t1"] .attachment-item', { hasText: "pasted-" }).locator(".attachment-remove").first().click();
+  await page.waitForTimeout(150);
+  const afterPasteCleanupCount = await page.locator('.task-row[data-task-id="t1"] .attachment-item').count();
+  console.log("Pasted test attachments cleaned up back to just photo.png:", afterPasteCleanupCount === 1 ? "PASS" : "FAIL (" + afterPasteCleanupCount + ")");
+
   await page.click('.task-row[data-task-id="t1"] .attachments-editor [data-act="close"]');
   await page.waitForTimeout(1500); // let the debounced save settle
 
