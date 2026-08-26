@@ -235,6 +235,21 @@
           "tasks": [
             {
               "id": "2d26da6b-9b70-44c0-9889-43c1b898ae79",
+              "text": "Research with Sarah",
+              "done": false,
+              "due": null,
+              "completedAt": null,
+              "calendarEventId": null,
+              "syncError": null,
+              "notes": "",
+              "checklist": [],
+              "archivedAt": null,
+              "priority": null,
+              "tags": [],
+              "subtasks": []
+            },
+            {
+              "id": "21baad90-9c13-449c-bcb0-30d61611939f",
               "text": "New task",
               "done": false,
               "due": null,
@@ -274,7 +289,7 @@
       ]
     }
   ],
-  "updatedAt": "2026-08-26T14:07:11.840Z",
+  "updatedAt": "2026-08-26T14:07:16.613Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
