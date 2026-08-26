@@ -101,7 +101,7 @@
     {
       "id": "779f9eaa-21b8-4c0d-a214-cd689a877bb0",
       "title": "Research",
-      "collapsed": true,
+      "collapsed": false,
       "color": "#a8672a",
       "tasks": [],
       "subheadings": [
@@ -224,7 +224,7 @@
       ]
     }
   ],
-  "updatedAt": "2026-08-26T13:40:26.375Z",
+  "updatedAt": "2026-08-26T13:40:28.232Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
