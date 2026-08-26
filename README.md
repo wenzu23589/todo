@@ -68,7 +68,9 @@ The token is stored only in that browser's local storage — it's never sent any
 - Click the ▾ arrow on a heading or sub-heading to collapse it.
 - Click a task's due-date pill to give it a date (and optional time). Overdue tasks are flagged in red.
 - The **Theme** button in the header lets you pick a different accent colour palette for the whole app (Ledger, Ocean, Plum, Forest, Slate) — this is separate from per-heading colours and is remembered per browser.
-- The **Calendar** tab (top of the page) shows a Month grid or Week agenda of everything with a due date, colour-coded by heading. Click any day to quickly add a task due that day — it appears in your list immediately. If Google Calendar is connected, other events on that calendar show up alongside your tasks too (in grey), so you can see your whole day in one place.
+- The **Calendar** tab (top of the page) shows a Month grid or Week agenda of everything with a due date, colour-coded by heading. Click any day to quickly add a task due that day — it appears in your list immediately, and you can create a brand-new heading right from that popover if you don't want to use an existing one. If Google Calendar is connected, other events on that calendar show up alongside your tasks too, so you can see your whole day in one place.
+- In **Set up Calendar**, once connected, there's an "Also show on the Calendar view (read-only)" checklist — tick any of your other Google calendars (shared calendars, a team calendar, birthdays, etc.) to overlay their events on the Calendar view too, each shown in that calendar's own Google colour. This is purely for viewing — Daybook only ever creates or edits events on the one calendar picked in the dropdown above it; the others are never written to.
+- **Set up Calendar** also has an "External calendars (read-only)" section that works without connecting Google Calendar at all — see [Add other calendars without Google sign-in](#7-add-other-calendars-without-google-sign-in-eg-university-calendars) below. This is the way to see a calendar that doesn't support Google sign-in, such as most University of Malta calendars.
 - The **Stats** tab shows completion percentage, overdue/upcoming counts, a per-heading progress breakdown, and a list of what's coming up.
 - Every change auto-saves to the GitHub file a second or so after you stop typing. The pill in the header shows the connected repo; the little indicator in the bottom-right shows save status.
 - Open the same URL on another device, connect it to the same repo/token, and you'll see the same list. The **Sync now** button force-refreshes from GitHub (handy right after making a change elsewhere).
@@ -110,6 +112,34 @@ Notes on this integration:
 - The sign-in only lasts about an hour at a time in the browser; the app quietly re-authenticates in the background as long as you keep visiting from the same browser (you may occasionally see a brief consent popup).
 - This only works over `https://` — it won't work opening `index.html` straight from a file, only from the live GitHub Pages site.
 - The Client ID is not secret (it's fine that it lives in this static page / your browser's local storage) — it only identifies which app is asking, Google's sign-in step is what actually protects your calendar.
+
+## 7. Add other calendars without Google sign-in (e.g. University calendars)
+
+Some Google accounts — most University of Malta accounts included — don't allow you to connect outside apps via Google sign-in (OAuth) at all, so the "Also show other Google calendars" feature above can't reach them. There's a separate way in for exactly this case, and it doesn't need any sign-in: every Google Calendar has a private "secret address" that lets anything read its events, and Daybook can fetch that in the background and show it on the Calendar view, read-only.
+
+**A. Get the calendar's secret iCal link**
+
+1. In Google Calendar (the account that owns the calendar you want, e.g. your UM account), find the calendar in the left sidebar under "My calendars" or "Other calendars", hover over it, click the **⋮** menu → **Settings and sharing**.
+2. Scroll to **Integrate calendar** → copy the **Secret address in iCal format** (it's a long `https://calendar.google.com/calendar/ical/…/basic.ics` link).
+3. Treat this link like a password — anyone with it can read that calendar's events (though not edit anything, and not see anything else in the account). Don't post it publicly.
+
+**B. Add the two extra files to your repo**
+
+This feature needs a small background job (a GitHub Action) to fetch the link on Daybook's behalf, since browsers aren't allowed to fetch another site's private calendar data directly. Two extra files make that happen — add them to your repo the same way you uploaded `index.html`:
+
+1. `scripts/sync-ics.js` — upload it to a `scripts` folder in the repo (so the file ends up at `scripts/sync-ics.js`).
+2. `.github/workflows/sync-ics.yml` — upload it to a `.github/workflows` folder (so the file ends up at `.github/workflows/sync-ics.yml`). GitHub's web UI lets you type the folder path as part of the filename when you drag a file in, or create the folders first with "Add file → Create new file" and paste the path in the name box.
+
+GitHub Actions is on by default for new repos, so no extra setup is needed there. If it's ever off (Settings → Actions → General), switch it to "Allow all actions".
+
+**C. Add the calendar in Daybook**
+
+1. Open `https://todo.lawrencefarrugiacaruana.com` and click the calendar pill in the header (or **Set up Calendar**) — you don't need to connect Google Calendar first, this section works either way.
+2. Under **External calendars (read-only)**, give it a name (e.g. "UM Timetable"), paste the secret iCal link, and click **Add**.
+
+The first sync happens automatically within a minute or two of adding it (saving a feed triggers the background job right away). After that, it refreshes roughly every 30 minutes on its own — this is a background sync, not a live feed, so a change made in the source calendar can take up to half an hour to show up in Daybook. You can add as many external calendars as you like; each gets its own colour on the Calendar view, and hovering an event shows which calendar it came from. Remove one any time from the same panel.
+
+This is read-only in every direction: Daybook never writes anything back to these calendars, and all synced events are assumed to be in the `Europe/Malta` timezone (this is fixed in the script, not auto-detected — fine for UM calendars, but worth knowing if you ever add a calendar based somewhere else).
 
 ## Notes
 

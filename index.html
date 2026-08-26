@@ -296,6 +296,21 @@
   .field-row .field{ flex:1; }
   .modal-error{ font-size:0.8rem; color:var(--danger); margin:-6px 0 12px; }
   .modal-note{ font-size:0.8rem; color:var(--muted); background:var(--paper-sunken); border-radius:var(--radius-s); padding:8px 10px; margin:-4px 0 14px; }
+  .cal-display-list{ display:flex; flex-direction:column; gap:2px; max-height:150px; overflow-y:auto; border:1px solid var(--line); border-radius:var(--radius-s); padding:4px; background:var(--paper-sunken); }
+  .cal-display-row{ display:flex; align-items:center; gap:8px; padding:6px 7px; border-radius:var(--radius-s); font-size:0.85rem; cursor:pointer; }
+  .cal-display-row:hover{ background:var(--paper-raised); }
+  .cal-display-row input{ width:auto; flex-shrink:0; }
+  .cal-display-dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0; box-shadow:0 0 0 1px var(--line); }
+  .ics-feeds-field{ margin-top:6px; }
+  .ics-feed-list{ display:flex; flex-direction:column; gap:2px; max-height:160px; overflow-y:auto; border:1px solid var(--line); border-radius:var(--radius-s); padding:4px; background:var(--paper-sunken); margin-bottom:10px; }
+  .ics-feed-row{ display:flex; align-items:center; gap:8px; padding:6px 7px; border-radius:var(--radius-s); font-size:0.85rem; }
+  .ics-feed-row:hover{ background:var(--paper-raised); }
+  .ics-feed-name{ flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ics-feed-status{ font-size:0.72rem; color:var(--muted); flex-shrink:0; }
+  .ics-feed-remove{ font-size:0.72rem; padding:3px 8px; flex-shrink:0; }
+  .ics-add-row{ display:flex; gap:6px; flex-wrap:wrap; }
+  .ics-add-row input{ flex:1; min-width:120px; }
+  .ics-add-row .btn{ flex-shrink:0; }
 
   /* ---------- theme popover ---------- */
   .theme-popover{
@@ -353,6 +368,7 @@
   }
   .cal-chip.done{ text-decoration:line-through; opacity:0.6; }
   .cal-chip.ext-event{ background:var(--paper-sunken); border-left:3px solid var(--muted); color:var(--muted); font-style:italic; }
+  .cal-chip.other-cal{ background:var(--paper-sunken); color:var(--ink-soft); border-left:3px solid var(--muted); }
   .cal-more{ font-size:0.66rem; color:var(--muted); padding:1px 5px; }
 
   .cal-week-grid{ display:grid; grid-template-columns:repeat(7,minmax(112px,1fr)); gap:10px; align-items:start; overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:6px; }
@@ -372,6 +388,7 @@
   }
   .cal-week-chip.done{ text-decoration:line-through; opacity:0.6; }
   .cal-week-chip.ext-event{ background:var(--paper-sunken); border-left:3px solid var(--muted); color:var(--muted); font-style:italic; }
+  .cal-week-chip.other-cal{ background:var(--paper-sunken); color:var(--ink-soft); border-left:3px solid var(--muted); }
   .cal-week-chip .t{ display:block; font-size:0.62rem; color:var(--muted); font-family:"IBM Plex Mono",monospace; }
   .cal-week-add{ border:1px dashed var(--line); background:transparent; color:var(--muted); border-radius:6px; padding:5px 6px; font-size:0.72rem; cursor:pointer; }
   .cal-week-add:hover{ color:var(--ink); border-color:color-mix(in srgb, var(--ink) 25%, var(--line)); }
@@ -522,7 +539,7 @@
     if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
     return "id-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
   }
-  function defaultState(){ return { version: 3, headings: [], googleCalendarId: null, updatedAt: null }; }
+  function defaultState(){ return { version: 3, headings: [], googleCalendarId: null, googleDisplayCalendarIds: [], updatedAt: null }; }
   function escapeHtml(s){
     return (s == null ? "" : String(s)).replace(/[&<>"']/g, function(c){
       return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
@@ -533,6 +550,7 @@
   function normalizeState(s){
     if(!s || !Array.isArray(s.headings)) return defaultState();
     if(s.googleCalendarId === undefined) s.googleCalendarId = null;
+    if(!Array.isArray(s.googleDisplayCalendarIds)) s.googleDisplayCalendarIds = [];
     s.headings.forEach(function(h){
       if(!Array.isArray(h.tasks)) h.tasks = [];
       if(!Array.isArray(h.subheadings)) h.subheadings = [];
@@ -561,6 +579,9 @@
   }
   function saveConfig(cfg){ localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg)); }
   function clearConfig(){ localStorage.removeItem(CONFIG_KEY); }
+  function cfgFor(path){
+    return { owner: config.owner, repo: config.repo, branch: config.branch, token: config.token, path: path };
+  }
 
   /* ---------------- base64 <-> utf8 ---------------- */
   function b64EncodeUtf8(str){ return btoa(unescape(encodeURIComponent(str))); }
@@ -803,6 +824,7 @@
         setStatus("connected");
         render();
         close();
+        loadIcsFeeds();
         if(!res.exists) scheduleSave();
       }).catch(function(err){
         errEl.textContent = err.message || "Couldn't connect — check the details and try again.";
@@ -1106,13 +1128,14 @@
       var clientIdVal = gcalClientId || (gcfg && gcfg.clientId) || "";
       var html = '<div class="modal-box" role="dialog" aria-modal="true"><h3>Google Calendar</h3>';
 
+      var trailingActionsHtml = "";
       if(gcalStatus !== "connected"){
         html += '<p>Give a task a due date and it becomes a real event on your Google Calendar — and events you add there flow back into Daybook. This needs a small (free) Google Cloud project of your own; see the README for exact steps.</p>';
         html += '<div id="cal-error" class="modal-error" hidden></div>';
         html += '<div class="field"><label for="f-clientid">OAuth Client ID</label>' +
           '<input id="f-clientid" type="text" placeholder="xxxxxxxx.apps.googleusercontent.com" value="' + escapeHtml(clientIdVal) + '">' +
           '<div class="field-hint">From Google Cloud Console → Google Auth platform → Clients. Not secret — safe to store in this browser.</div></div>';
-        html += '<div class="modal-actions">' +
+        trailingActionsHtml = '<div class="modal-actions">' +
           '<button class="btn btn-ghost" id="cal-cancel">Close</button>' +
           '<button class="btn btn-primary" id="cal-connect">Connect Google Calendar</button>' +
           '</div>';
@@ -1123,11 +1146,54 @@
             return '<option value="' + escapeHtml(c.id) + '"' + (c.id === state.googleCalendarId ? " selected" : "") + '>' + escapeHtml((c.summary || c.id).trim()) + '</option>';
           }).join("") + '</select></div>';
         html += '<div class="modal-note">Switching calendars unlinks tasks from their old events (nothing is deleted there) and re-creates events for tasks with due dates on the new calendar.</div>';
-        html += '<div class="modal-actions">' +
+
+        var otherCals = gcalCalendars.filter(function(c){ return c.id !== state.googleCalendarId; });
+        html += '<div class="field"><label>Also show on the Calendar view (read-only)</label>';
+        if(!otherCals.length){
+          html += '<div class="field-hint">No other calendars on this account.</div>';
+        } else {
+          html += '<div class="cal-display-list">' + otherCals.map(function(c){
+            var checked = (state.googleDisplayCalendarIds || []).indexOf(c.id) !== -1;
+            var color = c.backgroundColor || "var(--muted)";
+            return '<label class="cal-display-row"><input type="checkbox" class="cal-display-cb" value="' + escapeHtml(c.id) + '"' + (checked ? " checked" : "") + '>' +
+              '<span class="cal-display-dot" style="background:' + color + '"></span>' +
+              '<span>' + escapeHtml((c.summary || c.id).trim()) + '</span></label>';
+          }).join("") + '</div>';
+        }
+        html += '</div>';
+
+        trailingActionsHtml = '<div class="modal-actions">' +
           '<button class="btn btn-danger btn-ghost" id="cal-disconnect">Disconnect</button>' +
           '<button class="btn btn-ghost" id="cal-cancel">Close</button>' +
           '</div>';
       }
+
+      html += '<div class="field ics-feeds-field"><label>External calendars (read-only)</label>';
+      html += '<div class="modal-note">Paste a calendar’s “Secret address in iCal format” (in Google Calendar: Settings → that calendar → Integrate calendar) to show its events here — no Google sign-in needed, so this works for calendars that don’t support OAuth (like most University of Malta calendars). A background job syncs feeds roughly every 30 minutes; adding or removing one here also kicks off an immediate sync, which can still take a minute or two to show up.</div>';
+      if(!icsFeeds.length){
+        html += '<div class="field-hint">No external calendars added yet.</div>';
+      } else {
+        html += '<div class="ics-feed-list">' + icsFeeds.map(function(f){
+          var meta = icsEventsMeta && icsEventsMeta.feeds ? icsEventsMeta.feeds.filter(function(m){ return m.id === f.id; })[0] : null;
+          var statusText = !icsEventsMeta ? "not yet synced" : (meta ? (meta.ok ? (meta.count + (meta.count === 1 ? " event" : " events")) : "sync error: " + escapeHtml(meta.error || "unknown")) : "not yet synced");
+          return '<div class="ics-feed-row" data-feed-id="' + escapeHtml(f.id) + '">' +
+            '<span class="cal-display-dot" style="background:' + escapeHtml(f.color) + '"></span>' +
+            '<span class="ics-feed-name">' + escapeHtml(f.name) + '</span>' +
+            '<span class="ics-feed-status">' + statusText + '</span>' +
+            '<button type="button" class="btn btn-ghost btn-danger ics-feed-remove" data-feed-id="' + escapeHtml(f.id) + '" aria-label="Remove">Remove</button>' +
+            '</div>';
+        }).join("") + '</div>';
+      }
+      html += '<div class="ics-add-row">' +
+        '<input type="text" id="ics-add-name" placeholder="Name (e.g. UM Timetable)">' +
+        '<input type="text" id="ics-add-url" placeholder="https://calendar.google.com/calendar/ical/…">' +
+        '<button type="button" class="btn btn-ghost" id="ics-add-btn">Add</button>' +
+        '</div>';
+      html += '<div id="ics-add-error" class="modal-error" hidden></div>';
+      html += '</div>';
+
+      html += trailingActionsHtml;
+
       html += '</div>';
       backdrop.innerHTML = html;
 
@@ -1167,13 +1233,30 @@
           var newId = calSelect.value;
           if(newId === state.googleCalendarId) return;
           state.googleCalendarId = newId;
+          state.googleDisplayCalendarIds = (state.googleDisplayCalendarIds || []).filter(function(id){ return id !== newId; });
           forEachTask(function(t){ t.calendarEventId = null; t.syncError = null; });
           scheduleSave();
           setGcalStatus("connected");
           forEachTask(function(t){ if(t.due) syncTaskToCalendar(t); });
+          calEventsKey = null;
           render();
+          paint();
         });
       }
+
+      backdrop.querySelectorAll(".cal-display-cb").forEach(function(cb){
+        cb.addEventListener("change", function(){
+          var id = cb.value;
+          var list = (state.googleDisplayCalendarIds || []).slice();
+          var idx = list.indexOf(id);
+          if(cb.checked){ if(idx === -1) list.push(id); }
+          else if(idx !== -1){ list.splice(idx, 1); }
+          state.googleDisplayCalendarIds = list;
+          scheduleSave();
+          calEventsKey = null;
+          if(viewMode === "cal") renderCalendar();
+        });
+      });
 
       var discBtn = backdrop.querySelector("#cal-disconnect");
       if(discBtn){
@@ -1184,8 +1267,58 @@
           close();
         });
       }
+
+      var icsAddBtn = backdrop.querySelector("#ics-add-btn");
+      if(icsAddBtn){
+        icsAddBtn.addEventListener("click", function(){
+          var nameEl = backdrop.querySelector("#ics-add-name");
+          var urlEl = backdrop.querySelector("#ics-add-url");
+          var errEl = backdrop.querySelector("#ics-add-error");
+          var name = nameEl.value.trim();
+          var url = urlEl.value.trim();
+          errEl.hidden = true;
+          if(!name || !url){
+            errEl.textContent = "Give it a name and paste the calendar's iCal link.";
+            errEl.hidden = false;
+            return;
+          }
+          if(!/^https?:\/\//i.test(url)){
+            errEl.textContent = "That doesn't look like a link — it should start with http:// or https://.";
+            errEl.hidden = false;
+            return;
+          }
+          if(!config){
+            errEl.textContent = "Connect Daybook to a GitHub repo first (see Settings) before adding external calendars.";
+            errEl.hidden = false;
+            return;
+          }
+          icsAddBtn.disabled = true; icsAddBtn.textContent = "Adding…";
+          icsFeeds.push({ id: uid(), name: name, url: url, color: nextIcsColor() });
+          saveIcsFeeds().then(function(){
+            icsEventsFetchedAt = 0;
+            if(viewMode === "cal") ensureIcsEvents(true);
+            paint();
+          });
+        });
+      }
+
+      backdrop.querySelectorAll(".ics-feed-remove").forEach(function(btn){
+        btn.addEventListener("click", function(){
+          var id = btn.getAttribute("data-feed-id");
+          icsFeeds = icsFeeds.filter(function(f){ return f.id !== id; });
+          icsEvents = icsEvents.filter(function(ev){ return ev.feedId !== id; });
+          btn.disabled = true;
+          saveIcsFeeds().then(function(){
+            icsEventsFetchedAt = 0;
+            if(icsFeeds.length){ if(viewMode === "cal") ensureIcsEvents(true); }
+            else if(viewMode === "cal") renderCalendar();
+            paint();
+          });
+        });
+      });
     }
     paint();
+    if(config && !icsFeedsLoaded) loadIcsFeeds().then(paint);
   }
   document.getElementById("gcal-pill").addEventListener("click", openCalendarSettings);
 
@@ -1596,6 +1729,77 @@
   var calEventsLoading = false;
   var calEventsError = null;
 
+  /* ---- external calendars via iCal link (no OAuth, read-only) ---- */
+  var ICS_FEEDS_PATH = "data/ics-feeds.json";
+  var ICS_EVENTS_PATH = "data/ics-events.json";
+  var ICS_FEED_COLORS = ["#4a5fc1","#b3486b","#6f7d3a","#7a4fa0","#55606e","#b8452f","#2f7d8c","#a8672a"];
+  var icsFeeds = [];
+  var icsFeedsSha = null;
+  var icsFeedsLoaded = false;
+  var icsFeedsLoading = false;
+  var icsEvents = [];
+  var icsEventsMeta = null;
+  var icsEventsFetchedAt = 0;
+  var icsEventsLoading = false;
+  var icsEventsError = null;
+
+  function nextIcsColor(){
+    var used = {}; icsFeeds.forEach(function(f){ used[f.color] = true; });
+    var pick = ICS_FEED_COLORS.filter(function(c){ return !used[c]; })[0];
+    return pick || ICS_FEED_COLORS[icsFeeds.length % ICS_FEED_COLORS.length];
+  }
+  function getIcsFeed(feedId){ return icsFeeds.filter(function(f){ return f.id === feedId; })[0] || null; }
+
+  function loadIcsFeeds(){
+    if(!config || icsFeedsLoading) return Promise.resolve();
+    icsFeedsLoading = true;
+    return ghGet(cfgFor(ICS_FEEDS_PATH)).then(function(res){
+      icsFeeds = (res.exists && Array.isArray(res.data)) ? res.data : [];
+      icsFeedsSha = res.sha;
+      icsFeedsLoaded = true;
+    }).catch(function(){
+      icsFeeds = []; icsFeedsLoaded = true;
+    }).then(function(){
+      icsFeedsLoading = false;
+      if(viewMode === "cal") renderCalendar();
+    });
+  }
+  function saveIcsFeeds(){
+    if(!config) return Promise.resolve();
+    return ghPut(cfgFor(ICS_FEEDS_PATH), icsFeeds, icsFeedsSha).then(function(newSha){
+      icsFeedsSha = newSha;
+    }).catch(function(err){
+      if(err && err.code === "conflict"){
+        return ghGet(cfgFor(ICS_FEEDS_PATH)).then(function(res){
+          icsFeeds = (res.exists && Array.isArray(res.data)) ? res.data : [];
+          icsFeedsSha = res.sha;
+          showBanner("Your external-calendar list changed elsewhere and was reloaded — redo your edit if needed.", "danger");
+        });
+      }
+      showBanner((err && err.message) || "Couldn't save your external calendar list.", "danger");
+    });
+  }
+  function ensureIcsEvents(force){
+    if(!config || !icsFeeds.length) return;
+    if(icsEventsLoading) return;
+    if(!force && icsEventsFetchedAt && (Date.now() - icsEventsFetchedAt) < 5*60*1000) return;
+    icsEventsLoading = true; icsEventsError = null;
+    ghGet(cfgFor(ICS_EVENTS_PATH)).then(function(res){
+      if(res.exists && res.data){
+        icsEvents = Array.isArray(res.data.events) ? res.data.events : [];
+        icsEventsMeta = { generatedAt: res.data.generatedAt || null, feeds: res.data.feeds || [] };
+      } else {
+        icsEvents = []; icsEventsMeta = null;
+      }
+      icsEventsFetchedAt = Date.now();
+    }).catch(function(err){
+      icsEventsError = (err && err.message) || "Couldn't load external calendar events.";
+    }).then(function(){
+      icsEventsLoading = false;
+      if(viewMode === "cal") renderCalendar();
+    });
+  }
+
   function dateKey(d){ return d.getFullYear() + "-" + pad2(d.getMonth()+1) + "-" + pad2(d.getDate()); }
   function startOfMonth(d){ return new Date(d.getFullYear(), d.getMonth(), 1); }
   function addMonthsCal(d, n){ return new Date(d.getFullYear(), d.getMonth()+n, 1); }
@@ -1609,21 +1813,45 @@
     return t.toLocaleTimeString(undefined, {hour:"numeric", minute:"2-digit"});
   }
 
+  function calendarDisplayIds(){
+    var ids = [];
+    if(state.googleCalendarId) ids.push(state.googleCalendarId);
+    (state.googleDisplayCalendarIds || []).forEach(function(id){ if(id && ids.indexOf(id) === -1) ids.push(id); });
+    return ids;
+  }
+  function getCalendarMeta(calId){
+    var c = gcalCalendars.filter(function(x){ return x.id === calId; })[0];
+    return { name: c ? (c.summary || c.id).trim() : calId, color: (c && c.backgroundColor) || null };
+  }
+
   function fetchCalRangeEvents(startDate, endDateExclusive){
-    var key = gcalStatus + "|" + (state.googleCalendarId || "") + "|" + dateKey(startDate) + "_" + dateKey(endDateExclusive);
-    if(gcalStatus !== "connected" || !state.googleCalendarId){
+    var calIds = calendarDisplayIds();
+    var key = gcalStatus + "|" + calIds.slice().sort().join(",") + "|" + dateKey(startDate) + "_" + dateKey(endDateExclusive);
+    if(gcalStatus !== "connected" || !calIds.length){
       calEvents = []; calEventsKey = key; calEventsError = null;
       return;
     }
     if(calEventsKey === key || calEventsLoading) return;
     calEventsLoading = true; calEventsError = null;
-    var url = "calendars/" + encodeURIComponent(state.googleCalendarId) + "/events?singleEvents=true&orderBy=startTime&maxResults=250" +
-      "&timeMin=" + encodeURIComponent(startDate.toISOString()) + "&timeMax=" + encodeURIComponent(endDateExclusive.toISOString());
-    gcalFetch(url).then(function(res){
-      if(!res.ok) return res.json().then(function(j){ throw new Error((j && j.error && j.error.message) || "Couldn't load calendar events."); });
-      return res.json();
-    }).then(function(json){
-      calEvents = (json.items || []).filter(function(e){ return e.status !== "cancelled"; });
+    var timeMinQ = encodeURIComponent(startDate.toISOString());
+    var timeMaxQ = encodeURIComponent(endDateExclusive.toISOString());
+    Promise.all(calIds.map(function(calId){
+      var url = "calendars/" + encodeURIComponent(calId) + "/events?singleEvents=true&orderBy=startTime&maxResults=250" +
+        "&timeMin=" + timeMinQ + "&timeMax=" + timeMaxQ;
+      return gcalFetch(url).then(function(res){
+        if(!res.ok) return res.json().then(function(j){ throw new Error((j && j.error && j.error.message) || "Couldn't load calendar events."); });
+        return res.json();
+      }).then(function(json){
+        return (json.items || []).filter(function(e){ return e.status !== "cancelled"; }).map(function(e){
+          var copy = {}; for(var k2 in e){ copy[k2] = e[k2]; }
+          copy._calId = calId;
+          return copy;
+        });
+      });
+    })).then(function(perCalendar){
+      var merged = [];
+      perCalendar.forEach(function(arr){ merged = merged.concat(arr); });
+      calEvents = merged;
       calEventsKey = key;
     }).catch(function(err){
       calEventsError = err.message || "Couldn't load calendar events.";
@@ -1635,7 +1863,7 @@
 
   function buildDayIndex(startDate, numDays){
     var idx = {};
-    for(var i=0;i<numDays;i++){ idx[dateKey(addDaysCal(startDate,i))] = { tasks: [], events: [] }; }
+    for(var i=0;i<numDays;i++){ idx[dateKey(addDaysCal(startDate,i))] = { tasks: [], events: [], ics: [] }; }
     var linkedIds = {};
     forEachTask(function(t){ if(t.calendarEventId) linkedIds[t.calendarEventId] = true; });
     forEachTask(function(t, h){
@@ -1644,11 +1872,15 @@
       if(idx[k]) idx[k].tasks.push({ task: t, heading: h });
     });
     calEvents.forEach(function(ev){
-      if(linkedIds[ev.id]) return;
+      if(ev._calId === state.googleCalendarId && linkedIds[ev.id]) return;
       var due = eventToDue(ev);
       if(!due) return;
       var k = due.date;
-      if(idx[k]) idx[k].events.push({ event: ev, due: due });
+      if(idx[k]) idx[k].events.push({ event: ev, due: due, calId: ev._calId });
+    });
+    icsEvents.forEach(function(ev){
+      var k = ev.date;
+      if(idx[k]) idx[k].ics.push({ event: ev, due: { date: ev.date, time: ev.time, allDay: ev.allDay }, feedId: ev.feedId });
     });
     return idx;
   }
@@ -1658,11 +1890,27 @@
     return (due && !due.allDay && due.time) ? due.time : "";
   }
   function dayItems(idx, k){
-    var d = idx[k] || { tasks: [], events: [] };
+    var d = idx[k] || { tasks: [], events: [], ics: [] };
     var items = d.tasks.map(function(x){ return { type:"task", data:x }; })
-      .concat(d.events.map(function(x){ return { type:"event", data:x }; }));
+      .concat(d.events.map(function(x){ return { type:"event", data:x }; }))
+      .concat((d.ics || []).map(function(x){ return { type:"ics", data:x }; }));
     items.sort(function(a,b){ var ka=itemSortKey(a), kb=itemSortKey(b); return ka<kb?-1:(ka>kb?1:0); });
     return items;
+  }
+
+  function eventChipStyle(it){
+    if(it.type === "ics"){
+      var feed = getIcsFeed(it.data.feedId);
+      return { cls: "other-cal", color: feed ? feed.color : null };
+    }
+    var isPrimary = it.data.calId === state.googleCalendarId;
+    if(isPrimary) return { cls: "ext-event", color: null };
+    var meta = getCalendarMeta(it.data.calId);
+    return { cls: "other-cal", color: meta.color };
+  }
+  function itemSourceName(it){
+    if(it.type === "ics"){ var feed = getIcsFeed(it.data.feedId); return feed ? feed.name : "External"; }
+    return getCalendarMeta(it.data.calId).name;
   }
 
   function renderCalChip(it){
@@ -1675,9 +1923,11 @@
       chip.title = t.text + (t.due && !t.due.allDay && t.due.time ? " · " + formatTimeShort(t.due.time) : "");
     } else {
       var ev = it.data.event;
-      chip.className = "cal-chip ext-event";
+      var style = eventChipStyle(it);
+      chip.className = "cal-chip " + style.cls;
+      if(style.color) chip.style.borderLeftColor = style.color;
       chip.textContent = ev.summary || "(untitled)";
-      chip.title = chip.textContent;
+      chip.title = chip.textContent + (style.cls === "other-cal" ? " · " + itemSourceName(it) : "");
     }
     chip.addEventListener("click", function(e){ e.stopPropagation(); });
     return chip;
@@ -1691,8 +1941,12 @@
       chip.innerHTML = escapeHtml(t.text) + '<span class="t">' + (t.due && !t.due.allDay && t.due.time ? escapeHtml(formatTimeShort(t.due.time)) : "All day") + '</span>';
     } else {
       var ev = it.data.event, due = it.data.due;
-      chip.className = "cal-week-chip ext-event";
-      chip.innerHTML = escapeHtml(ev.summary || "(untitled)") + '<span class="t">' + (due && !due.allDay && due.time ? escapeHtml(formatTimeShort(due.time)) : "All day") + '</span>';
+      var style = eventChipStyle(it);
+      chip.className = "cal-week-chip " + style.cls;
+      if(style.color) chip.style.borderLeftColor = style.color;
+      var timeLabel = (due && !due.allDay && due.time) ? escapeHtml(formatTimeShort(due.time)) : "All day";
+      if(style.cls === "other-cal") timeLabel += " · " + escapeHtml(itemSourceName(it));
+      chip.innerHTML = escapeHtml(ev.summary || "(untitled)") + '<span class="t">' + timeLabel + '</span>';
     }
     chip.addEventListener("click", function(e){ e.stopPropagation(); });
     return chip;
@@ -1730,6 +1984,7 @@
     var totalDays = 42;
     var gridEnd = addDaysCal(gridStart, totalDays);
     fetchCalRangeEvents(gridStart, gridEnd);
+    ensureIcsEvents();
     var title = monthStart.toLocaleDateString(undefined, {month:"long", year:"numeric"});
     renderCalendarHead(root, title);
 
@@ -1763,6 +2018,7 @@
     var weekStart = mondayOfWeek(calAnchor);
     var weekEnd = addDaysCal(weekStart, 7);
     fetchCalRangeEvents(weekStart, weekEnd);
+    ensureIcsEvents();
     var title = weekStart.toLocaleDateString(undefined, {month:"short", day:"numeric"}) + " – " + addDaysCal(weekStart,6).toLocaleDateString(undefined, {month:"short", day:"numeric", year:"numeric"});
     renderCalendarHead(root, title);
 
@@ -2216,7 +2472,7 @@
   state = defaultState();
   config = loadConfig();
   render();
-  if(config){ setStatus("not_configured"); loadFromGithub(); }
+  if(config){ setStatus("not_configured"); loadFromGithub(); loadIcsFeeds(); }
   else { setStatus("not_configured"); openSettings(); }
 
   var gcfgBoot = loadGcalConfig();
