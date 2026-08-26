@@ -309,9 +309,17 @@
       "color": "#4a5fc1",
       "tasks": [],
       "subheadings": []
+    },
+    {
+      "id": "8daa05c3-7c65-41da-aead-56af311fef3b",
+      "title": "New heading",
+      "collapsed": false,
+      "color": null,
+      "tasks": [],
+      "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T15:40:02.839Z",
+  "updatedAt": "2026-08-26T15:47:56.109Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
