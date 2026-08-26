@@ -230,13 +230,11 @@
   .task-row.done .task-text{ color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line); transition: color .2s ease; }
   .task-meta{ display:flex; align-items:center; gap:8px; margin-top:2px; padding-left:4px; flex-wrap:wrap; }
   .priority-flag{
-    display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; flex-shrink:0;
-    border:1px solid var(--line); border-radius:999px; padding:0; cursor:pointer; background:var(--paper-raised); color:var(--muted);
+    display:inline-flex; align-items:center; font-size:0.74rem; color:var(--muted); flex-shrink:0;
+    border:1px solid var(--line); border-radius:999px; padding:2px 9px; cursor:pointer; background:var(--paper-raised);
   }
   .priority-flag:hover{ border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
-  .priority-flag.p-high{ color:#b8452f; border-color: color-mix(in srgb, #b8452f 45%, var(--line)); }
-  .priority-flag.p-medium{ color:#a8672a; border-color: color-mix(in srgb, #a8672a 45%, var(--line)); }
-  .priority-flag.p-low{ color:#4a5fc1; border-color: color-mix(in srgb, #4a5fc1 45%, var(--line)); }
+  .priority-flag.set{ color:var(--ink-soft); border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
   .due-badge{
     display:inline-flex; align-items:center; gap:5px; font-size:0.74rem; color:var(--muted);
     border:1px solid var(--line); border-radius:999px; padding:2px 9px 2px 8px; cursor:pointer; background:var(--paper-raised);
@@ -764,7 +762,9 @@
     return (t.priority && PRIORITY_RANK[t.priority] !== undefined) ? PRIORITY_RANK[t.priority] : 3;
   }
   var PRIORITY_CYCLE = [null, "high", "medium", "low"];
-  var PRIORITY_FLAG_ICON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 3v18"/><path d="M5 4h11l-2.5 4L16 12H5"/></svg>';
+  function priorityLabel(task){
+    return task.priority ? (task.priority[0].toUpperCase() + task.priority.slice(1)) : "Priority";
+  }
   function cyclePriority(row, task){
     var idx = PRIORITY_CYCLE.indexOf(task.priority || null);
     task.priority = PRIORITY_CYCLE[(idx + 1) % PRIORITY_CYCLE.length];
@@ -3033,7 +3033,7 @@
       '<div class="task-main">' +
         '<input class="task-text" value="' + escapeHtml(task.text) + '" aria-label="Task" />' +
         '<div class="task-meta">' +
-          '<button class="priority-flag' + (task.priority ? ' p-' + task.priority : '') + '" type="button" title="' + (task.priority ? "Priority: " + task.priority[0].toUpperCase() + task.priority.slice(1) + " (click to change)" : "Set priority") + '" aria-label="Priority">' + PRIORITY_FLAG_ICON + '</button>' +
+          '<button class="priority-flag' + (task.priority ? ' set' : '') + '" type="button" title="' + (task.priority ? "Priority: " + priorityLabel(task) + " (click to change)" : "Set priority") + '" aria-label="Priority">' + escapeHtml(priorityLabel(task)) + '</button>' +
           '<button class="due-badge' + (due ? (overdue ? ' overdue' : ' set') : '') + '" type="button">' + syncBadge + '<span>' + escapeHtml(dueLabel) + '</span></button>' +
           '<button class="notes-badge' + (notesBadgeSet(task) ? ' set' : '') + '" type="button" title="Notes & checklist">' + notesBadgeHtml(task) + '</button>' +
           '<button class="tags-badge' + (tagsBadgeSet(task) ? ' set' : '') + '" type="button" title="Tags">' + tagsBadgeHtml(task) + '</button>' +
@@ -3063,7 +3063,23 @@
     });
     var textInput = row.querySelector(".task-text");
     textInput.addEventListener("change", function(){
-      task.text = textInput.value.trim() || "Untitled task";
+      var newText = textInput.value.trim() || "Untitled task";
+      // Only parse a date out of the very first edit of a freshly created inline task
+      // (still showing the "New task" placeholder, no due date yet) — not later
+      // renames of existing tasks, so editing a title elsewhere never surprises you
+      // with a due date appearing because it happened to mention a day.
+      if(task.text === "New task" && !task.due){
+        var parsed = parseQuickCaptureLine(newText, new Date());
+        if(parsed.due){
+          task.text = parsed.text || "Untitled task";
+          task.due = parsed.due;
+          scheduleSave();
+          render();
+          syncTaskToCalendar(task);
+          return;
+        }
+      }
+      task.text = newText;
       scheduleSave();
       if(task.calendarEventId) syncTaskToCalendar(task);
     });
