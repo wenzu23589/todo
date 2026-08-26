@@ -200,6 +200,10 @@ async function main() {
   await page.waitForTimeout(400);
   const ocrCallsAfterTextPdf = await page.evaluate(() => window.__fakeOcrRecognizeCalls || 0);
   console.log("A PDF with a real text layer extracts instantly without falling back to OCR:", ocrCallsAfterTextPdf === ocrCallsBeforePdf ? "PASS" : "FAIL");
+  const pdfThumbImg = page.locator('.task-row[data-task-id="t2"] .attachment-item .attachment-thumb img');
+  await pdfThumbImg.waitFor({ timeout: 5000 }).catch(() => {});
+  const pdfThumbSrc = await pdfThumbImg.getAttribute("src").catch(() => null);
+  console.log("PDF attachment shows a first-page thumbnail (not just the file icon):", pdfThumbSrc && pdfThumbSrc.indexOf("data:image/png") === 0 ? "PASS" : "FAIL (" + pdfThumbSrc + ")");
   await page.click('.task-row[data-task-id="t2"] .attachments-editor [data-act="close"]');
   await search("widget delivery");
   const pdfTextSearchMatch = await visibleTexts();

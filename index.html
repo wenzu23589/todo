@@ -81,9 +81,41 @@
   .brand{ display:flex; align-items:baseline; gap:10px; margin-right:auto; }
   .brand h1{ font-size:1.5rem; font-weight:600; letter-spacing:-0.01em; }
   .brand .tag{ color:var(--muted); font-size:0.8rem; }
-  .header-controls{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .header-controls{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; position:relative; margin-left:auto; }
+  /* margin-left:auto keeps this pinned to the right edge of whatever row it wraps onto
+     inside .top-inner's flex-wrap — without it, when .header-controls ends up alone on
+     its own wrapped line (e.g. collapsed to just the "more" button at narrow widths),
+     flexbox has no sibling on that line for .brand's margin-right:auto to push against,
+     so it falls back to flex-start (the left edge) instead of staying right-aligned. */
+  .header-controls-inner{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  /* Double-class selector (.btn.header-more-btn) so this reliably beats the base .btn rule's
+     display:inline-flex — both are single-class specificity otherwise, and .btn is declared
+     later in the stylesheet, so a plain .header-more-btn{display:none} was losing the cascade
+     and the button stayed visible at every width, not just under 640px. */
+  .btn.header-more-btn{ display:none; padding:6px 8px; }
+  @media (max-width: 640px){
+    /* On narrow screens the six header controls (Theme/Sync now/Install app/repo
+       status/Set up Calendar/Settings) used to wrap across up to three rows before
+       any task content appeared. Collapse them into a single "more" menu instead. */
+    .btn.header-more-btn{ display:inline-flex; align-items:center; }
+    .header-controls-inner{
+      display:none; position:fixed; z-index:30; /* top/right set inline in JS from the button's own rect —
+        .header-controls can wrap to its own row at narrow widths, so a CSS-only "top:100%;right:0" anchor
+        (relative to that ancestor) would sometimes miss the actual button entirely */
+      flex-direction:column; align-items:stretch; gap:6px; min-width:210px;
+      background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-m);
+      box-shadow:var(--shadow); padding:8px;
+    }
+    .header-controls-inner.open{ display:flex; }
+    .header-controls-inner .btn, .header-controls-inner .status-pill{ width:100%; justify-content:flex-start; }
+  }
 
-  .view-tabs{ display:flex; gap:2px; background:var(--paper-sunken); padding:3px; border-radius:var(--radius-m); }
+  .view-tabs{
+    display:flex; gap:2px; background:var(--paper-sunken); padding:3px; border-radius:var(--radius-m);
+    max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+  }
+  .view-tabs::-webkit-scrollbar{ display:none; }
+  .tab-btn{ flex-shrink:0; }
   .tab-btn{ border:none; background:transparent; padding:6px 13px; border-radius:calc(var(--radius-m) - 3px); font-size:0.82rem; font-weight:500; color:var(--muted); cursor:pointer; transition:background .12s ease,color .12s ease; }
   .tab-btn.active{ background:var(--paper-raised); color:var(--ink); box-shadow:var(--shadow); }
   .tab-btn:hover:not(.active){ color:var(--ink); }
@@ -157,6 +189,8 @@
     box-shadow:0 0 0 1px var(--line); background:var(--accent);
   }
   .color-dot:hover{ box-shadow:0 0 0 2px color-mix(in srgb, var(--ink) 35%, var(--line)); }
+  .color-dot.unset{ background:var(--paper); } /* no custom color chosen — plain ring, not a fake accent fill */
+  .color-dot.unset:hover{ box-shadow:0 0 0 2px color-mix(in srgb, var(--ink) 35%, var(--line)); }
   .color-popover{
     position:absolute; top:100%; left:44px; margin-top:6px; z-index:15;
     background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-m);
@@ -225,16 +259,25 @@
   }
   @keyframes tick-pop{ from{ transform:scale(0.3) rotate(40deg); opacity:0; } to{ transform:scale(1) rotate(40deg); opacity:1; } }
   .task-main{ flex:1; min-width:0; }
-  .task-text{ width:100%; border:none; background:transparent; color:var(--ink); font:inherit; font-size:0.92rem; padding:2px 4px; border-radius:4px; }
+  .task-text{ width:100%; border:none; background:transparent; color:var(--ink); font:inherit; font-size:0.92rem; padding:2px 4px; border-radius:4px; text-overflow:ellipsis; }
+  @media (max-width: 640px){
+    /* A single-line <input> can never wrap (hard HTML limit), so on narrow
+       screens where titles clip most often, at least make the full text
+       reachable without opening the task: tap-and-hold / long-press shows
+       the native title tooltip, and focusing to edit already shows it all. */
+    .task-text{ font-size:0.95rem; }
+  }
   .task-text:focus{ background:var(--paper-sunken); }
   .task-row.done .task-text{ color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line); transition: color .2s ease; }
   .task-meta{ display:flex; align-items:center; gap:8px; margin-top:2px; padding-left:4px; flex-wrap:wrap; }
   .priority-flag{
     display:inline-flex; align-items:center; gap:6px; font-size:0.8rem; color:var(--muted); flex-shrink:0;
-    border:1px solid var(--line); border-radius:999px; padding:2px 9px 2px 8px; cursor:pointer; background:var(--paper-raised);
+    border:1px solid transparent; border-radius:999px; padding:2px 9px 2px 8px; cursor:pointer; background:transparent;
+    opacity:0.72; transition: opacity .12s ease, background .12s ease, border-color .12s ease;
   }
-  .priority-flag:hover{ border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
-  .priority-flag.set{ color:var(--ink-soft); border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
+  .priority-flag:hover{ border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); background:var(--paper-raised); opacity:1; }
+  .priority-flag.set{ color:var(--ink-soft); border-color: var(--line); background:var(--paper-raised); opacity:1; }
+  .priority-flag.set:hover{ border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
   .priority-dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0; border:1px solid var(--line); }
   .priority-dot.dot-high{ background:#d6483c; border-color:#b83a30; }
   .priority-dot.dot-medium{ background:#e08a34; border-color:#c07326; }
@@ -465,7 +508,8 @@
   .stats-section{ margin-bottom:26px; }
   .stats-section h3{ font-size:0.95rem; font-weight:600; margin-bottom:10px; }
   .heading-bar-row{ display:flex; align-items:center; gap:10px; padding:7px 0; }
-  .heading-bar-row .hb-dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .heading-bar-row .hb-dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0; border:1px solid transparent; box-sizing:border-box; }
+  .heading-bar-row .hb-dot.unset{ background:var(--paper) !important; border-color:var(--line); }
   .heading-bar-row .hb-name{ font-size:0.85rem; flex:0 0 140px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .heading-bar-row .hb-track{ flex:1; height:7px; background:var(--paper-sunken); border-radius:99px; overflow:hidden; }
   .heading-bar-row .hb-fill{ display:block; height:100%; border-radius:99px; transition:width .3s ease; }
@@ -648,6 +692,30 @@
   .undo-toast .btn:hover{ background:color-mix(in srgb, var(--paper) 15%, transparent); }
   @keyframes undo-toast-in{ from{ opacity:0; transform:translateX(-50%) translateY(6px); } to{ opacity:1; transform:translateX(-50%) translateY(0); } }
 
+  .reminder-toasts{ position:fixed; bottom:22px; right:16px; z-index:45; display:flex; flex-direction:column-reverse; gap:8px; max-width:300px; }
+  .reminder-toast{
+    background:var(--paper-raised); border:1px solid var(--line); border-left:3px solid var(--accent);
+    border-radius:var(--radius-m); box-shadow:var(--shadow); padding:10px 12px; font-size:0.83rem;
+    animation: reminder-toast-in .18s ease;
+  }
+  @keyframes reminder-toast-in{ from{ opacity:0; transform:translateX(12px); } to{ opacity:1; transform:translateX(0); } }
+  .reminder-toast-title{ font-weight:600; color:var(--ink); margin-bottom:2px; }
+  .reminder-toast-path{ color:var(--muted); font-size:0.76rem; margin-bottom:4px; }
+  .reminder-toast-time{ color:var(--muted); font-size:0.72rem; margin-bottom:8px; }
+  .reminder-toast-actions{ display:flex; gap:5px; flex-wrap:wrap; }
+  .reminder-toast-actions .btn{ padding:3px 8px; font-size:0.76rem; }
+
+  .week-view-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px; }
+  .week-view-title{ font-size:1.15rem; font-weight:600; }
+  .week-view-range{ color:var(--muted); font-size:0.85rem; }
+  .week-day-section{ margin-bottom:10px; }
+  .week-day-today .today-section-title{ color:var(--accent); }
+  .week-day-today-tag{
+    display:inline-block; font-size:0.68rem; font-weight:600; color:var(--accent); background:color-mix(in srgb, var(--accent) 14%, transparent);
+    border-radius:999px; padding:1px 8px; margin-left:6px; vertical-align:middle;
+  }
+  .week-day-empty{ color:var(--muted); font-size:0.82rem; padding:4px 4px 2px; }
+
   .quickadd-popover{
     position:fixed; z-index:40; background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-m);
     box-shadow:var(--shadow); padding:12px; width:230px; display:flex; flex-direction:column; gap:8px;
@@ -670,30 +738,36 @@
       <div class="view-tabs" role="tablist">
         <button class="tab-btn active" id="tab-list" data-view="list">List</button>
         <button class="tab-btn" id="tab-today" data-view="today">Today</button>
+        <button class="tab-btn" id="tab-week" data-view="week">This week</button>
         <button class="tab-btn" id="tab-cal" data-view="cal">Calendar</button>
         <button class="tab-btn" id="tab-stats" data-view="stats">Stats</button>
         <button class="tab-btn" id="tab-trash" data-view="trash">Trash</button>
       </div>
       <div class="header-controls">
-        <button class="btn btn-sm" id="theme-btn" aria-label="Choose theme">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="6" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="10.5" cy="19" r="1.5" fill="currentColor" stroke="none"/><path d="M12 3a9 9 0 000 18c1.1 0 1.5-.7 1.5-1.5 0-.4-.15-.75-.4-1.02-.25-.28-.4-.63-.4-1.02 0-.83.67-1.46 1.5-1.46H16a5 5 0 005-5c0-4.42-4.03-8-9-8z"/></svg>
-          Theme
+        <button class="btn btn-sm header-more-btn" id="header-more-btn" type="button" aria-label="More options" aria-haspopup="true" aria-expanded="false">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>
         </button>
-        <button class="btn btn-sm" id="sync-now-btn">Sync now</button>
-        <button class="btn btn-sm" id="install-app-btn" hidden>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 19h14"/></svg>
-          Install app
-        </button>
-        <div class="status-pill" id="status-pill" data-state="off">
-          <span class="status-dot"></span><span id="status-text">Not connected</span>
+        <div class="header-controls-inner" id="header-controls-inner">
+          <button class="btn btn-sm" id="theme-btn" aria-label="Choose theme">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="6" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="10.5" cy="19" r="1.5" fill="currentColor" stroke="none"/><path d="M12 3a9 9 0 000 18c1.1 0 1.5-.7 1.5-1.5 0-.4-.15-.75-.4-1.02-.25-.28-.4-.63-.4-1.02 0-.83.67-1.46 1.5-1.46H16a5 5 0 005-5c0-4.42-4.03-8-9-8z"/></svg>
+            Theme
+          </button>
+          <button class="btn btn-sm" id="sync-now-btn">Sync now</button>
+          <button class="btn btn-sm" id="install-app-btn" hidden>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 19h14"/></svg>
+            Install app
+          </button>
+          <div class="status-pill" id="status-pill" data-state="off">
+            <span class="status-dot"></span><span id="status-text">Not connected</span>
+          </div>
+          <button class="status-pill clickable" id="gcal-pill" data-state="off">
+            <span class="status-dot"></span><span id="gcal-pill-text">Set up Calendar</span>
+          </button>
+          <button class="btn btn-sm" id="settings-btn" aria-label="GitHub settings">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.87-.34 1.7 1.7 0 00-1 1.55V21a2 2 0 11-4 0v-.09a1.7 1.7 0 00-1-1.55 1.7 1.7 0 00-1.87.34l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.7 1.7 0 00.34-1.87 1.7 1.7 0 00-1.55-1H3a2 2 0 110-4h.09a1.7 1.7 0 001.55-1 1.7 1.7 0 00-.34-1.87l-.06-.06a2 2 0 112.83-2.83l.06.06a1.7 1.7 0 001.87.34H9a1.7 1.7 0 001-1.55V3a2 2 0 114 0v.09a1.7 1.7 0 001 1.55 1.7 1.7 0 001.87-.34l.06-.06a2 2 0 112.83 2.83l-.06.06a1.7 1.7 0 00-.34 1.87V9a1.7 1.7 0 001.55 1H21a2 2 0 110 4h-.09a1.7 1.7 0 00-1.55 1z"/></svg>
+            Settings
+          </button>
         </div>
-        <button class="status-pill clickable" id="gcal-pill" data-state="off">
-          <span class="status-dot"></span><span id="gcal-pill-text">Set up Calendar</span>
-        </button>
-        <button class="btn btn-sm" id="settings-btn" aria-label="GitHub settings">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.87-.34 1.7 1.7 0 00-1 1.55V21a2 2 0 11-4 0v-.09a1.7 1.7 0 00-1-1.55 1.7 1.7 0 00-1.87.34l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.7 1.7 0 00.34-1.87 1.7 1.7 0 00-1.55-1H3a2 2 0 110-4h.09a1.7 1.7 0 001.55-1 1.7 1.7 0 00-.34-1.87l-.06-.06a2 2 0 112.83-2.83l.06.06a1.7 1.7 0 001.87.34H9a1.7 1.7 0 001-1.55V3a2 2 0 114 0v.09a1.7 1.7 0 001 1.55 1.7 1.7 0 001.87-.34l.06-.06a2 2 0 112.83 2.83l-.06.06a1.7 1.7 0 00-.34 1.87V9a1.7 1.7 0 001.55 1H21a2 2 0 110 4h-.09a1.7 1.7 0 00-1.55 1z"/></svg>
-          Settings
-        </button>
       </div>
     </div>
   </header>
@@ -704,6 +778,8 @@
       <button class="btn btn-sm btn-ghost" id="banner-dismiss">Dismiss</button>
     </div>
   </div>
+
+  <div class="reminder-toasts" id="reminder-toasts"></div>
 
   <main>
     <div id="list-view">
@@ -748,6 +824,7 @@
       </div>
     </div>
     <div id="today-view" hidden></div>
+    <div id="week-view" hidden></div>
     <div id="cal-view" hidden></div>
     <div id="stats-view" hidden></div>
     <div id="trash-view" hidden></div>
@@ -1958,21 +2035,25 @@
     viewMode = mode;
     document.getElementById("list-view").hidden = mode !== "list";
     document.getElementById("today-view").hidden = mode !== "today";
+    document.getElementById("week-view").hidden = mode !== "week";
     document.getElementById("cal-view").hidden = mode !== "cal";
     document.getElementById("stats-view").hidden = mode !== "stats";
     document.getElementById("trash-view").hidden = mode !== "trash";
     document.getElementById("tab-list").classList.toggle("active", mode === "list");
     document.getElementById("tab-today").classList.toggle("active", mode === "today");
+    document.getElementById("tab-week").classList.toggle("active", mode === "week");
     document.getElementById("tab-cal").classList.toggle("active", mode === "cal");
     document.getElementById("tab-stats").classList.toggle("active", mode === "stats");
     document.getElementById("tab-trash").classList.toggle("active", mode === "trash");
     if(mode === "today") renderTodayView();
+    if(mode === "week") renderWeekView();
     if(mode === "stats") renderStats();
     if(mode === "cal") renderCalendar();
     if(mode === "trash") renderTrashView();
   }
   document.getElementById("tab-list").addEventListener("click", function(){ setView("list"); });
   document.getElementById("tab-today").addEventListener("click", function(){ setView("today"); });
+  document.getElementById("tab-week").addEventListener("click", function(){ setView("week"); });
   document.getElementById("tab-cal").addEventListener("click", function(){ setView("cal"); });
   document.getElementById("tab-stats").addEventListener("click", function(){ setView("stats"); });
   document.getElementById("tab-trash").addEventListener("click", function(){ setView("trash"); });
@@ -2228,6 +2309,38 @@
     // so this selector already covers them too — kept here as the single source of truth.
   }
   document.addEventListener("click", function(){ closeAllPopovers(); });
+
+  /* ---------------- mobile header "more" menu ----------------
+     Deliberately NOT folded into closeAllPopovers(): Theme (which lives inside
+     this menu) positions its own popover via the button's getBoundingClientRect()
+     right after calling closeAllPopovers() — if that also hid this menu first,
+     the button would already be display:none and report a zero rect, breaking
+     the popover's position. Buttons in here that open floating anchored popovers
+     already stopPropagation() themselves, so this listener never fires for those
+     clicks anyway and the menu simply stays open behind them, which is fine. */
+  (function(){
+    var moreBtn = document.getElementById("header-more-btn");
+    var inner = document.getElementById("header-controls-inner");
+    if(!moreBtn || !inner) return;
+    function close(){ inner.classList.remove("open"); moreBtn.setAttribute("aria-expanded", "false"); }
+    moreBtn.addEventListener("click", function(e){
+      e.stopPropagation();
+      var willOpen = !inner.classList.contains("open");
+      close();
+      if(willOpen){
+        var rect = moreBtn.getBoundingClientRect();
+        inner.style.top = (rect.bottom + 6) + "px";
+        inner.style.right = Math.max(8, window.innerWidth - rect.right) + "px";
+        inner.classList.add("open");
+        moreBtn.setAttribute("aria-expanded", "true");
+      }
+    });
+    document.addEventListener("click", function(e){
+      if(inner.classList.contains("open") && !inner.contains(e.target) && e.target !== moreBtn && !moreBtn.contains(e.target)){
+        close();
+      }
+    });
+  })();
 
   /* ---------------- theme popover ---------------- */
   function openThemePopover(anchorEl){
@@ -3134,10 +3247,12 @@
     refreshDueFilterButton();
     updateSearchStatus();
     if(viewMode === "today") renderTodayView();
+    if(viewMode === "week") renderWeekView();
     if(viewMode === "stats") renderStats();
     if(viewMode === "cal") renderCalendar();
     if(viewMode === "trash") renderTrashView();
     refreshTrashTabLabel();
+    checkReminders();
   }
   function refreshTrashTabLabel(){
     var tab = document.getElementById("tab-trash");
@@ -3183,7 +3298,7 @@
     bar.innerHTML =
       gripHtml() +
       '<button class="collapse-btn" aria-label="Toggle section" title="Collapse / expand"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg></button>' +
-      '<button class="color-dot" type="button" title="Heading color" aria-label="Choose heading color" style="background:' + (heading.color || "var(--accent)") + '"></button>' +
+      '<button class="color-dot' + (heading.color ? '' : ' unset') + '" type="button" title="Heading color" aria-label="Choose heading color"' + (heading.color ? ' style="background:' + heading.color + '"' : '') + '></button>' +
       '<input class="heading-title" value="' + escapeHtml(heading.title) + '" aria-label="Heading title" />' +
       '<span class="heading-count mono">' + doneTasks + '/' + totalTasks + '</span>' +
       '<div class="heading-actions"><button class="icon-btn danger" title="Delete heading" aria-label="Delete heading"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>';
@@ -3325,15 +3440,17 @@
       return;
     }
 
-    root.appendChild(renderTodaySection("Overdue", overdue));
-    root.appendChild(renderTodaySection("Due today", dueToday));
-    root.appendChild(renderTodaySection("Flagged", flagged));
+    [
+      renderTodaySection("Overdue", overdue),
+      renderTodaySection("Due today", dueToday),
+      renderTodaySection("Flagged", flagged)
+    ].forEach(function(section){ if(section) root.appendChild(section); });
   }
 
   function renderTodaySection(title, items){
+    if(!items.length) return null; // skip empty sections entirely — no empty box left behind
     var section = document.createElement("section");
     section.className = "today-section";
-    if(!items.length) return section; // skip empty sections entirely (empty <section> renders nothing)
     var head = document.createElement("div");
     head.className = "today-section-head";
     head.innerHTML = '<h2 class="today-section-title">' + escapeHtml(title) + '</h2><span class="today-section-count mono">' + items.length + '</span>';
@@ -3351,6 +3468,158 @@
     section.appendChild(list);
     return section;
   }
+
+  /* ---------------- this week (fixed Mon–Sun planning view) ---------------- */
+  function formatWeekRangeLabel(start, end){
+    var sameMonth = start.getMonth() === end.getMonth();
+    var startLabel = start.toLocaleDateString(undefined, {month:"short", day:"numeric"});
+    var endLabel = end.toLocaleDateString(undefined, sameMonth ? {day:"numeric"} : {month:"short", day:"numeric"});
+    return startLabel + " – " + endLabel;
+  }
+  function renderWeekView(){
+    var root = document.getElementById("week-view");
+    if(!state){ root.innerHTML = ""; return; }
+    root.innerHTML = "";
+    var monday = mondayOfWeek(new Date());
+    var days = [];
+    for(var i=0;i<7;i++){ days.push(addDaysCal(monday, i)); }
+    var todayStr = todayDateStr();
+
+    var buckets = {};
+    days.forEach(function(d){ buckets[dateKey(d)] = []; });
+    forEachTask(function(t, h, sub){
+      if(t.done || t.archivedAt || t.deletedAt || !t.due) return;
+      if(buckets[t.due.date] === undefined) return;
+      buckets[t.due.date].push({ task:t, container: sub||h, heading:h, sub:sub });
+    });
+    days.forEach(function(d){
+      buckets[dateKey(d)].sort(function(a, b){
+        var ta = (!a.task.due.allDay && a.task.due.time) ? a.task.due.time : "99:99";
+        var tb = (!b.task.due.allDay && b.task.due.time) ? b.task.due.time : "99:99";
+        return ta < tb ? -1 : ta > tb ? 1 : 0;
+      });
+    });
+    var anyItems = days.some(function(d){ return buckets[dateKey(d)].length; });
+
+    var rangeLabel = formatWeekRangeLabel(days[0], days[6]);
+    var head = document.createElement("div");
+    head.className = "week-view-head";
+    head.innerHTML = '<h2 class="week-view-title">This week</h2><span class="week-view-range mono">' + escapeHtml(rangeLabel) + '</span>';
+    root.appendChild(head);
+
+    if(!anyItems){
+      var empty = document.createElement("div");
+      empty.className = "empty-state";
+      empty.innerHTML = '<h2>Nothing due this week</h2><p>Tasks with a due date between ' + escapeHtml(rangeLabel) + ' will show up here, grouped by day.</p>';
+      root.appendChild(empty);
+      return;
+    }
+
+    days.forEach(function(d){
+      var ds = dateKey(d);
+      var items = buckets[ds];
+      var isToday = ds === todayStr;
+      var section = document.createElement("section");
+      section.className = "today-section week-day-section" + (isToday ? " week-day-today" : "");
+      var dayLabel = d.toLocaleDateString(undefined, {weekday:"long", month:"short", day:"numeric"});
+      var head2 = document.createElement("div");
+      head2.className = "today-section-head";
+      head2.innerHTML = '<h2 class="today-section-title">' + escapeHtml(dayLabel) + (isToday ? ' <span class="week-day-today-tag">Today</span>' : '') + '</h2><span class="today-section-count mono">' + items.length + '</span>';
+      section.appendChild(head2);
+      if(!items.length){
+        var noteEl = document.createElement("div");
+        noteEl.className = "week-day-empty";
+        noteEl.textContent = "Nothing due";
+        section.appendChild(noteEl);
+      } else {
+        var list = document.createElement("div");
+        list.className = "task-list today-task-list";
+        items.forEach(function(item){
+          var wrap = document.createElement("div");
+          wrap.className = "today-task-wrap";
+          var pathLabel = escapeHtml(item.heading.title) + (item.sub ? ' <span class="today-task-path-sep">&rsaquo;</span> ' + escapeHtml(item.sub.title) : "");
+          wrap.innerHTML = '<div class="today-task-path">' + pathLabel + '</div>';
+          wrap.appendChild(renderTaskRow(item.container, item.task));
+          list.appendChild(wrap);
+        });
+        section.appendChild(list);
+      }
+      root.appendChild(section);
+    });
+  }
+
+  /* ---------------- due-time reminders (in-app only, session-only state) ----------------
+     No push server exists for this static site, so reminders only fire while the app is
+     open (a tab, or the installed PWA while running) — see banner text for the honest
+     framing of that limitation. Dismissed/snoozed state is session-only by design, same
+     as the search/filter state: it resets on reload rather than being saved to the repo. */
+  var REMINDER_WINDOW_MS = 30 * 60 * 1000; // remind for due times up to 30 min in the past
+  var reminderDismissed = {}; // key -> true
+  var reminderSnoozeUntil = {}; // key -> ms timestamp
+  function reminderKey(task, subtask){ return subtask ? task.id + ":" + subtask.id : task.id; }
+  function dueDateTimeMs(due){
+    if(!due || due.allDay || !due.time) return null;
+    var d = new Date(due.date + "T" + due.time + ":00");
+    return isNaN(d.getTime()) ? null : d.getTime();
+  }
+  function checkReminders(){
+    var root = document.getElementById("reminder-toasts");
+    if(!root) return;
+    if(!state){ root.innerHTML = ""; return; }
+    var now = Date.now();
+    var candidates = [];
+    function consider(task, subtask, heading, sub){
+      var due = subtask ? subtask.due : task.due;
+      var ms = dueDateTimeMs(due);
+      if(ms === null || ms > now || ms < now - REMINDER_WINDOW_MS) return;
+      var key = reminderKey(task, subtask);
+      if(reminderDismissed[key]) return;
+      if(reminderSnoozeUntil[key] && reminderSnoozeUntil[key] > now) return;
+      candidates.push({ key:key, task:task, subtask:subtask, heading:heading, sub:sub, due:due });
+    }
+    forEachTask(function(t, h, sub){
+      if(t.done || t.archivedAt || t.deletedAt) return;
+      consider(t, null, h, sub);
+      (t.subtasks || []).forEach(function(st){ if(!st.done) consider(t, st, h, sub); });
+    });
+    candidates.sort(function(a, b){ return dueDateTimeMs(a.due) - dueDateTimeMs(b.due); });
+    renderReminderToasts(candidates.slice(0, 5));
+  }
+  function renderReminderToasts(list){
+    var root = document.getElementById("reminder-toasts");
+    root.innerHTML = "";
+    list.forEach(function(item){
+      var el = document.createElement("div");
+      el.className = "reminder-toast";
+      el.setAttribute("data-reminder-key", item.key);
+      var whoText = item.subtask ? item.subtask.text : item.task.text;
+      var pathLabel = escapeHtml(item.heading.title) + (item.sub ? ' <span class="today-task-path-sep">&rsaquo;</span> ' + escapeHtml(item.sub.title) : "") +
+        (item.subtask ? ' <span class="today-task-path-sep">&rsaquo;</span> ' + escapeHtml(item.task.text) : "");
+      el.innerHTML =
+        '<div class="reminder-toast-title">' + escapeHtml(whoText) + '</div>' +
+        '<div class="reminder-toast-path">' + pathLabel + '</div>' +
+        '<div class="reminder-toast-time">Due ' + escapeHtml(formatTimeOfDay(item.due.time)) + ' · reminder only shows while Daybook is open</div>' +
+        '<div class="reminder-toast-actions">' +
+          '<button type="button" class="btn btn-sm btn-ghost" data-snooze="5">+5m</button>' +
+          '<button type="button" class="btn btn-sm btn-ghost" data-snooze="15">+15m</button>' +
+          '<button type="button" class="btn btn-sm btn-ghost" data-snooze="60">+1h</button>' +
+          '<button type="button" class="btn btn-sm" data-act="dismiss">Dismiss</button>' +
+        '</div>';
+      el.querySelectorAll("[data-snooze]").forEach(function(btn){
+        btn.addEventListener("click", function(){
+          var mins = parseInt(btn.getAttribute("data-snooze"), 10);
+          reminderSnoozeUntil[item.key] = Date.now() + mins * 60000;
+          checkReminders();
+        });
+      });
+      el.querySelector('[data-act="dismiss"]').addEventListener("click", function(){
+        reminderDismissed[item.key] = true;
+        checkReminders();
+      });
+      root.appendChild(el);
+    });
+  }
+  setInterval(checkReminders, 20000);
 
   /* ---------------- archive ---------------- */
   var expandedArchives = {}; // heading/sub id -> expanded?, transient UI state (not persisted)
@@ -3450,7 +3719,7 @@
       '<input type="checkbox" class="check" ' + (task.done ? "checked" : "") + ' aria-label="Mark done" />' +
       (hasSubtasks ? '<button class="task-subtask-toggle" type="button" title="Show/hide subtasks" aria-label="Show/hide subtasks">' + SUBTASK_CHEVRON + '</button>' : '') +
       '<div class="task-main">' +
-        '<input class="task-text" value="' + escapeHtml(task.text) + '" aria-label="Task" />' +
+        '<input class="task-text" value="' + escapeHtml(task.text) + '" title="' + escapeHtml(task.text) + '" aria-label="Task" />' +
         '<div class="task-meta">' +
           '<button class="priority-flag' + (task.priority ? ' set' : '') + '" type="button" title="' + (task.priority ? "Priority: " + priorityLabel(task) + " (click to change)" : "Set priority") + '" aria-label="Priority"><span class="priority-dot dot-' + (task.priority || "none") + '"></span>' + escapeHtml(priorityLabel(task)) + '</button>' +
           '<button class="due-badge' + (due ? (overdue ? ' overdue' : ' set') : '') + '" type="button">' + syncBadge + '<span>' + escapeHtml(dueLabel) + '</span></button>' +
@@ -4265,7 +4534,7 @@
     itemRow.innerHTML =
       '<div class="subtask-item-row">' +
         '<input type="checkbox" class="subtask-check" ' + (subtask.done ? "checked" : "") + ' aria-label="Mark subtask done" />' +
-        '<input type="text" class="subtask-text" value="' + escapeHtml(subtask.text) + '" aria-label="Subtask" />' +
+        '<input type="text" class="subtask-text" value="' + escapeHtml(subtask.text) + '" title="' + escapeHtml(subtask.text) + '" aria-label="Subtask" />' +
         '<button type="button" class="due-badge due-badge-sm subtask-due-badge' + (subtask.due ? (isOverdue(subtask.due, subtask.done) ? " overdue" : " set") : "") + '">' + (subtask.due ? escapeHtml(formatDue(subtask.due)) : "Add date") + '</button>' +
         '<button type="button" class="attachments-badge due-badge-sm subtask-attachments-badge' + (attachmentsBadgeSet(subtask) ? " set" : "") + '" title="Attachments">' + attachmentsBadgeHtml(subtask) + '</button>' +
         '<button type="button" class="icon-btn danger subtask-remove" title="Remove subtask" aria-label="Remove subtask"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
@@ -4563,6 +4832,38 @@
       thumb.appendChild(img);
     }).catch(function(){ /* leave the file-type icon in place */ });
   }
+  var PDF_THUMB_SCALE = 0.3; // the thumb slot is 32x32 (see .attachment-thumb) — no need to render full-res
+  var attachmentPdfThumbCache = {}; // att.path -> Promise<dataURL>, so re-painting a row never re-renders the page
+  function getPdfThumbDataUrl(att){
+    if(attachmentPdfThumbCache[att.path]) return attachmentPdfThumbCache[att.path];
+    var p = fetchAttachmentBlob(att).then(function(blob){ return blob.arrayBuffer(); })
+      .then(function(buf){ return getPdfjsLib().then(function(pdfjsLib){ return pdfjsLib.getDocument({ data: buf }).promise; }); })
+      .then(function(pdf){ return pdf.getPage(1); })
+      .then(function(page){
+        var viewport = page.getViewport({ scale: PDF_THUMB_SCALE });
+        var canvas = document.createElement("canvas");
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        var ctx = canvas.getContext("2d");
+        return page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function(){
+          return canvas.toDataURL("image/png");
+        });
+      }).catch(function(e){ delete attachmentPdfThumbCache[att.path]; throw e; });
+    attachmentPdfThumbCache[att.path] = p;
+    return p;
+  }
+  function loadPdfThumb(itemRow, att){
+    var thumb = itemRow.querySelector(".attachment-thumb");
+    if(!thumb) return;
+    getPdfThumbDataUrl(att).then(function(dataUrl){
+      if(!document.body.contains(thumb)) return;
+      var img = document.createElement("img");
+      img.src = dataUrl;
+      img.alt = "";
+      thumb.innerHTML = "";
+      thumb.appendChild(img);
+    }).catch(function(){ /* first page couldn't be rendered — leave the PDF icon in place */ });
+  }
 
   function paintAttachmentRow(itemRow, ownerObj, att, onChange){
     var icon = att.type === "image" ? ATTACH_IMAGE_ICON : ATTACH_PDF_ICON;
@@ -4579,6 +4880,7 @@
       itemRow.querySelector(".attachment-name-btn").addEventListener("click", function(){ openAttachment(att, itemRow); });
       itemRow.querySelector(".attachment-remove").addEventListener("click", function(){ removeAttachmentFrom(ownerObj, att, itemRow, onChange); });
       if(att.type === "image" && att.textStatus !== "extracting") loadAttachmentThumb(itemRow, att);
+      if(att.type === "pdf" && att.textStatus !== "extracting") loadPdfThumb(itemRow, att);
     }
   }
   function appendAttachmentRow(listEl, ownerObj, att, onChange){
@@ -4603,6 +4905,7 @@
     scheduleSave();
     if(onChange) onChange();
     delete attachmentBlobCache[att.path];
+    delete attachmentPdfThumbCache[att.path];
     // Best-effort cleanup of the file in the repo — the reference is already gone from
     // tasks.json either way, so a failure here (offline, token revoked, etc.) shouldn't
     // block the removal the user just did; it just leaves an orphaned file in GitHub.
@@ -4756,7 +5059,7 @@
         var pctH = row.total ? Math.round((row.done/row.total)*100) : 0;
         var color = row.heading.color || "var(--accent)";
         return '<div class="heading-bar-row">' +
-          '<span class="hb-dot" style="background:' + color + '"></span>' +
+          '<span class="hb-dot' + (row.heading.color ? '' : ' unset') + '" style="background:' + color + '"></span>' +
           '<span class="hb-name">' + escapeHtml(row.heading.title) + '</span>' +
           '<span class="hb-track"><span class="hb-fill" style="width:' + pctH + '%;background:' + color + '"></span></span>' +
           '<span class="hb-frac mono">' + row.done + '/' + row.total + '</span>' +

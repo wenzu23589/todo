@@ -55,7 +55,11 @@ async function main() {
   const bodyOverflow = await page.evaluate(() => document.body.scrollWidth <= window.innerWidth);
   console.log("Mobile week view: no horizontal page overflow:", bodyOverflow ? "PASS" : "FAIL");
 
-  // Open calendar settings on mobile and check no overflow there either
+  // Open calendar settings on mobile and check no overflow there either.
+  // On narrow viewports the header controls (incl. #gcal-pill) collapse into
+  // a "more" menu — open it first.
+  await page.click("#header-more-btn");
+  await page.waitForSelector("#header-controls-inner.open", { timeout: 5000 });
   await page.click("#gcal-pill");
   await page.waitForSelector(".ics-feed-row", { timeout: 5000 });
   const settingsOverflow = await page.evaluate(() => document.body.scrollWidth <= window.innerWidth);
