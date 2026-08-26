@@ -272,10 +272,29 @@
     display:flex; flex-direction:column; gap:7px; background:var(--paper-sunken); border:1px solid var(--line);
     border-radius:var(--radius-s); padding:8px; margin-top:4px;
   }
-  .notes-textarea{
-    width:100%; font:inherit; font-size:0.85rem; border:1px solid var(--line); border-radius:var(--radius-s);
-    padding:6px 8px; background:var(--paper-raised); color:var(--ink); resize:vertical; min-height:52px;
+  .notes-toolbar{ display:flex; align-items:center; gap:3px; position:relative; }
+  .notes-fmt-btn{
+    display:flex; align-items:center; justify-content:center; width:26px; height:26px; border:1px solid var(--line);
+    border-radius:var(--radius-s); background:var(--paper-raised); color:var(--ink-soft); cursor:pointer; font-size:0.82rem; padding:0;
   }
+  .notes-fmt-btn:hover{ background:var(--paper-sunken); }
+  .notes-fmt-btn.active{ background:color-mix(in srgb, var(--accent) 16%, var(--paper-sunken)); border-color:color-mix(in srgb, var(--accent) 45%, var(--line)); color:var(--ink); }
+  .notes-link-popover{
+    position:absolute; top:100%; left:0; margin-top:4px; z-index:20; display:flex; gap:6px; align-items:center;
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-s); box-shadow:var(--shadow); padding:6px;
+  }
+  .notes-link-input{
+    font:inherit; font-size:0.82rem; border:1px solid var(--line); border-radius:4px; padding:4px 6px;
+    background:var(--paper-raised); color:var(--ink); width:200px;
+  }
+  .notes-rich{
+    width:100%; font:inherit; font-size:0.85rem; border:1px solid var(--line); border-radius:var(--radius-s);
+    padding:6px 8px; background:var(--paper-raised); color:var(--ink); resize:vertical; overflow:auto; min-height:52px; line-height:1.4;
+  }
+  .notes-rich:focus{ outline:none; border-color:color-mix(in srgb, var(--accent) 45%, var(--line)); }
+  .notes-rich:empty:before{ content:attr(data-placeholder); color:var(--muted); }
+  .notes-rich a{ color:var(--accent); text-decoration:underline; }
+  .notes-hint{ font-size:0.68rem; color:var(--muted); }
   .checklist-list{ display:flex; flex-direction:column; gap:2px; }
   .checklist-item{ display:flex; align-items:center; gap:6px; }
   .checklist-item-check{ flex-shrink:0; }
@@ -336,7 +355,13 @@
   .subtasks-badge:hover{ border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
   .subtasks-badge.set{ color:var(--ink-soft); border-color: color-mix(in srgb, var(--accent-2) 45%, var(--line)); }
   .subtask-chevron{ flex-shrink:0; transition: transform .15s ease; }
-  .subtasks-badge.open .subtask-chevron{ transform: rotate(180deg); }
+  .subtasks-badge.open .subtask-chevron, .task-subtask-toggle.open .subtask-chevron{ transform: rotate(180deg); }
+  .task-subtask-toggle{
+    background:none; border:none; color:var(--muted); cursor:pointer; padding:4px; margin-top:1px;
+    display:flex; align-items:center; justify-content:center; border-radius:4px; flex-shrink:0;
+  }
+  .task-subtask-toggle:hover{ color:var(--ink); background:var(--paper-sunken); }
+  .task-subtask-toggle.open{ color:var(--ink-soft); }
   .subtasks-editor{
     display:flex; flex-direction:column; gap:7px; background:var(--paper-sunken); border:1px solid var(--line);
     border-radius:var(--radius-s); padding:8px; margin-top:4px;
@@ -905,6 +930,13 @@
     if(t.calendarEventId === undefined) t.calendarEventId = null;
     if(t.syncError === undefined) t.syncError = null;
     if(typeof t.notes !== "string") t.notes = "";
+    // Notes used to be plain text; migrate once to the rich-text HTML format (preserving
+    // line breaks) so old saves still display correctly under the new formatting toolbar.
+    // notesRich marks a task as already migrated, so this never re-escapes rich content.
+    if(t.notesRich !== true){
+      t.notes = t.notes ? escapeHtml(t.notes).replace(/\n/g, "<br>") : "";
+      t.notesRich = true;
+    }
     if(!Array.isArray(t.checklist)) t.checklist = [];
     if(t.archivedAt === undefined) t.archivedAt = null;
     if(t.priority !== "low" && t.priority !== "medium" && t.priority !== "high") t.priority = null;
@@ -3180,9 +3212,11 @@
     var dueLabel = due ? formatDue(due) : "Add due date";
     var syncBadge = task.syncing ? ICON_SPIN : (task.calendarEventId ? ICON_LINK : "");
 
+    var hasSubtasks = !!(task.subtasks && task.subtasks.length);
     row.innerHTML =
       gripHtml() +
       '<input type="checkbox" class="check" ' + (task.done ? "checked" : "") + ' aria-label="Mark done" />' +
+      (hasSubtasks ? '<button class="task-subtask-toggle" type="button" title="Show/hide subtasks" aria-label="Show/hide subtasks">' + SUBTASK_CHEVRON + '</button>' : '') +
       '<div class="task-main">' +
         '<input class="task-text" value="' + escapeHtml(task.text) + '" aria-label="Task" />' +
         '<div class="task-meta">' +
@@ -3243,6 +3277,8 @@
     row.querySelector(".notes-badge").addEventListener("click", function(){ toggleNotesEditor(row, task); });
     row.querySelector(".tags-badge").addEventListener("click", function(){ toggleTagsEditor(row, task); });
     row.querySelector(".subtasks-badge").addEventListener("click", function(){ toggleSubtasksEditor(row, task); });
+    var subtaskToggleBtn = row.querySelector(".task-subtask-toggle");
+    if(subtaskToggleBtn) subtaskToggleBtn.addEventListener("click", function(){ toggleSubtasksEditor(row, task); });
     row.querySelector(".icon-btn.danger").addEventListener("click", function(){ removeTask(container, task); });
     var archiveBtn = row.querySelector('[data-act="archive"]');
     if(archiveBtn) archiveBtn.addEventListener("click", function(){
@@ -3324,11 +3360,54 @@
 
   /* ---------------- notes & checklist ---------------- */
   var NOTES_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11l2 2 4-4"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg>';
+  // Notes are stored as a small, restricted HTML subset (bold/italic/underline/links/line
+  // breaks only) so the rich-text toolbar's formatting survives a save/reload round trip.
+  var NOTES_ALLOWED_TAGS = { B:1, STRONG:1, I:1, EM:1, U:1, A:1, BR:1, DIV:1, SPAN:1 };
+  function sanitizeNotesHtml(html){
+    var tmp = document.createElement("div");
+    tmp.innerHTML = html || "";
+    (function walk(node){
+      Array.prototype.slice.call(node.childNodes).forEach(function(child){
+        if(child.nodeType === 1){
+          var tag = child.tagName;
+          if(!NOTES_ALLOWED_TAGS[tag]){
+            while(child.firstChild) node.insertBefore(child.firstChild, child);
+            node.removeChild(child);
+            return;
+          }
+          Array.prototype.slice.call(child.attributes).forEach(function(attr){
+            if(!(tag === "A" && attr.name === "href")) child.removeAttribute(attr.name);
+          });
+          if(tag === "A"){
+            var href = child.getAttribute("href") || "";
+            if(href && !/^https?:\/\//i.test(href) && !/^mailto:/i.test(href)) href = "https://" + href.replace(/^\/+/, "");
+            if(!href){ // an empty/invalid href isn't a usable link — drop the wrapper, keep the text
+              while(child.firstChild) node.insertBefore(child.firstChild, child);
+              node.removeChild(child);
+              return;
+            }
+            child.setAttribute("href", href);
+            child.setAttribute("target", "_blank");
+            child.setAttribute("rel", "noopener noreferrer");
+          }
+          walk(child);
+        } else if(child.nodeType !== 3){
+          node.removeChild(child);
+        }
+      });
+    })(tmp);
+    return tmp.innerHTML;
+  }
+  function stripHtmlToText(html){
+    var tmp = document.createElement("div");
+    tmp.innerHTML = html || "";
+    return tmp.textContent || "";
+  }
   function notesBadgeSet(task){
-    return !!(task.notes && task.notes.trim()) || (task.checklist && task.checklist.length > 0);
+    return !!stripHtmlToText(task.notes).trim() || (task.checklist && task.checklist.length > 0);
   }
   function notesBadgeHtml(task){
-    var hasNotes = !!(task.notes && task.notes.trim());
+    var hasNotes = !!stripHtmlToText(task.notes).trim();
     var total = task.checklist ? task.checklist.length : 0;
     var done = total ? task.checklist.filter(function(c){ return c.done; }).length : 0;
     var parts = [];
@@ -3377,7 +3456,13 @@
     var editor = document.createElement("div");
     editor.className = "notes-editor";
     editor.innerHTML =
-      '<textarea class="notes-textarea" placeholder="Notes…" rows="3">' + escapeHtml(task.notes || "") + '</textarea>' +
+      '<div class="notes-toolbar">' +
+        '<button type="button" class="notes-fmt-btn" data-cmd="bold" title="Bold" aria-label="Bold"><b>B</b></button>' +
+        '<button type="button" class="notes-fmt-btn" data-cmd="italic" title="Italic" aria-label="Italic"><i>I</i></button>' +
+        '<button type="button" class="notes-fmt-btn" data-cmd="underline" title="Underline" aria-label="Underline"><u>U</u></button>' +
+        '<button type="button" class="notes-fmt-btn" data-act="link" title="Add link" aria-label="Add link">🔗</button>' +
+      '</div>' +
+      '<div class="notes-rich" contenteditable="true" data-placeholder="Notes…"></div>' +
       '<div class="checklist-list"></div>' +
       '<div class="checklist-add-row"><input type="text" class="checklist-add-input" placeholder="Add checklist item…" aria-label="Add checklist item"><button type="button" class="btn btn-sm btn-ghost" data-act="add-item">Add</button></div>' +
       '<div class="notes-editor-actions"><button type="button" class="btn btn-sm btn-ghost" data-act="close">Close</button></div>';
@@ -3386,16 +3471,85 @@
     var listEl = editor.querySelector(".checklist-list");
     task.checklist.forEach(function(item){ listEl.appendChild(renderChecklistItemRow(row, task, item)); });
 
-    var textarea = editor.querySelector(".notes-textarea");
-    textarea.addEventListener("blur", function(){
-      var v = textarea.value.trim();
+    var rich = editor.querySelector(".notes-rich");
+    rich.innerHTML = task.notes || "";
+    function saveNotes(){
+      var v = sanitizeNotesHtml(rich.innerHTML);
       if(v !== (task.notes || "")){
         task.notes = v;
         scheduleSave();
         updateNotesBadge(row, task);
       }
+    }
+    rich.addEventListener("blur", saveNotes);
+    rich.focus();
+
+    // Toolbar: mousedown (not click) with preventDefault keeps the text selection alive
+    // in the contenteditable — a click alone would blur it away first.
+    var toolbar = editor.querySelector(".notes-toolbar");
+    function refreshToolbarState(){
+      toolbar.querySelectorAll(".notes-fmt-btn[data-cmd]").forEach(function(btn){
+        var cmd = btn.getAttribute("data-cmd");
+        var active = false;
+        try { active = document.queryCommandState(cmd); } catch(e){}
+        btn.classList.toggle("active", active);
+      });
+    }
+    toolbar.querySelectorAll(".notes-fmt-btn[data-cmd]").forEach(function(btn){
+      btn.addEventListener("mousedown", function(e){ e.preventDefault(); });
+      btn.addEventListener("click", function(){
+        document.execCommand(btn.getAttribute("data-cmd"), false, null);
+        refreshToolbarState();
+      });
     });
-    textarea.focus();
+    rich.addEventListener("keyup", refreshToolbarState);
+    rich.addEventListener("mouseup", refreshToolbarState);
+
+    // Link button: capture the selection before the URL popover's input steals focus,
+    // then restore it to apply the link to whatever was actually selected.
+    var savedRange = null;
+    var linkBtn = editor.querySelector('[data-act="link"]');
+    linkBtn.addEventListener("mousedown", function(e){
+      e.preventDefault();
+      var sel = window.getSelection();
+      if(sel.rangeCount > 0 && rich.contains(sel.getRangeAt(0).commonAncestorContainer)) savedRange = sel.getRangeAt(0).cloneRange();
+      else savedRange = null;
+    });
+    linkBtn.addEventListener("click", function(){
+      var existingPop = editor.querySelector(".notes-link-popover");
+      if(existingPop){ existingPop.remove(); return; }
+      var pop = document.createElement("div");
+      pop.className = "notes-link-popover";
+      pop.innerHTML =
+        '<input type="text" class="notes-link-input" placeholder="https://…" aria-label="Link URL" />' +
+        '<button type="button" class="btn btn-sm btn-primary" data-act="apply-link">Add</button>' +
+        '<button type="button" class="btn btn-sm btn-ghost" data-act="cancel-link">Cancel</button>';
+      toolbar.appendChild(pop);
+      var urlInput = pop.querySelector(".notes-link-input");
+      urlInput.focus();
+      function applyLink(){
+        var url = urlInput.value.trim();
+        pop.remove();
+        if(!url) return;
+        if(!/^https?:\/\//i.test(url) && !/^mailto:/i.test(url)) url = "https://" + url.replace(/^\/+/, "");
+        rich.focus();
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        if(savedRange) sel.addRange(savedRange);
+        if(sel.rangeCount && !sel.getRangeAt(0).collapsed){
+          document.execCommand("createLink", false, url);
+        } else {
+          document.execCommand("insertHTML", false, '<a href="' + escapeHtml(url) + '">' + escapeHtml(url) + '</a>');
+        }
+        saveNotes();
+      }
+      pop.querySelector('[data-act="apply-link"]').addEventListener("click", applyLink);
+      pop.querySelector('[data-act="cancel-link"]').addEventListener("click", function(){ pop.remove(); rich.focus(); });
+      urlInput.addEventListener("keydown", function(e){
+        if(e.key === "Enter"){ e.preventDefault(); applyLink(); }
+        else if(e.key === "Escape"){ pop.remove(); rich.focus(); }
+      });
+    });
 
     var addInput = editor.querySelector(".checklist-add-input");
     function addItem(){
@@ -3414,7 +3568,7 @@
 
     editor.querySelector('[data-act="close"]').addEventListener("click", function(){
       // Blur first so an in-progress notes edit is saved before closing.
-      if(document.activeElement === textarea) textarea.blur();
+      if(document.activeElement === rich) rich.blur(); else saveNotes();
       editor.remove();
     });
   }
@@ -3572,7 +3726,7 @@
   var SUBTASK_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01" stroke-width="3" stroke-linecap="round"/></svg>';
   // A dedicated disclosure arrow (rather than relying on the small icon alone as the
   // only visual cue) — it rotates via the .open class toggled in toggleSubtasksEditor.
-  var SUBTASK_CHEVRON = '<svg class="subtask-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>';
+  var SUBTASK_CHEVRON = '<svg class="subtask-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2"><path d="M6 9l6 6 6-6"/></svg>';
   function subtasksBadgeSet(task){ return !!(task.subtasks && task.subtasks.length); }
   function subtasksBadgeHtml(task){
     var subs = task.subtasks || [];
@@ -3587,6 +3741,27 @@
     var wasOpen = btn.classList.contains("open");
     btn.innerHTML = subtasksBadgeHtml(task);
     btn.classList.toggle("open", wasOpen);
+  }
+  // The row-level disclosure arrow next to the task title only exists once a task has
+  // at least one subtask — add or remove it in place (no full render()) when the first
+  // subtask is added or the last one is removed, keeping it in sync with the badge.
+  function updateTaskSubtaskToggle(row, task){
+    var existing = row.querySelector(".task-subtask-toggle");
+    var shouldExist = !!(task.subtasks && task.subtasks.length);
+    if(shouldExist && !existing){
+      var btn = document.createElement("button");
+      btn.className = "task-subtask-toggle";
+      btn.type = "button";
+      btn.title = "Show/hide subtasks";
+      btn.setAttribute("aria-label", "Show/hide subtasks");
+      btn.innerHTML = SUBTASK_CHEVRON;
+      var badge = row.querySelector(".subtasks-badge");
+      if(badge && badge.classList.contains("open")) btn.classList.add("open");
+      btn.addEventListener("click", function(){ toggleSubtasksEditor(row, task); });
+      row.querySelector(".task-main").insertAdjacentElement("beforebegin", btn);
+    } else if(!shouldExist && existing){
+      existing.remove();
+    }
   }
   function updateSubtaskDueBadge(itemRow, subtask){
     var btn = itemRow.querySelector(".subtask-due-badge");
@@ -3669,15 +3844,22 @@
       itemRow.remove();
       scheduleSave();
       updateSubtasksBadge(row, task);
+      updateTaskSubtaskToggle(row, task);
     });
     listEl.appendChild(itemRow);
   }
   function toggleSubtasksEditor(row, task){
     var badge = row.querySelector(".subtasks-badge");
+    var toggleBtn = row.querySelector(".task-subtask-toggle");
     var existing = row.querySelector(".subtasks-editor");
-    if(existing){ existing.remove(); if(badge) badge.classList.remove("open"); return; }
+    if(existing){
+      existing.remove();
+      if(badge) badge.classList.remove("open");
+      if(toggleBtn) toggleBtn.classList.remove("open");
+      return;
+    }
     document.querySelectorAll(".subtasks-editor").forEach(function(el){ el.remove(); });
-    document.querySelectorAll(".subtasks-badge.open").forEach(function(b){ b.classList.remove("open"); });
+    document.querySelectorAll(".subtasks-badge.open, .task-subtask-toggle.open").forEach(function(b){ b.classList.remove("open"); });
     if(!Array.isArray(task.subtasks)) task.subtasks = [];
     var editor = document.createElement("div");
     editor.className = "subtasks-editor";
@@ -3687,6 +3869,7 @@
       '<div class="notes-editor-actions"><button type="button" class="btn btn-sm btn-ghost" data-act="close">Close</button></div>';
     row.querySelector(".task-main").appendChild(editor);
     if(badge) badge.classList.add("open");
+    if(toggleBtn) toggleBtn.classList.add("open");
 
     var listEl = editor.querySelector(".subtask-list");
     task.subtasks.forEach(function(subtask){ renderSubtaskRow(listEl, row, task, subtask); });
@@ -3702,12 +3885,17 @@
       addInput.focus();
       scheduleSave();
       updateSubtasksBadge(row, task);
+      updateTaskSubtaskToggle(row, task);
     }
     editor.querySelector('[data-act="add-subtask"]').addEventListener("click", addSubtask);
     addInput.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); addSubtask(); } });
     addInput.focus();
 
-    editor.querySelector('[data-act="close"]').addEventListener("click", function(){ editor.remove(); if(badge) badge.classList.remove("open"); });
+    editor.querySelector('[data-act="close"]').addEventListener("click", function(){
+      editor.remove();
+      if(badge) badge.classList.remove("open");
+      if(toggleBtn) toggleBtn.classList.remove("open");
+    });
   }
 
   /* ---------------- stats page ---------------- */
