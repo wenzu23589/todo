@@ -32,7 +32,7 @@
           "notes": "",
           "checklist": [],
           "archivedAt": null,
-          "priority": "high",
+          "priority": "low",
           "tags": []
         },
         {
@@ -53,7 +53,7 @@
       "color": null
     }
   ],
-  "updatedAt": "2026-08-26T11:42:30.795Z",
+  "updatedAt": "2026-08-26T11:42:33.133Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
