@@ -1,50 +1,7 @@
 {
   "version": 3,
-  "headings": [
-    {
-      "id": "ace7e236-d0b0-4b7d-b2f6-01a2377bdb22",
-      "title": "New heading",
-      "collapsed": false,
-      "color": null,
-      "tasks": [
-        {
-          "id": "c4830778-1fc4-4a01-af84-e6be59e17074",
-          "text": "Doctor appointemnt",
-          "done": false,
-          "due": {
-            "date": "2026-08-27",
-            "time": "15:00",
-            "allDay": false
-          },
-          "completedAt": null,
-          "calendarEventId": "m33a0gb8lr66sj0vgotuhb3r0s",
-          "syncError": null,
-          "notes": "",
-          "checklist": [],
-          "archivedAt": null,
-          "priority": null,
-          "tags": [],
-          "syncing": false
-        },
-        {
-          "id": "d95e17ef-b662-4ff3-ac40-a14f5fb05117",
-          "text": "dsNew task",
-          "done": false,
-          "due": null,
-          "completedAt": null,
-          "calendarEventId": null,
-          "syncError": null,
-          "notes": "",
-          "checklist": [],
-          "archivedAt": null,
-          "priority": null,
-          "tags": []
-        }
-      ],
-      "subheadings": []
-    }
-  ],
-  "updatedAt": "2026-08-26T12:01:56.020Z",
+  "headings": [],
+  "updatedAt": "2026-08-26T12:08:56.317Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
