@@ -52,25 +52,29 @@
               "text": "Review final report.",
               "done": false,
               "due": null,
-              "completedAt": null
+              "completedAt": null,
+              "attachments": []
             },
             {
               "id": "7e8a41c5-7ab2-4ead-a39f-f9179cdc57f5",
               "text": "Review WP report",
               "done": false,
               "due": null,
-              "completedAt": null
+              "completedAt": null,
+              "attachments": []
             },
             {
               "id": "59563510-49b7-43d1-b7f1-08e006ffffb2",
               "text": "Add deliverables",
               "done": false,
               "due": null,
-              "completedAt": null
+              "completedAt": null,
+              "attachments": []
             }
           ],
           "syncing": false,
-          "notesRich": true
+          "notesRich": true,
+          "attachments": []
         }
       ],
       "subheadings": []
@@ -95,7 +99,8 @@
           "priority": null,
           "tags": [],
           "subtasks": [],
-          "notesRich": true
+          "notesRich": true,
+          "attachments": []
         }
       ],
       "subheadings": []
@@ -103,7 +108,7 @@
     {
       "id": "779f9eaa-21b8-4c0d-a214-cd689a877bb0",
       "title": "Research",
-      "collapsed": true,
+      "collapsed": false,
       "color": "#3f7d6e",
       "tasks": [],
       "subheadings": [
@@ -132,7 +137,8 @@
               "tags": [],
               "subtasks": [],
               "syncing": false,
-              "notesRich": true
+              "notesRich": true,
+              "attachments": []
             }
           ]
         },
@@ -155,7 +161,8 @@
               "priority": null,
               "tags": [],
               "subtasks": [],
-              "notesRich": true
+              "notesRich": true,
+              "attachments": []
             }
           ]
         },
@@ -178,7 +185,8 @@
               "priority": null,
               "tags": [],
               "subtasks": [],
-              "notesRich": true
+              "notesRich": true,
+              "attachments": []
             }
           ]
         },
@@ -201,7 +209,8 @@
               "priority": null,
               "tags": [],
               "subtasks": [],
-              "notesRich": true
+              "notesRich": true,
+              "attachments": []
             }
           ]
         },
@@ -224,7 +233,8 @@
               "priority": null,
               "tags": [],
               "subtasks": [],
-              "notesRich": true
+              "notesRich": true,
+              "attachments": []
             }
           ]
         },
@@ -247,7 +257,8 @@
               "priority": null,
               "tags": [],
               "subtasks": [],
-              "notesRich": true
+              "notesRich": true,
+              "attachments": []
             },
             {
               "id": "21baad90-9c13-449c-bcb0-30d61611939f",
@@ -263,7 +274,8 @@
               "priority": null,
               "tags": [],
               "subtasks": [],
-              "notesRich": true
+              "notesRich": true,
+              "attachments": []
             }
           ]
         }
@@ -299,7 +311,7 @@
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T14:08:09.468Z",
+  "updatedAt": "2026-08-26T14:48:24.667Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
