@@ -2,43 +2,11 @@
   "version": 1,
   "headings": [
     {
-      "id": "id-2ktak66jcy1mt9qg1jg",
-      "title": "Test",
-      "collapsed": false,
-      "subheadings": [
-        {
-          "id": "id-5yvswwjkdwymt9qgz2h",
-          "title": "New sub-heading",
-          "collapsed": false,
-          "tasks": [
-            {
-              "id": "id-0xpkdr14x4ximt9qh05c",
-              "text": "1New task",
-              "done": false,
-              "due": null
-            },
-            {
-              "id": "id-so7wy6mm0wmt9qh3ys",
-              "text": "2New task",
-              "done": false,
-              "due": null
-            },
-            {
-              "id": "id-bt2fdgxcthmt9qh52u",
-              "text": "3New task",
-              "done": false,
-              "due": null
-            }
-          ]
-        }
-      ]
-    },
-    {
       "id": "id-n0ivs05yyimt9qg493",
       "title": "New heading",
       "collapsed": false,
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T06:49:27.637Z"
+  "updatedAt": "2026-08-26T08:53:45.689Z"
 }
