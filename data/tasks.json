@@ -37,7 +37,7 @@
         },
         {
           "id": "ea6f9140-bb87-4773-a1bb-c701a9119200",
-          "text": "New task",
+          "text": "I was asked to report to meeting at 2pm next Friday",
           "done": false,
           "due": null,
           "completedAt": null,
@@ -53,7 +53,7 @@
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T11:43:41.486Z",
+  "updatedAt": "2026-08-26T11:45:09.544Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
