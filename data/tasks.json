@@ -166,8 +166,8 @@
                 "allDay": true
               },
               "completedAt": null,
-              "calendarEventId": "pb8954bou6cqq1265hgi4pjjt0",
-              "syncError": null,
+              "calendarEventId": null,
+              "syncError": "The linked calendar event was removed",
               "notes": "",
               "checklist": [],
               "archivedAt": null,
@@ -432,7 +432,7 @@
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-26T19:18:37.709Z",
+  "updatedAt": "2026-08-26T19:18:41.946Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
