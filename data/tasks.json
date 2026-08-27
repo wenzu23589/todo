@@ -528,12 +528,7 @@
       ],
       "subheadings": [],
       "attachments": [],
-      "notesList": [
-        {
-          "id": "a6be134d-366e-4093-8bbb-2ec83df35f81",
-          "html": "<span>The hours allocated to me were, originally proposed 89 hrs, then 133, now agree upon 197 hrs LFC (261 Diane). At a rate of 44 Euro/hr = 8668.</span>"
-        }
-      ]
+      "notesList": []
     },
     {
       "id": "193c7f0a-9ba7-467e-add1-06182a072764",
@@ -546,7 +541,7 @@
       "notesList": []
     }
   ],
-  "updatedAt": "2026-08-27T12:35:39.949Z",
+  "updatedAt": "2026-08-27T12:35:44.235Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
