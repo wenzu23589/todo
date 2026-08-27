@@ -79,8 +79,8 @@
         }
       ],
       "subheadings": [],
-      "notes": "",
-      "attachments": []
+      "attachments": [],
+      "notesList": []
     },
     {
       "id": "d5007a2b-9da1-46f1-b38e-6b5b303331c9",
@@ -157,8 +157,8 @@
         }
       ],
       "subheadings": [],
-      "notes": "",
-      "attachments": []
+      "attachments": [],
+      "notesList": []
     },
     {
       "id": "779f9eaa-21b8-4c0d-a214-cd689a877bb0",
@@ -197,8 +197,8 @@
               "deletedAt": null
             }
           ],
-          "notes": "",
-          "attachments": []
+          "attachments": [],
+          "notesList": []
         },
         {
           "id": "a89a1524-550a-48ff-a9e9-8f2c3b7e9551",
@@ -237,8 +237,8 @@
               "deletedAt": null
             }
           ],
-          "notes": "",
-          "attachments": []
+          "attachments": [],
+          "notesList": []
         },
         {
           "id": "00c58f34-acde-43ad-a5bb-860b9b7a8283",
@@ -264,8 +264,8 @@
               "deletedAt": null
             }
           ],
-          "notes": "",
-          "attachments": []
+          "attachments": [],
+          "notesList": []
         },
         {
           "id": "b0248800-270b-4570-a173-37e854232df3",
@@ -291,8 +291,8 @@
               "deletedAt": null
             }
           ],
-          "notes": "",
-          "attachments": []
+          "attachments": [],
+          "notesList": []
         },
         {
           "id": "f741364b-aab1-4ca0-b642-665e7957e96a",
@@ -318,8 +318,8 @@
               "deletedAt": null
             }
           ],
-          "notes": "",
-          "attachments": []
+          "attachments": [],
+          "notesList": []
         },
         {
           "id": "627fd573-e758-4fd5-b4c9-86d46e148392",
@@ -363,12 +363,12 @@
               "deletedAt": null
             }
           ],
-          "notes": "",
-          "attachments": []
+          "attachments": [],
+          "notesList": []
         }
       ],
-      "notes": "",
-      "attachments": []
+      "attachments": [],
+      "notesList": []
     },
     {
       "id": "38f2311d-9f6d-4586-ad5f-3157ca90d647",
@@ -382,8 +382,8 @@
           "title": "B.Sc. TDT",
           "collapsed": false,
           "tasks": [],
-          "notes": "",
-          "attachments": []
+          "attachments": [],
+          "notesList": []
         },
         {
           "id": "5c038344-b332-4ca3-a3e0-f42e8105a74c",
@@ -433,12 +433,12 @@
               "deletedAt": null
             }
           ],
-          "notes": "",
-          "attachments": []
+          "attachments": [],
+          "notesList": []
         }
       ],
-      "notes": "",
-      "attachments": []
+      "attachments": [],
+      "notesList": []
     },
     {
       "id": "fc1a9748-0a2a-4daa-81e7-7bf1d15ddc50",
@@ -472,8 +472,8 @@
         }
       ],
       "subheadings": [],
-      "notes": "",
-      "attachments": []
+      "attachments": [],
+      "notesList": []
     },
     {
       "id": "08c6c057-2bff-424d-a055-aa9d36d6b4e1",
@@ -482,8 +482,8 @@
       "color": "#55606e",
       "tasks": [],
       "subheadings": [],
-      "notes": "",
-      "attachments": []
+      "attachments": [],
+      "notesList": []
     },
     {
       "id": "de0f850d-75f8-4af0-ad1a-49f0ed028433",
@@ -508,11 +508,32 @@
           "attachments": [],
           "notesRich": true,
           "deletedAt": "2026-08-27T12:16:10.808Z"
+        },
+        {
+          "id": "5f8b9b8b-7f5b-4c2d-9397-cc6d6a3e2d83",
+          "text": "New task",
+          "done": false,
+          "due": null,
+          "completedAt": null,
+          "calendarEventId": null,
+          "syncError": null,
+          "notes": "",
+          "checklist": [],
+          "archivedAt": null,
+          "priority": null,
+          "tags": [],
+          "subtasks": [],
+          "attachments": []
         }
       ],
       "subheadings": [],
-      "notes": "<span>The hours allocated to me were, originally proposed 89 hrs, then 133, now agree upon 197 hrs LFC (261 Diane). At a rate of 44 Euro/hr = 8668.</span>",
-      "attachments": []
+      "attachments": [],
+      "notesList": [
+        {
+          "id": "a6be134d-366e-4093-8bbb-2ec83df35f81",
+          "html": "<span>The hours allocated to me were, originally proposed 89 hrs, then 133, now agree upon 197 hrs LFC (261 Diane). At a rate of 44 Euro/hr = 8668.</span>"
+        }
+      ]
     },
     {
       "id": "193c7f0a-9ba7-467e-add1-06182a072764",
@@ -521,11 +542,11 @@
       "color": null,
       "tasks": [],
       "subheadings": [],
-      "notes": "",
-      "attachments": []
+      "attachments": [],
+      "notesList": []
     }
   ],
-  "updatedAt": "2026-08-27T12:16:18.965Z",
+  "updatedAt": "2026-08-27T12:35:39.949Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
