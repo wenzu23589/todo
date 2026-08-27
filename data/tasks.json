@@ -449,51 +449,6 @@
       "notesList": []
     },
     {
-      "id": "fc1a9748-0a2a-4daa-81e7-7bf1d15ddc50",
-      "title": "New Proposals",
-      "collapsed": true,
-      "color": "#4a5fc1",
-      "tasks": [
-        {
-          "id": "bcfaadd0-c252-4329-a32e-14d530732dc6",
-          "text": "Xjenza call status ?",
-          "done": false,
-          "due": {
-            "date": "2026-09-07",
-            "time": null,
-            "endTime": null,
-            "allDay": true
-          },
-          "completedAt": null,
-          "calendarEventId": "tud8ag7lgertesv10fhechsb9o",
-          "syncError": null,
-          "notes": "",
-          "checklist": [],
-          "archivedAt": null,
-          "priority": null,
-          "tags": [],
-          "subtasks": [],
-          "attachments": [],
-          "syncing": false,
-          "notesRich": true,
-          "deletedAt": null
-        }
-      ],
-      "subheadings": [],
-      "attachments": [],
-      "notesList": []
-    },
-    {
-      "id": "08c6c057-2bff-424d-a055-aa9d36d6b4e1",
-      "title": "Administration",
-      "collapsed": true,
-      "color": "#55606e",
-      "tasks": [],
-      "subheadings": [],
-      "attachments": [],
-      "notesList": []
-    },
-    {
       "id": "de0f850d-75f8-4af0-ad1a-49f0ed028433",
       "title": "SMART-AI",
       "collapsed": true,
@@ -562,9 +517,54 @@
           "html": "<span>The hours allocated to me were, originally proposed 89 hrs, then 133, now agree upon 197 hrs LFC (261 Diane). At a rate of 44 Euro/hr = 8668.&nbsp;</span>"
         }
       ]
+    },
+    {
+      "id": "fc1a9748-0a2a-4daa-81e7-7bf1d15ddc50",
+      "title": "New Proposals",
+      "collapsed": true,
+      "color": "#4a5fc1",
+      "tasks": [
+        {
+          "id": "bcfaadd0-c252-4329-a32e-14d530732dc6",
+          "text": "Xjenza call status ?",
+          "done": false,
+          "due": {
+            "date": "2026-09-07",
+            "time": null,
+            "endTime": null,
+            "allDay": true
+          },
+          "completedAt": null,
+          "calendarEventId": "tud8ag7lgertesv10fhechsb9o",
+          "syncError": null,
+          "notes": "",
+          "checklist": [],
+          "archivedAt": null,
+          "priority": null,
+          "tags": [],
+          "subtasks": [],
+          "attachments": [],
+          "syncing": false,
+          "notesRich": true,
+          "deletedAt": null
+        }
+      ],
+      "subheadings": [],
+      "attachments": [],
+      "notesList": []
+    },
+    {
+      "id": "08c6c057-2bff-424d-a055-aa9d36d6b4e1",
+      "title": "Administration",
+      "collapsed": true,
+      "color": "#55606e",
+      "tasks": [],
+      "subheadings": [],
+      "attachments": [],
+      "notesList": []
     }
   ],
-  "updatedAt": "2026-08-27T16:46:39.788Z",
+  "updatedAt": "2026-08-27T16:46:49.243Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
