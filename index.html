@@ -330,7 +330,15 @@
   }
   .notes-fmt-btn:hover{ background:var(--paper-sunken); }
   .notes-fmt-btn.active{ background:color-mix(in srgb, var(--accent) 16%, var(--paper-sunken)); border-color:color-mix(in srgb, var(--accent) 45%, var(--line)); color:var(--ink); }
-  .notes-remove-btn{ margin-left:auto; }
+  .notes-done-btn{ margin-left:auto; display:inline-flex; align-items:center; gap:5px; height:26px; padding:0 10px; width:auto; }
+  .notes-remove-btn{ flex-shrink:0; }
+  /* A brief highlight right after "Done" (or a plain blur) confirms the save actually went
+     through, rather than leaving it to guesswork or the small global save indicator. */
+  .notes-editor.just-saved{
+    border-color: color-mix(in srgb, var(--accent-2) 55%, var(--line));
+    background: color-mix(in srgb, var(--accent-2) 8%, var(--paper-sunken));
+    transition: border-color .25s ease, background .25s ease;
+  }
   .notes-link-popover{
     position:absolute; top:100%; left:0; margin-top:4px; z-index:20; display:flex; gap:6px; align-items:center;
     background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-s); box-shadow:var(--shadow); padding:6px;
@@ -4227,7 +4235,9 @@
   // independent notes, each its own card in ownerObj.notesList — and unlike a task's notes
   // (opened on demand, closed when done), these stay visible in the body at all times, so
   // there's nothing to click just to see what's already there. Each card carries its own
-  // "remove" button in the toolbar rather than a "Close" action.
+  // "Done" button (blurs + confirms the save — notes already save on blur regardless, this
+  // is purely so it's obvious you're finished rather than still mid-edit) and a "remove"
+  // button, rather than a task-notes-style "Close" action.
   function renderHeadingNoteCard(ownerObj, note, onChange){
     var editor = document.createElement("div");
     editor.className = "notes-editor";
@@ -4235,17 +4245,44 @@
     editor.innerHTML =
       NOTES_TOOLBAR_HTML +
       '<div class="notes-rich" contenteditable="true" data-placeholder="Notes…"></div>';
+    var toolbar = editor.querySelector(".notes-toolbar");
+
+    var doneBtn = document.createElement("button");
+    doneBtn.type = "button";
+    doneBtn.className = "btn btn-sm btn-primary notes-done-btn";
+    doneBtn.title = "Save and stop editing this note";
+    doneBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg><span>Done</span>';
+    toolbar.appendChild(doneBtn);
+
     var removeBtn = document.createElement("button");
     removeBtn.type = "button";
     removeBtn.className = "icon-btn danger notes-remove-btn";
     removeBtn.title = "Remove this note";
     removeBtn.setAttribute("aria-label", "Remove this note");
     removeBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-    editor.querySelector(".notes-toolbar").appendChild(removeBtn);
+    toolbar.appendChild(removeBtn);
 
-    wireNotesRichEditor(editor, note.html, function(v){
+    var ctl = wireNotesRichEditor(editor, note.html, function(v){
       if(v !== note.html){ note.html = v; scheduleSave(); if(onChange) onChange(); }
     });
+
+    // The rich field already saves on blur (see wireNotesRichEditor) — Done just blurs it
+    // explicitly and flashes a confirmation, so clicking away isn't the only way to tell the
+    // edit went through.
+    var doneLabel = doneBtn.querySelector("span");
+    var savedFlashTimer = null;
+    function flashSaved(){
+      editor.classList.add("just-saved");
+      doneLabel.textContent = "Saved";
+      if(savedFlashTimer) clearTimeout(savedFlashTimer);
+      savedFlashTimer = setTimeout(function(){
+        editor.classList.remove("just-saved");
+        doneLabel.textContent = "Done";
+      }, 1200);
+    }
+    doneBtn.addEventListener("click", function(){ ctl.rich.blur(); });
+    ctl.rich.addEventListener("blur", flashSaved);
+
     removeBtn.addEventListener("click", function(){
       ownerObj.notesList = ownerObj.notesList.filter(function(n){ return n.id !== note.id; });
       editor.remove();

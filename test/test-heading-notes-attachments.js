@@ -115,8 +115,17 @@ async function main() {
   await headingCard.locator('[data-act="apply-link"]').click();
   await page.waitForTimeout(150);
 
-  await firstRich.evaluate(el => el.blur());
-  await page.waitForTimeout(200);
+  // Finish editing with the explicit "Done" button rather than just clicking away, and check
+  // it gives visible confirmation the note actually saved.
+  const firstCard = headingCard.locator(".notes-editor").first();
+  const firstDoneBtn = firstCard.locator(".notes-done-btn");
+  console.log("The note has an explicit Done button, not just a silent blur-to-save:", await firstDoneBtn.count() === 1 ? "PASS" : "FAIL");
+  await firstDoneBtn.click();
+  await page.waitForTimeout(100);
+  console.log("Clicking Done shows a brief 'Saved' confirmation:", /Saved/.test(await firstDoneBtn.textContent()) ? "PASS" : "FAIL (" + await firstDoneBtn.textContent() + ")");
+  console.log("Clicking Done visually flags the card as just-saved:", await firstCard.evaluate(el => el.classList.contains("just-saved")) ? "PASS" : "FAIL");
+  await page.waitForTimeout(1300);
+  console.log("The 'Saved' confirmation fades back to Done shortly after:", /^Done$/.test((await firstDoneBtn.textContent()).trim()) ? "PASS" : "FAIL (" + await firstDoneBtn.textContent() + ")");
 
   const richHtml = await firstRich.innerHTML();
   console.log("Heading notes preserve bold formatting:", /<b>|<strong>/i.test(richHtml) ? "PASS" : "FAIL (" + richHtml + ")");
