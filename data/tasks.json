@@ -355,7 +355,7 @@
     {
       "id": "38f2311d-9f6d-4586-ad5f-3157ca90d647",
       "title": "Lectures",
-      "collapsed": false,
+      "collapsed": true,
       "color": "#a8672a",
       "tasks": [],
       "subheadings": [
@@ -458,7 +458,7 @@
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-27T04:11:59.591Z",
+  "updatedAt": "2026-08-27T04:12:01.021Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
