@@ -78,7 +78,9 @@
           "deletedAt": null
         }
       ],
-      "subheadings": []
+      "subheadings": [],
+      "notes": "",
+      "attachments": []
     },
     {
       "id": "d5007a2b-9da1-46f1-b38e-6b5b303331c9",
@@ -154,7 +156,9 @@
           "deletedAt": null
         }
       ],
-      "subheadings": []
+      "subheadings": [],
+      "notes": "",
+      "attachments": []
     },
     {
       "id": "779f9eaa-21b8-4c0d-a214-cd689a877bb0",
@@ -192,7 +196,9 @@
               "attachments": [],
               "deletedAt": null
             }
-          ]
+          ],
+          "notes": "",
+          "attachments": []
         },
         {
           "id": "a89a1524-550a-48ff-a9e9-8f2c3b7e9551",
@@ -230,7 +236,9 @@
               ],
               "deletedAt": null
             }
-          ]
+          ],
+          "notes": "",
+          "attachments": []
         },
         {
           "id": "00c58f34-acde-43ad-a5bb-860b9b7a8283",
@@ -255,7 +263,9 @@
               "attachments": [],
               "deletedAt": null
             }
-          ]
+          ],
+          "notes": "",
+          "attachments": []
         },
         {
           "id": "b0248800-270b-4570-a173-37e854232df3",
@@ -280,7 +290,9 @@
               "attachments": [],
               "deletedAt": null
             }
-          ]
+          ],
+          "notes": "",
+          "attachments": []
         },
         {
           "id": "f741364b-aab1-4ca0-b642-665e7957e96a",
@@ -305,7 +317,9 @@
               "attachments": [],
               "deletedAt": null
             }
-          ]
+          ],
+          "notes": "",
+          "attachments": []
         },
         {
           "id": "627fd573-e758-4fd5-b4c9-86d46e148392",
@@ -348,9 +362,13 @@
               "attachments": [],
               "deletedAt": null
             }
-          ]
+          ],
+          "notes": "",
+          "attachments": []
         }
-      ]
+      ],
+      "notes": "",
+      "attachments": []
     },
     {
       "id": "38f2311d-9f6d-4586-ad5f-3157ca90d647",
@@ -363,7 +381,9 @@
           "id": "96319935-f903-4f63-afa9-3ed029be52dc",
           "title": "B.Sc. TDT",
           "collapsed": false,
-          "tasks": []
+          "tasks": [],
+          "notes": "",
+          "attachments": []
         },
         {
           "id": "5c038344-b332-4ca3-a3e0-f42e8105a74c",
@@ -412,9 +432,13 @@
               "notesRich": true,
               "deletedAt": null
             }
-          ]
+          ],
+          "notes": "",
+          "attachments": []
         }
-      ]
+      ],
+      "notes": "",
+      "attachments": []
     },
     {
       "id": "fc1a9748-0a2a-4daa-81e7-7bf1d15ddc50",
@@ -447,7 +471,9 @@
           "deletedAt": null
         }
       ],
-      "subheadings": []
+      "subheadings": [],
+      "notes": "",
+      "attachments": []
     },
     {
       "id": "08c6c057-2bff-424d-a055-aa9d36d6b4e1",
@@ -455,7 +481,9 @@
       "collapsed": true,
       "color": "#55606e",
       "tasks": [],
-      "subheadings": []
+      "subheadings": [],
+      "notes": "",
+      "attachments": []
     },
     {
       "id": "de0f850d-75f8-4af0-ad1a-49f0ed028433",
@@ -482,7 +510,9 @@
           "deletedAt": null
         }
       ],
-      "subheadings": []
+      "subheadings": [],
+      "notes": "<span>The hours allocated to me were, originally proposed 89 hrs, then 133, now agree upon 197 hrs LFC (261 Diane). At a rate of 44 Euro/hr = 8668.</span>",
+      "attachments": []
     },
     {
       "id": "193c7f0a-9ba7-467e-add1-06182a072764",
@@ -490,10 +520,12 @@
       "collapsed": false,
       "color": null,
       "tasks": [],
-      "subheadings": []
+      "subheadings": [],
+      "notes": "",
+      "attachments": []
     }
   ],
-  "updatedAt": "2026-08-27T12:13:25.065Z",
+  "updatedAt": "2026-08-27T12:14:23.234Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
