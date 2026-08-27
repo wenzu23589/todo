@@ -3433,7 +3433,7 @@
 
     var directList = document.createElement("div");
     directList.className = "task-list";
-    sortedTaskList(visibleHeadingTasks.filter(taskPassesFilters)).forEach(function(task){ directList.appendChild(renderTaskRow(heading, task)); });
+    sortedTaskList(visibleHeadingTasks.filter(function(t){ return taskPassesFilters(t, heading, null); })).forEach(function(task){ directList.appendChild(renderTaskRow(heading, task)); });
     wireTaskListContainer(directList, heading);
     bodyContent.appendChild(directList);
 
@@ -3518,7 +3518,7 @@
 
     var list = document.createElement("div");
     list.className = "task-list";
-    sortedTaskList(visibleSubTasks.filter(taskPassesFilters)).forEach(function(task){ list.appendChild(renderTaskRow(sub, task)); });
+    sortedTaskList(visibleSubTasks.filter(function(t){ return taskPassesFilters(t, heading, sub); })).forEach(function(task){ list.appendChild(renderTaskRow(sub, task)); });
     wireTaskListContainer(list, sub);
     subBodyInner.appendChild(list);
 
@@ -4522,10 +4522,14 @@
     return false;
   }
   // Free-text search — like the filters above, session-only and not persisted. Matches
-  // across the task's own text/notes/tags, its subtasks' text, and any attachment's
-  // filename or extracted text (OCR'd from images, read from a PDF's text layer or OCR'd
-  // off its pages when it doesn't have one) — see the attachment text-extraction section
-  // further down for how extractedText gets populated.
+  // across a task's own text/notes/tags, its subtasks' text, any attachment's filename or
+  // extracted text (OCR'd from images, read from a PDF's text layer or OCR'd off its pages
+  // when it doesn't have one — see the attachment text-extraction section further down for
+  // how extractedText gets populated) — AND, just as much, the heading and sub-heading a
+  // task lives under: their titles, every one of their notes, and their own attachments.
+  // A task shows if it matches on its own OR the heading/sub-heading containing it does —
+  // e.g. searching a name mentioned only in a heading's note surfaces every task under that
+  // heading, on the idea that finding the project is often the point of the search.
   var searchQuery = "";
   function attachmentSearchParts(attachments){
     var parts = [];
@@ -4541,23 +4545,74 @@
     parts.push.apply(parts, attachmentSearchParts(task.attachments));
     return parts.join(" \n ").toLowerCase();
   }
-  function taskPassesSearch(task){
+  function headingSearchHaystack(ownerObj){
+    var parts = [ownerObj.title || ""];
+    (ownerObj.notesList || []).forEach(function(n){ parts.push(stripHtmlToText(n.html || "")); });
+    parts.push.apply(parts, attachmentSearchParts(ownerObj.attachments));
+    return parts.join(" \n ").toLowerCase();
+  }
+  // A small, dependency-free fuzzy matcher, since a plain substring check misses typos —
+  // searching "conferance" should still find "conference". An exact substring match (the old
+  // behavior) is always checked first and short-circuits, so nothing that used to match stops
+  // matching; on top of that, every word in the query has to be close (small Levenshtein edit
+  // distance, scaled to the word's length so short words stay strict) to *some* word in the
+  // haystack, so a near-miss spelling still counts without turning search to mush.
+  function levenshteinDistance(a, b){
+    var al = a.length, bl = b.length;
+    if(al === 0) return bl;
+    if(bl === 0) return al;
+    var prevRow = new Array(bl + 1);
+    for(var j = 0; j <= bl; j++) prevRow[j] = j;
+    for(var i = 1; i <= al; i++){
+      var curRow = [i];
+      var ai = a.charCodeAt(i - 1);
+      for(var j2 = 1; j2 <= bl; j2++){
+        var cost = ai === b.charCodeAt(j2 - 1) ? 0 : 1;
+        curRow[j2] = Math.min(prevRow[j2] + 1, curRow[j2 - 1] + 1, prevRow[j2 - 1] + cost);
+      }
+      prevRow = curRow;
+    }
+    return prevRow[bl];
+  }
+  function fuzzyWordMatches(queryWord, haystackWord){
+    if(!queryWord || !haystackWord) return false;
+    if(haystackWord.indexOf(queryWord) !== -1) return true;
+    if(queryWord.length <= 2) return false; // too short to fuzz meaningfully without matching everything
+    var maxDist = queryWord.length <= 4 ? 1 : (queryWord.length <= 8 ? 2 : 3);
+    if(Math.abs(queryWord.length - haystackWord.length) > maxDist) return false;
+    return levenshteinDistance(queryWord, haystackWord) <= maxDist;
+  }
+  function fuzzyMatches(haystack, query){
+    if(!query) return true;
+    if(haystack.indexOf(query) !== -1) return true;
+    var queryWords = query.split(/\s+/).filter(Boolean);
+    if(!queryWords.length) return true;
+    var haystackWords = haystack.split(/[\s\n]+/).filter(Boolean);
+    return queryWords.every(function(qw){
+      return haystackWords.some(function(hw){ return fuzzyWordMatches(qw, hw); });
+    });
+  }
+  function taskPassesSearch(task, heading, sub){
     if(!searchQuery) return true;
-    return taskSearchHaystack(task).indexOf(searchQuery) !== -1;
+    if(fuzzyMatches(taskSearchHaystack(task), searchQuery)) return true;
+    if(heading && fuzzyMatches(headingSearchHaystack(heading), searchQuery)) return true;
+    if(sub && fuzzyMatches(headingSearchHaystack(sub), searchQuery)) return true;
+    return false;
   }
   // The single predicate every task-list rendering site filters through: passes
   // only if it clears the tag filter AND the priority filter AND the due filter AND
   // the search query (each individual filter is itself OR logic across its own
-  // selected options; search is a plain substring match against the haystack above).
-  function taskPassesFilters(task){
-    return taskPassesTagFilter(task) && taskPassesPriorityFilter(task) && taskPassesDueFilter(task) && taskPassesSearch(task);
+  // selected options; search is a fuzzy match against the haystack above, which now also
+  // covers the containing heading/sub-heading — see taskPassesSearch).
+  function taskPassesFilters(task, heading, sub){
+    return taskPassesTagFilter(task) && taskPassesPriorityFilter(task) && taskPassesDueFilter(task) && taskPassesSearch(task, heading, sub);
   }
   function updateSearchStatus(){
     var statusEl = document.getElementById("search-status");
     if(!statusEl) return;
     if(!searchQuery){ statusEl.textContent = ""; return; }
     var count = 0;
-    forEachTask(function(t){ if(!t.archivedAt && !t.deletedAt && taskPassesFilters(t)) count++; });
+    forEachTask(function(t, h, sh){ if(!t.archivedAt && !t.deletedAt && taskPassesFilters(t, h, sh)) count++; });
     statusEl.textContent = count === 0 ? "No matches" : (count === 1 ? "1 task found" : count + " tasks found");
   }
 
