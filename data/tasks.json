@@ -452,13 +452,13 @@
     {
       "id": "08c6c057-2bff-424d-a055-aa9d36d6b4e1",
       "title": "Administration",
-      "collapsed": true,
+      "collapsed": false,
       "color": "#55606e",
       "tasks": [],
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-27T08:54:51.339Z",
+  "updatedAt": "2026-08-27T08:54:53.453Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
