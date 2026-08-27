@@ -471,19 +471,21 @@
           "completedAt": null,
           "calendarEventId": null,
           "syncError": null,
-          "notes": "The hours allocated to me were, originally proposed 89 hrs, then 133, now agree upon 19",
+          "notes": "The hours allocated to me were, originally proposed 89 hrs, then 133, now agree upon 197 hrs LFC (261 Diane). At a rate of 44 Euro/hr =&nbsp;",
           "checklist": [],
           "archivedAt": null,
           "priority": null,
           "tags": [],
           "subtasks": [],
-          "attachments": []
+          "attachments": [],
+          "notesRich": true,
+          "deletedAt": null
         }
       ],
       "subheadings": []
     }
   ],
-  "updatedAt": "2026-08-27T11:26:23.005Z",
+  "updatedAt": "2026-08-27T11:26:58.100Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
