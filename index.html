@@ -561,6 +561,52 @@
   .modal-box h3{ font-size:1.1rem; margin-bottom:6px; }
   .modal-box p{ font-size:0.85rem; color:var(--muted); margin:0 0 16px; }
   .modal-actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:16px; flex-wrap:wrap; }
+  /* Jump-to-heading outline drawer — a side menu listing every heading (plus its sub-headings,
+     slightly indented) with a live task count, for getting to one further down a long list
+     without scrolling past everything in between. Unlike a modal, it stays open across clicks
+     so you can jump to several headings in a row. */
+  .outline-drawer-backdrop{
+    position:fixed; inset:0; background:rgba(10,12,18,0.25); z-index:55;
+    opacity:0; pointer-events:none; transition:opacity 0.2s ease;
+  }
+  .outline-drawer-backdrop.open{ opacity:1; pointer-events:auto; }
+  .outline-drawer{
+    position:fixed; top:0; left:0; bottom:0; width:320px; max-width:85vw; z-index:56;
+    background:var(--paper-raised); border-right:1px solid var(--line); box-shadow:var(--shadow);
+    display:flex; flex-direction:column; transform:translateX(-100%); transition:transform 0.22s ease;
+  }
+  .outline-drawer.open{ transform:translateX(0); }
+  .outline-drawer-header{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:16px 10px 12px 18px; border-bottom:1px solid var(--line); flex-shrink:0;
+  }
+  .outline-drawer-header h3{ font-size:1.05rem; margin:0; }
+  .outline-drawer-close{
+    border:none; background:none; cursor:pointer; color:var(--muted); font-size:1.4rem; line-height:1;
+    padding:4px 9px; border-radius:var(--radius-s);
+  }
+  .outline-drawer-close:hover{ background:var(--paper-sunken); color:var(--ink); }
+  /* Stays clickable (and visible) above its own drawer/backdrop even when they happen to
+     overlap it on a narrow layout, so the same button that opened the side menu can always
+     toggle it closed again without having to reach for the X or click outside. */
+  #outline-btn.active{ position:relative; z-index:57; background:var(--paper-sunken); border-color:color-mix(in srgb, var(--accent) 45%, var(--line)); color:var(--ink); box-shadow:0 0 0 3px var(--paper-raised); }
+  .outline-list{ display:flex; flex-direction:column; gap:2px; overflow:auto; margin-top:0; padding:10px 12px 18px; flex:1; }
+  .outline-group{ display:flex; flex-direction:column; }
+  .outline-item{
+    display:flex; align-items:center; gap:8px; width:100%; text-align:left; border:none; background:none;
+    padding:7px 8px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:0.85rem; color:var(--ink);
+  }
+  .outline-item:hover{ background:var(--paper-sunken); }
+  .outline-sub-item{ padding-left:26px; font-size:0.8rem; color:var(--ink-soft); }
+  .outline-item-dot{ width:8px; height:8px; border-radius:50%; background:var(--line); flex-shrink:0; }
+  .outline-item-title{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .outline-item-count{ color:var(--muted); font-size:0.78rem; flex-shrink:0; }
+  .outline-empty{ color:var(--muted); font-size:0.85rem; margin:0; padding:8px 8px 0; }
+  @keyframes outlineFlash{
+    0%{ box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 55%, transparent); }
+    100%{ box-shadow:0 0 0 3px transparent; }
+  }
+  .heading-card.outline-highlight, .sub-block.outline-highlight{ animation: outlineFlash 1.4s ease-out; border-radius: var(--radius-l); }
   .field{ margin-bottom:12px; }
   .field label{ display:block; font-size:0.78rem; color:var(--muted); margin-bottom:4px; font-weight:600; letter-spacing:0.01em; }
   .field input, .field select, .field textarea{ width:100%; font:inherit; font-size:0.88rem; padding:8px 10px; border-radius:var(--radius-s); border:1px solid var(--line); background:var(--paper-sunken); color:var(--ink); }
@@ -839,6 +885,10 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 5v14M5 12h14"/></svg>
           Quick capture
         </button>
+        <button class="btn btn-sm" id="outline-btn" type="button" title="Jump to a heading">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6h16M4 12h11M4 18h7"/></svg>
+          Outline
+        </button>
       </div>
       <div id="headings-root"></div>
       <div id="empty-state-root"></div>
@@ -875,6 +925,7 @@
   var lastFetchAt = 0;
   var viewMode = "list";
   var lastAddedId = null;
+  var outlineDrawerOpen = false;
 
   /* ---------------- theme palettes ---------------- */
   var PALETTE_KEY = "daybook-palette-v1";
@@ -2532,6 +2583,7 @@
   document.getElementById("sort-priority-btn").addEventListener("click", function(){ setTaskSortMode("priority"); });
   document.getElementById("sort-due-btn").addEventListener("click", function(){ setTaskSortMode("due"); });
   document.getElementById("quick-capture-btn").addEventListener("click", function(){ openQuickCapture(); });
+  document.getElementById("outline-btn").addEventListener("click", function(){ openOutlinePanel(); });
   function wireColorDot(dot, bar, heading){
     dot.addEventListener("click", function(e){
       e.stopPropagation();
@@ -3261,6 +3313,114 @@
     return { text: cleaned, due: due };
   }
 
+  // A quick way to get from the top of a long list to a heading further down without
+  // scrolling past everything in between — lists every heading (and, indented under it,
+  // every sub-heading) with a live task count, and jumps straight to it on click. Doesn't
+  // touch collapsed state — a collapsed heading you jump to still just shows its bar, same
+  // as scrolling to it by hand would.
+  function outlineVisibleCount(tasks){ return tasks.filter(function(t){ return !t.archivedAt && !t.deletedAt; }).length; }
+  function outlineGroupsHtml(){
+    var groupsHtml = (state.headings || []).map(function(h){
+      var total = outlineVisibleCount(h.tasks);
+      h.subheadings.forEach(function(sh){ total += outlineVisibleCount(sh.tasks); });
+      var subItemsHtml = h.subheadings.map(function(sh){
+        return '<button type="button" class="outline-item outline-sub-item" data-target-type="sub" data-target-id="' + sh.id + '">' +
+          '<span class="outline-item-title">' + escapeHtml(sh.title) + '</span>' +
+          '<span class="outline-item-count mono">' + outlineVisibleCount(sh.tasks) + '</span>' +
+        '</button>';
+      }).join("");
+      return '<div class="outline-group">' +
+        '<button type="button" class="outline-item" data-target-type="heading" data-target-id="' + h.id + '">' +
+          '<span class="outline-item-dot"' + (h.color ? ' style="background:' + h.color + '"' : '') + '></span>' +
+          '<span class="outline-item-title">' + escapeHtml(h.title) + '</span>' +
+          '<span class="outline-item-count mono">' + total + '</span>' +
+        '</button>' +
+        subItemsHtml +
+      '</div>';
+    }).join("");
+    return groupsHtml || '<p class="outline-empty">No headings yet.</p>';
+  }
+  // Jump-to-heading side menu. Unlike most panels in this app it's a persistent drawer, not a
+  // one-shot modal: clicking a heading scrolls to it and highlights it but leaves the drawer
+  // open, so you can jump to several sections in a row without reopening it each time.
+  function openOutlinePanel(){
+    if(outlineDrawerOpen){ closeOutlinePanel(); return; }
+    outlineDrawerOpen = true;
+    var root = document.getElementById("modal-root");
+    var backdrop = document.createElement("div");
+    backdrop.className = "outline-drawer-backdrop";
+    backdrop.id = "outline-drawer-backdrop";
+    backdrop.addEventListener("click", function(){ closeOutlinePanel(); });
+
+    var drawer = document.createElement("aside");
+    drawer.className = "outline-drawer";
+    drawer.id = "outline-drawer";
+    drawer.setAttribute("role", "dialog");
+    drawer.setAttribute("aria-modal", "false");
+    drawer.setAttribute("aria-labelledby", "outline-title");
+    drawer.innerHTML =
+      '<div class="outline-drawer-header">' +
+        '<h3 id="outline-title">Jump to heading</h3>' +
+        '<button type="button" class="outline-drawer-close" id="outline-close-btn" aria-label="Close">&times;</button>' +
+      '</div>' +
+      '<div class="outline-list" id="outline-list">' + outlineGroupsHtml() + '</div>';
+    drawer.addEventListener("click", function(e){ e.stopPropagation(); });
+
+    root.appendChild(backdrop);
+    root.appendChild(drawer);
+    wireOutlineItemClicks(drawer);
+    drawer.querySelector("#outline-close-btn").addEventListener("click", closeOutlinePanel);
+    document.addEventListener("keydown", onOutlineKeydown);
+    var btn = document.getElementById("outline-btn");
+    if(btn) btn.classList.add("active");
+
+    // Trigger the slide-in transition on the next frame rather than the same tick it was
+    // inserted, so the browser actually animates from translateX(-100%) instead of skipping
+    // straight to the open state.
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        backdrop.classList.add("open");
+        drawer.classList.add("open");
+      });
+    });
+  }
+  function onOutlineKeydown(e){ if(e.key === "Escape") closeOutlinePanel(); }
+  function closeOutlinePanel(){
+    if(!outlineDrawerOpen) return;
+    outlineDrawerOpen = false;
+    document.removeEventListener("keydown", onOutlineKeydown);
+    var btn = document.getElementById("outline-btn");
+    if(btn) btn.classList.remove("active");
+    var backdrop = document.getElementById("outline-drawer-backdrop");
+    var drawer = document.getElementById("outline-drawer");
+    if(backdrop) backdrop.parentNode.removeChild(backdrop);
+    if(drawer) drawer.parentNode.removeChild(drawer);
+  }
+  // Since the drawer stays open while you keep working (rather than closing after one click),
+  // its task counts need to stay live — this is called from render() and is a no-op unless
+  // the drawer is actually open.
+  function refreshOutlineDrawer(){
+    if(!outlineDrawerOpen) return;
+    var list = document.getElementById("outline-list");
+    if(!list) return;
+    list.innerHTML = outlineGroupsHtml();
+    wireOutlineItemClicks(document.getElementById("outline-drawer"));
+  }
+  function wireOutlineItemClicks(drawer){
+    drawer.querySelectorAll(".outline-item").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var isSub = btn.getAttribute("data-target-type") === "sub";
+        var id = btn.getAttribute("data-target-id");
+        var selector = isSub ? '.sub-block[data-sub-id="' + id + '"]' : '.heading-card[data-heading-id="' + id + '"]';
+        var target = document.querySelector(selector);
+        if(target){
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+          target.classList.add("outline-highlight");
+          setTimeout(function(){ target.classList.remove("outline-highlight"); }, 1400);
+        }
+      });
+    });
+  }
   function openQuickCapture(){
     var root = document.getElementById("modal-root");
     var backdrop = document.createElement("div");
@@ -3344,6 +3504,7 @@
     if(viewMode === "cal") renderCalendar();
     if(viewMode === "trash") renderTrashView();
     refreshTrashTabLabel();
+    refreshOutlineDrawer();
     checkReminders();
   }
   function refreshTrashTabLabel(){
@@ -3377,7 +3538,13 @@
 
   function renderHeadingCard(heading){
     var card = document.createElement("section");
-    card.className = "heading-card" + (heading.collapsed ? " collapsed" : "");
+    // A collapsed heading stays visually collapsed UNLESS a filter is active and it's the
+    // only place a match is sitting — otherwise a search result you can't actually see is
+    // worse than useless. This never touches heading.collapsed itself (still a normal saved
+    // preference, and the collapse toggle button flips that real value, not this override).
+    var forceExpanded = heading.collapsed && anyFilterActive() && headingHasFilterMatch(heading);
+    card.className = "heading-card" + ((heading.collapsed && !forceExpanded) ? " collapsed" : "");
+    card.setAttribute("data-heading-id", heading.id);
     if(heading.color) card.style.background = "color-mix(in srgb, " + heading.color + " 10%, var(--paper-raised))";
     var visibleHeadingTasks = heading.tasks.filter(function(t){ return !t.archivedAt && !t.deletedAt; });
     var archivedHeadingTasks = heading.tasks.filter(function(t){ return t.archivedAt && !t.deletedAt; });
@@ -3477,7 +3644,11 @@
     var visibleSubTasks = sub.tasks.filter(function(t){ return !t.archivedAt && !t.deletedAt; });
     var archivedSubTasks = sub.tasks.filter(function(t){ return t.archivedAt && !t.deletedAt; });
     var block = document.createElement("div");
-    block.className = "sub-block" + (sub.collapsed ? " collapsed" : "");
+    // Same override as the parent heading — don't let a collapsed sub-heading hide a task
+    // that a filter/search says is actually there.
+    var subForceExpanded = sub.collapsed && anyFilterActive() && subHasFilterMatch(heading, sub);
+    block.className = "sub-block" + ((sub.collapsed && !subForceExpanded) ? " collapsed" : "");
+    block.setAttribute("data-sub-id", sub.id);
     var bar = document.createElement("div");
     bar.className = "sub-bar";
     bar.innerHTML =
@@ -4606,6 +4777,21 @@
   // covers the containing heading/sub-heading — see taskPassesSearch).
   function taskPassesFilters(task, heading, sub){
     return taskPassesTagFilter(task) && taskPassesPriorityFilter(task) && taskPassesDueFilter(task) && taskPassesSearch(task, heading, sub);
+  }
+  function anyFilterActive(){
+    return !!searchQuery || activeTagFilters.length > 0 || activePriorityFilters.length > 0 || dueFilterActive();
+  }
+  // Whether a heading/sub-heading has at least one task that would actually show under the
+  // current Tags/Priority/Due date/search filters. Used to force a collapsed heading open
+  // while a filter is narrowing the list — otherwise "1 task found" from a search (or a tag/
+  // priority/due filter) can point at a task sitting inside a collapsed section with no way
+  // to actually see it, which is exactly what was happening before this existed.
+  function headingHasFilterMatch(heading){
+    if(heading.tasks.some(function(t){ return !t.archivedAt && !t.deletedAt && taskPassesFilters(t, heading, null); })) return true;
+    return heading.subheadings.some(function(sh){ return subHasFilterMatch(heading, sh); });
+  }
+  function subHasFilterMatch(heading, sub){
+    return sub.tasks.some(function(t){ return !t.archivedAt && !t.deletedAt && taskPassesFilters(t, heading, sub); });
   }
   function updateSearchStatus(){
     var statusEl = document.getElementById("search-status");
