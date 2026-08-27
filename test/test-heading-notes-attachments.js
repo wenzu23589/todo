@@ -13,7 +13,10 @@ async function main() {
         { id: "t1", text: "Draft methodology section", done: false, due: null, notes: "", checklist: [], tags: [], priority: null, subtasks: [], attachments: [] }
       ], subheadings: [
         { id: "sh1", title: "Ethics approval", tasks: [] }
-      ] }
+      ] },
+      // An old save from before multi-note support: a single plain `notes` string, no notesList.
+      { id: "h2", title: "Legacy heading", color: null, tasks: [], subheadings: [],
+        notes: "Written back when a heading could only have <b>one</b> note.", attachments: [] }
     ] }
   };
   const shas = {};
@@ -68,110 +71,152 @@ async function main() {
   await page.waitForSelector("#modal-root .modal-box", { state: "detached", timeout: 5000 });
   await page.waitForSelector(".task-row", { timeout: 5000 });
 
-  // --- Heading badges start unset, distinct from the task's own badges ---
-  const headingNotesUnset = await page.locator(".heading-notes-badge").first().evaluate(el => el.classList.contains("set"));
-  const headingAttUnset = await page.locator(".heading-attachments-badge").first().evaluate(el => el.classList.contains("set"));
-  console.log("Heading notes badge starts unset:", !headingNotesUnset ? "PASS" : "FAIL");
-  console.log("Heading attachments badge starts unset:", !headingAttUnset ? "PASS" : "FAIL");
-  const taskNotesUnset = await page.locator(".task-row .notes-badge").first().evaluate(el => el.classList.contains("set"));
-  console.log("Task's own notes badge is a distinct element, also unset:", !taskNotesUnset ? "PASS" : "FAIL");
+  // Heading titles live in an <input value="..."> element, so text-content-based filtering
+  // (hasText) can't see them — scope by render order instead (h1 is first in the JSON, h2 second).
+  const headingCard = page.locator(".heading-card").nth(0);
 
-  // --- Open the heading's notes editor: rich text (bold/italic/underline/link), no checklist ---
-  await page.click(".heading-card .heading-notes-badge");
-  await page.waitForSelector(".heading-card .notes-editor", { timeout: 5000 });
-  console.log("Heading notes editor opens:", "PASS");
-  console.log("Heading notes editor has no checklist section (headings don't have one):", await page.locator(".heading-card .checklist-add-input").count() === 0 ? "PASS" : "FAIL");
+  // --- The heading's "Add note" button is a plain add action, not a toggle — no note cards ---
+  // --- exist yet, so nothing is shown until you click it. ---
+  console.log("No note cards are shown before any note is added:", await headingCard.locator(".notes-editor").count() === 0 ? "PASS" : "FAIL");
+  const badgeLabel = await headingCard.locator(".heading-notes-badge").textContent();
+  console.log("The heading's notes button reads as an add action:", /Add note/i.test(badgeLabel) ? "PASS" : "FAIL (" + badgeLabel + ")");
 
-  await page.click(".heading-card .notes-rich");
+  // --- Clicking it adds a note that's immediately visible — no second click needed to see it ---
+  await headingCard.locator(".heading-notes-badge").click();
+  await page.waitForSelector('.notes-editor', { timeout: 5000 });
+  console.log("A new note is visible right away after clicking Add note:", await headingCard.locator(".notes-editor").count() === 1 ? "PASS" : "FAIL");
+  console.log("The note has no checklist section (headings don't have one):", await headingCard.locator(".checklist-add-input").count() === 0 ? "PASS" : "FAIL");
+
+  const firstRich = headingCard.locator(".notes-rich").first();
+  await firstRich.click();
   await page.keyboard.type("Funded by the national research council. ");
-  await page.click('.heading-card .notes-fmt-btn[data-cmd="bold"]');
+  await headingCard.locator('.notes-fmt-btn[data-cmd="bold"]').first().click();
   await page.keyboard.type("Deadline is Sept 30.");
-  await page.click('.heading-card .notes-fmt-btn[data-cmd="bold"]');
-  await page.click('.heading-card .notes-fmt-btn[data-cmd="italic"]');
+  await headingCard.locator('.notes-fmt-btn[data-cmd="bold"]').first().click();
+  await headingCard.locator('.notes-fmt-btn[data-cmd="italic"]').first().click();
   await page.keyboard.type(" (tentative)");
-  await page.click('.heading-card .notes-fmt-btn[data-cmd="italic"]');
+  await headingCard.locator('.notes-fmt-btn[data-cmd="italic"]').first().click();
 
-  // Add a link the same way the task notes editor does it
-  await page.click('.heading-card .notes-fmt-btn[data-act="link"]');
+  // Bulleted and numbered lists, alongside bold/italic/underline/link. insertUnorderedList
+  // is a toggle, so clicking it again would turn the list back off — press Enter twice on an
+  // empty item to exit the list instead, same as a real user would.
+  await page.keyboard.press("Enter");
+  await headingCard.locator('.notes-fmt-btn[data-cmd="insertUnorderedList"]').first().click();
+  await page.keyboard.type("Book the ethics room");
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("Enter");
+  await headingCard.locator('.notes-fmt-btn[data-cmd="insertOrderedList"]').first().click();
+  await page.keyboard.type("Step one");
+
+  // Add a link the same way task notes does it
+  await headingCard.locator('.notes-fmt-btn[data-act="link"]').first().click();
   await page.waitForSelector(".heading-card .notes-link-popover", { timeout: 5000 });
-  await page.fill(".heading-card .notes-link-input", "council.example.org");
-  await page.click('.heading-card [data-act="apply-link"]');
+  await headingCard.locator(".notes-link-input").fill("council.example.org");
+  await headingCard.locator('[data-act="apply-link"]').click();
   await page.waitForTimeout(150);
 
-  await page.locator(".heading-card .notes-rich").evaluate(el => el.blur());
+  await firstRich.evaluate(el => el.blur());
   await page.waitForTimeout(200);
 
-  const headingBadgeAfterNotes = await page.locator(".heading-notes-badge").first().textContent();
-  console.log("Heading notes badge reflects content after blur:", /Notes/.test(headingBadgeAfterNotes) ? "PASS" : "FAIL (" + headingBadgeAfterNotes + ")");
-
-  const richHtml = await page.locator(".heading-card .notes-rich").innerHTML();
+  const richHtml = await firstRich.innerHTML();
   console.log("Heading notes preserve bold formatting:", /<b>|<strong>/i.test(richHtml) ? "PASS" : "FAIL (" + richHtml + ")");
   console.log("Heading notes preserve italic formatting:", /<i>|<em>/i.test(richHtml) ? "PASS" : "FAIL (" + richHtml + ")");
+  console.log("Heading notes preserve a bulleted list:", /<ul>[\s\S]*<li>/i.test(richHtml) ? "PASS" : "FAIL (" + richHtml + ")");
+  console.log("Heading notes preserve a numbered list:", /<ol>[\s\S]*<li>/i.test(richHtml) ? "PASS" : "FAIL (" + richHtml + ")");
   console.log("Heading notes preserve the inserted link:", /<a[^>]+href="https:\/\/council\.example\.org"/i.test(richHtml) ? "PASS" : "FAIL (" + richHtml + ")");
 
-  // --- Open the heading's attachments editor too (independent of notes, can be open together) ---
-  await page.click(".heading-card .heading-attachments-badge");
+  // --- A second, independent note can be added alongside the first ---
+  await headingCard.locator(".heading-notes-badge").click();
+  await page.waitForTimeout(150);
+  console.log("A second note card appears without disturbing the first:", await headingCard.locator(".notes-editor").count() === 2 ? "PASS" : "FAIL");
+  const secondRich = headingCard.locator(".notes-rich").nth(1);
+  await secondRich.click();
+  await page.keyboard.type("Second, unrelated note: check the printer budget.");
+  await secondRich.evaluate(el => el.blur());
+  await page.waitForTimeout(200);
+  const firstStillIntact = await firstRich.textContent();
+  console.log("The first note's content is untouched by adding the second:", /Funded by the national research council/.test(firstStillIntact) ? "PASS" : "FAIL (" + firstStillIntact + ")");
+
+  // --- Attachments editor opens independently of the (always-visible) notes ---
+  await headingCard.locator(".heading-attachments-badge").click();
   await page.waitForSelector(".heading-card .attachments-editor", { timeout: 5000 });
-  console.log("Heading attachments editor opens alongside the still-open notes editor:", await page.locator(".heading-card .notes-editor").count() === 1 ? "PASS" : "FAIL");
+  console.log("Attachments editor opens alongside both still-visible notes:", await headingCard.locator(".notes-editor").count() === 2 ? "PASS" : "FAIL");
 
   await page.setInputFiles(".heading-card .attachment-file-input", {
     name: "budget.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF fake budget doc")
   });
   await page.waitForTimeout(300);
-  const headingAttItemCount = await page.locator(".heading-card .attachment-item").count();
-  console.log("Attaching a file directly to a heading works:", headingAttItemCount === 1 ? "PASS" : "FAIL (" + headingAttItemCount + ")");
+  console.log("Attaching a file directly to a heading works:", await headingCard.locator(".attachment-item").count() === 1 ? "PASS" : "FAIL");
   console.log("Upload PUT went to a path under attachments/:", putCalls.some(p => p.startsWith("attachments/") && p.includes("budget.pdf")) ? "PASS" : "FAIL (" + JSON.stringify(putCalls) + ")");
 
-  const headingAttBadgeText = await page.locator(".heading-attachments-badge").first().textContent();
-  console.log("Heading attachments badge shows a count of 1:", /1/.test(headingAttBadgeText) ? "PASS" : "FAIL (" + headingAttBadgeText + ")");
-
-  // The task inside this same heading must be completely unaffected
   const taskAttBadgeText = await page.locator('.task-row[data-task-id="t1"] .attachments-badge').textContent();
   console.log("The task inside the heading still shows 0 attachments of its own:", !/\d/.test(taskAttBadgeText) ? "PASS" : "FAIL (" + taskAttBadgeText + ")");
+  await headingCard.locator('.attachments-editor [data-act="close"]').click();
 
-  // --- Sub-heading gets its own independent notes/attachments ---
-  console.log("Sub-heading has its own distinct notes/attachments badges:", await page.locator(".sub-notes-badge").count() === 1 && await page.locator(".sub-attachments-badge").count() === 1 ? "PASS" : "FAIL");
-  await page.click(".sub-notes-badge");
+  // --- Removing one note leaves the other in place ---
+  await headingCard.locator(".notes-remove-btn").first().click();
+  await page.waitForTimeout(150);
+  console.log("Removing one note leaves exactly one behind:", await headingCard.locator(".notes-editor").count() === 1 ? "PASS" : "FAIL");
+  const remainingText = await headingCard.locator(".notes-rich").first().textContent();
+  console.log("The remaining note is the second one, not the removed first:", /printer budget/.test(remainingText) ? "PASS" : "FAIL (" + remainingText + ")");
+
+  // --- Sub-heading gets its own independent, always-visible notes ---
+  const subBlock = page.locator(".sub-block").first();
+  console.log("Sub-heading has no note cards yet either:", await subBlock.locator(".notes-editor").count() === 0 ? "PASS" : "FAIL");
+  await subBlock.locator(".sub-notes-badge").click();
   await page.waitForSelector(".sub-block .notes-editor", { timeout: 5000 });
-  await page.click(".sub-block .notes-rich");
+  await subBlock.locator(".notes-rich").first().click();
   await page.keyboard.type("Submit form 27B before the ethics board meets.");
-  await page.locator(".sub-block .notes-rich").evaluate(el => el.blur());
+  await subBlock.locator(".notes-rich").first().evaluate(el => el.blur());
   await page.waitForTimeout(200);
-  const subBadgeText = await page.locator(".sub-notes-badge").first().textContent();
-  console.log("Sub-heading's own notes badge reflects its content:", /Notes/.test(subBadgeText) ? "PASS" : "FAIL (" + subBadgeText + ")");
-  console.log("Parent heading's notes badge is unaffected by the sub-heading's notes:", (await page.locator(".heading-notes-badge").first().textContent()).length > 0 ? "PASS" : "FAIL");
+  // Scope to the heading's OWN notes block specifically (.heading-body-content), not just
+  // any .notes-editor under headingCard — the sub-block above renders nested inside the same
+  // heading-card subtree, so an unscoped count here would double-count its note too.
+  const headingOwnNotesCount = await headingCard.locator(".heading-body-content > .heading-notes-block .notes-editor").count();
+  console.log("Sub-heading's note is independent of the parent heading's remaining note:",
+    headingOwnNotesCount === 1 && (await subBlock.locator(".notes-editor").count()) === 1 ? "PASS" : "FAIL (heading=" + headingOwnNotesCount + ")");
 
-  // --- Close the open editors, then confirm persistence ---
-  // Opening the sub-heading's notes editor above already auto-closed the heading's own notes
-  // editor (only one notes editor is ever open anywhere, by design) — so the only notes
-  // editor left open now is the sub-heading's. .sub-block is nested inside .heading-card, so
-  // a ".heading-card .notes-editor" selector would ambiguously match it too; querying bare
-  // ".notes-editor" is unambiguous here since there's only ever one open at a time.
-  await page.click('.heading-card .attachments-editor [data-act="close"]');
-  await page.click('.notes-editor [data-act="close"]');
   await page.waitForTimeout(1500); // debounced save
 
-  const savedHeading = repoFiles["data/tasks.json"].headings[0];
-  const savedNotesText = savedHeading.notes.replace(/<[^>]+>/g, "");
-  console.log("Heading notes persisted to storage:", /Funded by the national research council/.test(savedNotesText) ? "PASS" : "FAIL (" + JSON.stringify(savedHeading.notes) + ")");
+  // --- Persistence: notesList (plural, multiple entries survive) ---
+  const savedHeading = repoFiles["data/tasks.json"].headings.find(h => h.id === "h1");
+  console.log("Heading notesList persisted with the one remaining note:",
+    Array.isArray(savedHeading.notesList) && savedHeading.notesList.length === 1 ? "PASS" : "FAIL (" + JSON.stringify(savedHeading.notesList) + ")");
+  console.log("The persisted note's text matches what's left after the removal:",
+    /printer budget/.test(savedHeading.notesList[0].html.replace(/<[^>]+>/g, "")) ? "PASS" : "FAIL (" + JSON.stringify(savedHeading.notesList) + ")");
   console.log("Heading attachment persisted to storage:", savedHeading.attachments.length === 1 && savedHeading.attachments[0].name === "budget.pdf" ? "PASS" : "FAIL (" + JSON.stringify(savedHeading.attachments) + ")");
-  console.log("Sub-heading notes persisted to storage, independently:", /Submit form 27B/.test(savedHeading.subheadings[0].notes.replace(/<[^>]+>/g, "")) ? "PASS" : "FAIL (" + JSON.stringify(savedHeading.subheadings[0].notes) + ")");
+  console.log("Sub-heading notes persisted to storage, independently:",
+    /Submit form 27B/.test(savedHeading.subheadings[0].notesList[0].html.replace(/<[^>]+>/g, "")) ? "PASS" : "FAIL (" + JSON.stringify(savedHeading.subheadings[0]) + ")");
+
+  // --- Legacy migration: an old single-`notes`-string heading loads as one note card ---
+  const legacyCard = page.locator(".heading-card").nth(1);
+  console.log("An old single-note heading shows its note as one always-visible card:", await legacyCard.locator(".notes-editor").count() === 1 ? "PASS" : "FAIL");
+  const legacyText = await legacyCard.locator(".notes-rich").first().textContent();
+  console.log("The migrated note kept its original text:", /one note/.test(legacyText) ? "PASS" : "FAIL (" + legacyText + ")");
 
   // --- Survives reload ---
   await page.reload();
   await page.waitForSelector(".task-row", { timeout: 5000 });
-  const headingBadgeAfterReload = await page.locator(".heading-notes-badge").first().textContent();
-  const headingAttBadgeAfterReload = await page.locator(".heading-attachments-badge").first().textContent();
-  console.log("Heading notes badge survives reload:", /Notes/.test(headingBadgeAfterReload) ? "PASS" : "FAIL (" + headingBadgeAfterReload + ")");
-  console.log("Heading attachments badge survives reload:", /1/.test(headingAttBadgeAfterReload) ? "PASS" : "FAIL (" + headingAttBadgeAfterReload + ")");
+  const headingCardAfterReload = page.locator(".heading-card").nth(0);
+  // Scoped the same way as above — the reloaded heading also carries its sub-heading (with
+  // its own now-persisted note) nested in the same subtree.
+  console.log("Heading note survives reload:",
+    await headingCardAfterReload.locator(".heading-body-content > .heading-notes-block .notes-editor").count() === 1 ? "PASS" : "FAIL");
+  const reloadedText = await headingCardAfterReload.locator(".notes-rich").first().textContent();
+  console.log("The reloaded note's text is intact:", /printer budget/.test(reloadedText) ? "PASS" : "FAIL (" + reloadedText + ")");
+  const legacyCardAfterReload = page.locator(".heading-card").nth(1);
+  console.log("The migrated legacy note also survives reload, now stored as notesList:", await legacyCardAfterReload.locator(".notes-editor").count() === 1 ? "PASS" : "FAIL");
+  const legacySavedShape = repoFiles["data/tasks.json"].headings.find(h => h.id === "h2");
+  console.log("The legacy heading no longer carries the old singular `notes` field:", legacySavedShape.notes === undefined ? "PASS" : "FAIL (" + JSON.stringify(legacySavedShape.notes) + ")");
 
-  // --- A brand-new heading (added via the UI) starts with empty notes/attachments, no crash ---
+  // --- A brand-new heading (added via the UI) starts with no note cards, no crash ---
   await page.click("text=Add heading");
   await page.waitForTimeout(200);
-  const newHeadingCards = page.locator(".heading-card");
-  const lastCard = newHeadingCards.last();
-  console.log("A freshly-added heading has its own unset notes/attachments badges:",
-    await lastCard.locator(".heading-notes-badge.set").count() === 0 && await lastCard.locator(".heading-attachments-badge.set").count() === 0 ? "PASS" : "FAIL");
+  const lastCard = page.locator(".heading-card").last();
+  console.log("A freshly-added heading starts with no note cards:", await lastCard.locator(".notes-editor").count() === 0 ? "PASS" : "FAIL");
+  await lastCard.locator(".heading-notes-badge").click();
+  await page.waitForTimeout(150);
+  console.log("Adding a note to a freshly-created heading works too:", await lastCard.locator(".notes-editor").count() === 1 ? "PASS" : "FAIL");
 
   await browser.close();
 }

@@ -59,7 +59,7 @@ async function main() {
   await page.click('.task-row[data-task-id="t1"] .notes-badge');
   await page.waitForSelector('.task-row[data-task-id="t1"] .notes-rich', { timeout: 5000 });
   const toolbarCount = await page.locator('.task-row[data-task-id="t1"] .notes-toolbar .notes-fmt-btn').count();
-  console.log("Notes toolbar offers 4 formatting controls (bold/italic/underline/link):", toolbarCount === 4 ? "PASS" : "FAIL (" + toolbarCount + ")");
+  console.log("Notes toolbar offers 6 formatting controls (bold/italic/underline/bulleted/numbered/link):", toolbarCount === 6 ? "PASS" : "FAIL (" + toolbarCount + ")");
 
   const richBox = page.locator('.task-row[data-task-id="t1"] .notes-rich');
   await richBox.click();

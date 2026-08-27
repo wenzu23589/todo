@@ -330,6 +330,7 @@
   }
   .notes-fmt-btn:hover{ background:var(--paper-sunken); }
   .notes-fmt-btn.active{ background:color-mix(in srgb, var(--accent) 16%, var(--paper-sunken)); border-color:color-mix(in srgb, var(--accent) 45%, var(--line)); color:var(--ink); }
+  .notes-remove-btn{ margin-left:auto; }
   .notes-link-popover{
     position:absolute; top:100%; left:0; margin-top:4px; z-index:20; display:flex; gap:6px; align-items:center;
     background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-s); box-shadow:var(--shadow); padding:6px;
@@ -345,7 +346,13 @@
   .notes-rich:focus{ outline:none; border-color:color-mix(in srgb, var(--accent) 45%, var(--line)); }
   .notes-rich:empty:before{ content:attr(data-placeholder); color:var(--muted); }
   .notes-rich a{ color:var(--accent); text-decoration:underline; }
+  .notes-rich ul, .notes-rich ol{ margin:4px 0 4px 20px; padding:0; }
+  .notes-rich li{ margin:2px 0; }
   .notes-hint{ font-size:0.68rem; color:var(--muted); }
+  /* A heading/sub-heading can hold several independent notes, each its own card — unlike a
+     task's single notes field, these are always shown (no click needed to see what's there),
+     so the block just stacks them with a little breathing room between cards. */
+  .heading-notes-block{ display:flex; flex-direction:column; gap:8px; margin-bottom:8px; }
   .checklist-list{ display:flex; flex-direction:column; gap:2px; }
   .checklist-item{ display:flex; align-items:center; gap:6px; }
   .checklist-item-check{ flex-shrink:0; }
@@ -1128,10 +1135,23 @@
     if(a.textStatus === undefined) a.textStatus = a.extractedText ? "done" : "pending";
   }
   // Shared by headings and sub-headings, which got their own notes/attachments after tasks
-  // already had them — unlike task notes there's no legacy plain-text format to migrate,
-  // since headings never had notes before this.
+  // already had them. A heading/sub-heading can hold several independent notes (unlike a
+  // task, which has one notes field) — notesList is the current format; a heading saved
+  // under the older single-`notes`-string format gets that one note migrated in as the
+  // first (and only) entry the first time it's loaded.
   function normalizeNotesAndAttachments(ownerObj){
-    if(typeof ownerObj.notes !== "string") ownerObj.notes = "";
+    if(!Array.isArray(ownerObj.notesList)){
+      var migrated = [];
+      if(typeof ownerObj.notes === "string" && stripHtmlToText(ownerObj.notes).trim()){
+        migrated.push({ id: uid(), html: ownerObj.notes });
+      }
+      ownerObj.notesList = migrated;
+    }
+    ownerObj.notesList.forEach(function(n){
+      if(typeof n.id !== "string" || !n.id) n.id = uid();
+      if(typeof n.html !== "string") n.html = "";
+    });
+    delete ownerObj.notes;
     if(!Array.isArray(ownerObj.attachments)) ownerObj.attachments = [];
     ownerObj.attachments.forEach(normalizeAttachment);
   }
@@ -2528,11 +2548,11 @@
   }
 
   function addHeading(title){
-    var h = { id: uid(), title: title || "New heading", collapsed:false, color:null, tasks: [], subheadings: [], notes:"", attachments:[] };
+    var h = { id: uid(), title: title || "New heading", collapsed:false, color:null, tasks: [], subheadings: [], notesList:[], attachments:[] };
     state.headings.push(h); lastAddedId = h.id; scheduleSave(); render(); return h;
   }
   function addSubheading(heading, title){
-    var sh = { id: uid(), title: title || "New sub-heading", collapsed:false, tasks: [], notes:"", attachments:[] };
+    var sh = { id: uid(), title: title || "New sub-heading", collapsed:false, tasks: [], notesList:[], attachments:[] };
     heading.subheadings.push(sh); lastAddedId = sh.id; scheduleSave(); render(); return sh;
   }
   function addTask(container, text){
@@ -3103,7 +3123,7 @@
       if(headingId === "__new__"){
         var newTitle = newHeadingEl.value.trim();
         if(!newTitle){ newHeadingEl.focus(); return; }
-        heading = { id: uid(), title: newTitle, collapsed:false, color:null, tasks: [], subheadings: [], notes:"", attachments:[] };
+        heading = { id: uid(), title: newTitle, collapsed:false, color:null, tasks: [], subheadings: [], notesList:[], attachments:[] };
         state.headings.push(heading);
       } else {
         heading = state.headings.filter(function(h){ return h.id === headingId; })[0] || state.headings[0];
@@ -3276,7 +3296,7 @@
       if(headingId === "__new__"){
         var title = newHeadingInput.value.trim();
         if(!title){ errEl.textContent = "Name the new heading, or pick an existing one."; errEl.hidden = false; newHeadingInput.focus(); return; }
-        heading = { id: uid(), title: title, collapsed:false, color:null, tasks: [], subheadings: [], notes:"", attachments:[] };
+        heading = { id: uid(), title: title, collapsed:false, color:null, tasks: [], subheadings: [], notesList:[], attachments:[] };
         state.headings.push(heading);
       } else {
         heading = state.headings.filter(function(h){ return h.id === headingId; })[0];
@@ -3366,7 +3386,7 @@
       '<input class="heading-title" value="' + escapeHtml(heading.title) + '" aria-label="Heading title" />' +
       '<span class="heading-count mono">' + doneTasks + '/' + totalTasks + '</span>' +
       '<div class="heading-actions">' +
-        '<button class="notes-badge heading-notes-badge' + (notesBadgeSet(heading) ? ' set' : '') + '" type="button" title="Notes">' + notesBadgeHtml(heading) + '</button>' +
+        '<button class="notes-badge heading-notes-badge" type="button" title="Add a note">' + NOTE_ADD_ICON + '<span>Add note</span></button>' +
         '<button class="attachments-badge heading-attachments-badge' + (attachmentsBadgeSet(heading) ? ' set' : '') + '" type="button" title="Attachments">' + attachmentsBadgeHtml(heading) + '</button>' +
         '<button class="icon-btn danger" title="Delete heading" aria-label="Delete heading"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>' +
       '</div>';
@@ -3389,12 +3409,15 @@
     var bodyContent = document.createElement("div");
     bodyContent.className = "heading-body-content";
 
-    // Notes/attachments live at the top of the collapsible body — right under the bar —
-    // rather than appended after the task list like a task's own editors, since bodyContent
-    // here can be long (tasks, sub-headings, add buttons) and burying them at the bottom
-    // would mean scrolling past all of it just to see what you clicked open.
+    // Notes live at the top of the collapsible body — right under the bar — always visible,
+    // rather than appended after the task list or hidden behind a click like a task's own
+    // notes editor, since bodyContent here can be long (tasks, sub-headings, add buttons)
+    // and burying them at the bottom (or behind a toggle) would bury what you came to see.
+    var headingNotesBlock = renderHeadingNotesBlock(heading, null);
+    if(headingNotesBlock) bodyContent.appendChild(headingNotesBlock);
+
     bar.querySelector(".heading-notes-badge").addEventListener("click", function(){
-      toggleHeadingNotesEditor(bodyContent, heading, function(){ updateNotesBadge(bar, heading); });
+      addHeadingNote(bodyContent, heading, null);
     });
     bar.querySelector(".heading-attachments-badge").addEventListener("click", function(){
       toggleHeadingAttachmentsEditor(bodyContent, heading, function(){ updateAttachmentsBadge(bar, heading); });
@@ -3455,7 +3478,7 @@
       '<input class="sub-title" value="' + escapeHtml(sub.title) + '" aria-label="Sub-heading title" />' +
       '<span class="sub-count mono">' + visibleSubTasks.filter(function(t){return t.done;}).length + '/' + visibleSubTasks.length + '</span>' +
       '<div class="sub-actions">' +
-        '<button class="notes-badge sub-notes-badge' + (notesBadgeSet(sub) ? ' set' : '') + '" type="button" title="Notes">' + notesBadgeHtml(sub) + '</button>' +
+        '<button class="notes-badge sub-notes-badge" type="button" title="Add a note">' + NOTE_ADD_ICON + '<span>Add note</span></button>' +
         '<button class="attachments-badge sub-attachments-badge' + (attachmentsBadgeSet(sub) ? ' set' : '') + '" type="button" title="Attachments">' + attachmentsBadgeHtml(sub) + '</button>' +
         '<button class="icon-btn danger" title="Delete sub-heading" aria-label="Delete sub-heading"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>' +
       '</div>';
@@ -3475,8 +3498,11 @@
     var subBodyInner = document.createElement("div");
     subBodyInner.className = "sub-body-inner";
 
+    var subNotesBlock = renderHeadingNotesBlock(sub, null);
+    if(subNotesBlock) subBodyInner.appendChild(subNotesBlock);
+
     bar.querySelector(".sub-notes-badge").addEventListener("click", function(){
-      toggleHeadingNotesEditor(subBodyInner, sub, function(){ updateNotesBadge(bar, sub); });
+      addHeadingNote(subBodyInner, sub, null);
     });
     bar.querySelector(".sub-attachments-badge").addEventListener("click", function(){
       toggleHeadingAttachmentsEditor(subBodyInner, sub, function(){ updateAttachmentsBadge(bar, sub); });
@@ -3953,9 +3979,14 @@
 
   /* ---------------- notes & checklist ---------------- */
   var NOTES_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11l2 2 4-4"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg>';
+  // A heading/sub-heading's "Notes" button always just adds a new note (see below) rather
+  // than toggling a single field open/closed — reusing the app's own "+" plus glyph (same one
+  // as "+ Add task" / "+ Add sub-heading") makes that obvious at a glance, more so than the
+  // checkbox-style NOTES_ICON above ever did for an action button.
+  var NOTE_ADD_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>';
   // Notes are stored as a small, restricted HTML subset (bold/italic/underline/links/line
   // breaks only) so the rich-text toolbar's formatting survives a save/reload round trip.
-  var NOTES_ALLOWED_TAGS = { B:1, STRONG:1, I:1, EM:1, U:1, A:1, BR:1, DIV:1, SPAN:1 };
+  var NOTES_ALLOWED_TAGS = { B:1, STRONG:1, I:1, EM:1, U:1, A:1, BR:1, DIV:1, SPAN:1, UL:1, OL:1, LI:1 };
   function sanitizeNotesHtml(html){
     var tmp = document.createElement("div");
     tmp.innerHTML = html || "";
@@ -4042,14 +4073,18 @@
     });
     return itemRow;
   }
+  var BULLET_LIST_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="4" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.4" fill="currentColor" stroke="none"/><path d="M9 6h11M9 12h11M9 18h11"/></svg>';
+  var NUMBERED_LIST_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6h11M9 12h11M9 18h11"/><text x="0.5" y="8.2" font-size="7" fill="currentColor" stroke="none" font-family="sans-serif">1</text><text x="0.5" y="14.2" font-size="7" fill="currentColor" stroke="none" font-family="sans-serif">2</text><text x="0.5" y="20.2" font-size="7" fill="currentColor" stroke="none" font-family="sans-serif">3</text></svg>';
   var NOTES_TOOLBAR_HTML =
     '<div class="notes-toolbar">' +
       '<button type="button" class="notes-fmt-btn" data-cmd="bold" title="Bold" aria-label="Bold"><b>B</b></button>' +
       '<button type="button" class="notes-fmt-btn" data-cmd="italic" title="Italic" aria-label="Italic"><i>I</i></button>' +
       '<button type="button" class="notes-fmt-btn" data-cmd="underline" title="Underline" aria-label="Underline"><u>U</u></button>' +
+      '<button type="button" class="notes-fmt-btn" data-cmd="insertUnorderedList" title="Bulleted list" aria-label="Bulleted list">' + BULLET_LIST_ICON + '</button>' +
+      '<button type="button" class="notes-fmt-btn" data-cmd="insertOrderedList" title="Numbered list" aria-label="Numbered list">' + NUMBERED_LIST_ICON + '</button>' +
       '<button type="button" class="notes-fmt-btn" data-act="link" title="Add link" aria-label="Add link">🔗</button>' +
     '</div>';
-  // Wires the rich-text toolbar (bold/italic/underline/link) + save-on-blur for a
+  // Wires the rich-text toolbar (bold/italic/underline/lists/link) + save-on-blur for a
   // ".notes-rich" contenteditable inside `editor`. Shared by task notes (which also has a
   // checklist, wired separately by the caller) and heading/sub-heading notes (rich text
   // only) so the trickier link-popover/selection-preservation logic isn't duplicated.
@@ -4061,7 +4096,12 @@
     rich.innerHTML = initialHtml || "";
     function saveNotes(){ onSave(sanitizeNotesHtml(rich.innerHTML)); }
     rich.addEventListener("blur", saveNotes);
-    rich.focus();
+    // Deliberately no auto-focus here: a heading/sub-heading's notes are now part of the
+    // normal render tree (rebuilt on every render(), not just when freshly opened), so
+    // focusing unconditionally would steal focus from whatever else the user is doing every
+    // time anything else on the page changes. Callers that genuinely just created/opened an
+    // editor in response to a click (see toggleNotesEditor and addHeadingNote) focus it
+    // themselves right after calling this.
 
     // Toolbar: mousedown (not click) with preventDefault keeps the text selection alive
     // in the contenteditable — a click alone would blur it away first.
@@ -4135,7 +4175,10 @@
   function toggleNotesEditor(row, task){
     var existing = row.querySelector(".notes-editor");
     if(existing){ existing.remove(); return; }
-    document.querySelectorAll(".notes-editor").forEach(function(el){ el.remove(); });
+    // Only close other *toggled* notes editors (other tasks') — a heading/sub-heading's own
+    // note cards are permanently visible now, identifiable by data-note-id, and must never
+    // be closed just because some other notes editor opened elsewhere on the page.
+    document.querySelectorAll(".notes-editor:not([data-note-id])").forEach(function(el){ el.remove(); });
     var editor = document.createElement("div");
     editor.className = "notes-editor";
     editor.innerHTML =
@@ -4156,6 +4199,7 @@
         updateNotesBadge(row, task);
       }
     });
+    ctl.rich.focus();
 
     var addInput = editor.querySelector(".checklist-add-input");
     function addItem(){
@@ -4179,33 +4223,63 @@
     });
   }
   // Rich-text notes for a heading or sub-heading — same toolbar as task notes, no checklist
-  // (headings don't have one). ownerObj is the heading/sub-heading object itself.
-  function buildHeadingNotesEditorEl(ownerObj, onChange){
+  // (headings don't have one). Unlike a task, a heading/sub-heading can hold *several*
+  // independent notes, each its own card in ownerObj.notesList — and unlike a task's notes
+  // (opened on demand, closed when done), these stay visible in the body at all times, so
+  // there's nothing to click just to see what's already there. Each card carries its own
+  // "remove" button in the toolbar rather than a "Close" action.
+  function renderHeadingNoteCard(ownerObj, note, onChange){
     var editor = document.createElement("div");
     editor.className = "notes-editor";
+    editor.setAttribute("data-note-id", note.id);
     editor.innerHTML =
       NOTES_TOOLBAR_HTML +
-      '<div class="notes-rich" contenteditable="true" data-placeholder="Notes…"></div>' +
-      '<div class="notes-editor-actions"><button type="button" class="btn btn-sm btn-ghost" data-act="close">Close</button></div>';
-    var ctl = wireNotesRichEditor(editor, ownerObj.notes, function(v){
-      if(v !== (ownerObj.notes || "")){
-        ownerObj.notes = v;
-        scheduleSave();
-        if(onChange) onChange();
-      }
+      '<div class="notes-rich" contenteditable="true" data-placeholder="Notes…"></div>';
+    var removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "icon-btn danger notes-remove-btn";
+    removeBtn.title = "Remove this note";
+    removeBtn.setAttribute("aria-label", "Remove this note");
+    removeBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    editor.querySelector(".notes-toolbar").appendChild(removeBtn);
+
+    wireNotesRichEditor(editor, note.html, function(v){
+      if(v !== note.html){ note.html = v; scheduleSave(); if(onChange) onChange(); }
     });
-    editor.querySelector('[data-act="close"]').addEventListener("click", function(){
-      if(document.activeElement === ctl.rich) ctl.rich.blur(); else ctl.saveNotes();
+    removeBtn.addEventListener("click", function(){
+      ownerObj.notesList = ownerObj.notesList.filter(function(n){ return n.id !== note.id; });
       editor.remove();
+      scheduleSave();
+      if(onChange) onChange();
     });
     return editor;
   }
-  function toggleHeadingNotesEditor(container, ownerObj, onChange){
-    var existing = container.querySelector(".notes-editor");
-    if(existing){ existing.remove(); return; }
-    document.querySelectorAll(".notes-editor").forEach(function(el){ el.remove(); });
-    var editor = buildHeadingNotesEditorEl(ownerObj, onChange);
-    container.insertBefore(editor, container.firstChild);
+  // The always-visible block of note cards for a heading/sub-heading — returns null (nothing
+  // to render) when there are none yet, so an empty heading's body doesn't gain stray padding.
+  function renderHeadingNotesBlock(ownerObj, onChange){
+    if(!ownerObj.notesList || !ownerObj.notesList.length) return null;
+    var wrap = document.createElement("div");
+    wrap.className = "heading-notes-block";
+    ownerObj.notesList.forEach(function(note){ wrap.appendChild(renderHeadingNoteCard(ownerObj, note, onChange)); });
+    return wrap;
+  }
+  // Adds a brand-new blank note and focuses it — this is what the heading/sub-heading bar's
+  // "Add note" button does. `container` is the body element the notes block lives in
+  // (bodyContent for a heading, subBodyInner for a sub-heading).
+  function addHeadingNote(container, ownerObj, onChange){
+    var note = { id: uid(), html: "" };
+    ownerObj.notesList.push(note);
+    var block = container.querySelector(".heading-notes-block");
+    if(!block){
+      block = document.createElement("div");
+      block.className = "heading-notes-block";
+      container.insertBefore(block, container.firstChild);
+    }
+    var card = renderHeadingNoteCard(ownerObj, note, onChange);
+    block.appendChild(card);
+    card.querySelector(".notes-rich").focus();
+    scheduleSave();
+    if(onChange) onChange();
   }
   function toggleHeadingAttachmentsEditor(container, ownerObj, onChange){
     var existing = container.querySelector(".attachments-editor");
@@ -4213,7 +4287,10 @@
     document.querySelectorAll(".attachments-editor").forEach(function(el){ el.remove(); });
     if(!Array.isArray(ownerObj.attachments)) ownerObj.attachments = [];
     var editor = buildAttachmentsEditorEl(ownerObj, onChange);
-    container.insertBefore(editor, container.firstChild);
+    // Insert right after the notes block (if any) rather than at the very top, so an opened
+    // attachments panel doesn't shove the always-visible notes further down every time.
+    var notesBlock = container.querySelector(".heading-notes-block");
+    container.insertBefore(editor, notesBlock ? notesBlock.nextSibling : container.firstChild);
   }
 
   /* ---------------- tags & tag filter ---------------- */
