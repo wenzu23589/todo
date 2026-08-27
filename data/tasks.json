@@ -85,7 +85,7 @@
     {
       "id": "d5007a2b-9da1-46f1-b38e-6b5b303331c9",
       "title": "GreenToC",
-      "collapsed": true,
+      "collapsed": false,
       "color": "#6f7d3a",
       "tasks": [
         {
@@ -170,7 +170,7 @@
         {
           "id": "1e0b9535-b3a3-4b0a-9dd9-8f7397a9acb0",
           "title": "Daniela Paper",
-          "collapsed": false,
+          "collapsed": true,
           "tasks": [
             {
               "id": "5a53cca1-85c7-4b1f-9725-bcc61e5a816a",
@@ -198,12 +198,13 @@
             }
           ],
           "attachments": [],
-          "notesList": []
+          "notesList": [],
+          "collapsedDefaultApplied": true
         },
         {
           "id": "a89a1524-550a-48ff-a9e9-8f2c3b7e9551",
           "title": "James SLR",
-          "collapsed": false,
+          "collapsed": true,
           "tasks": [
             {
               "id": "5826ef34-de8b-4a8b-bbbb-ba51ba5a3222",
@@ -238,12 +239,13 @@
             }
           ],
           "attachments": [],
-          "notesList": []
+          "notesList": [],
+          "collapsedDefaultApplied": true
         },
         {
           "id": "00c58f34-acde-43ad-a5bb-860b9b7a8283",
           "title": "GreenToC Paper",
-          "collapsed": false,
+          "collapsed": true,
           "tasks": [
             {
               "id": "887a8e91-3cf4-4015-9dfc-feb1d8ecf351",
@@ -265,12 +267,13 @@
             }
           ],
           "attachments": [],
-          "notesList": []
+          "notesList": [],
+          "collapsedDefaultApplied": true
         },
         {
           "id": "b0248800-270b-4570-a173-37e854232df3",
           "title": "GraphComm Paper",
-          "collapsed": false,
+          "collapsed": true,
           "tasks": [
             {
               "id": "b1697acf-362c-46e1-802b-2d84d2cac398",
@@ -292,12 +295,13 @@
             }
           ],
           "attachments": [],
-          "notesList": []
+          "notesList": [],
+          "collapsedDefaultApplied": true
         },
         {
           "id": "f741364b-aab1-4ca0-b642-665e7957e96a",
           "title": "CARS Paper",
-          "collapsed": false,
+          "collapsed": true,
           "tasks": [
             {
               "id": "8b58f262-22db-4c2d-a61f-14baa44e68ce",
@@ -319,12 +323,13 @@
             }
           ],
           "attachments": [],
-          "notesList": []
+          "notesList": [],
+          "collapsedDefaultApplied": true
         },
         {
           "id": "627fd573-e758-4fd5-b4c9-86d46e148392",
           "title": "Research Planning",
-          "collapsed": false,
+          "collapsed": true,
           "tasks": [
             {
               "id": "2d26da6b-9b70-44c0-9889-43c1b898ae79",
@@ -364,7 +369,8 @@
             }
           ],
           "attachments": [],
-          "notesList": []
+          "notesList": [],
+          "collapsedDefaultApplied": true
         }
       ],
       "attachments": [],
@@ -380,15 +386,16 @@
         {
           "id": "96319935-f903-4f63-afa9-3ed029be52dc",
           "title": "B.Sc. TDT",
-          "collapsed": false,
+          "collapsed": true,
           "tasks": [],
           "attachments": [],
-          "notesList": []
+          "notesList": [],
+          "collapsedDefaultApplied": true
         },
         {
           "id": "5c038344-b332-4ca3-a3e0-f42e8105a74c",
           "title": "MTL D&T",
-          "collapsed": false,
+          "collapsed": true,
           "tasks": [
             {
               "id": "33b3416d-1dba-435f-9018-fbae87ac2b37",
@@ -434,7 +441,8 @@
             }
           ],
           "attachments": [],
-          "notesList": []
+          "notesList": [],
+          "collapsedDefaultApplied": true
         }
       ],
       "attachments": [],
@@ -556,7 +564,7 @@
       ]
     }
   ],
-  "updatedAt": "2026-08-27T13:30:17.003Z",
+  "updatedAt": "2026-08-27T16:28:34.784Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
