@@ -43,7 +43,7 @@ async function main() {
   await page.waitForSelector(".task-row", { timeout: 5000 });
 
   // Task-row meta badge icons (notes/tags/subtasks) grew from 12px to 14px
-  const notesIconBox = await page.locator(".notes-badge svg").first().boundingBox();
+  const notesIconBox = await page.locator(".task-row .notes-badge svg").first().boundingBox();
   console.log("Notes badge icon is bigger than the old 12px:", notesIconBox && notesIconBox.width >= 13.5 ? "PASS" : "FAIL (" + JSON.stringify(notesIconBox) + ")");
 
   const tagsIconBox = await page.locator(".tags-badge svg").first().boundingBox();

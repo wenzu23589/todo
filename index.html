@@ -208,7 +208,15 @@
   }
   .heading-title:focus{ background:var(--paper-sunken); }
   .heading-count{ color:var(--muted); font-size:0.78rem; white-space:nowrap; }
-  .heading-actions{ display:flex; gap:4px; }
+  .heading-actions{ display:flex; gap:4px; flex-shrink:0; }
+  @media (max-width: 640px){
+    /* The heading/sub-heading bar is a single row (unlike a task row, which wraps its
+       badges to a second line) — a populated Notes badge or an attachment count pill can
+       otherwise eat enough width on a narrow screen to crush a long heading title down to
+       just a few visible characters. Icon-only still shows the "set" state via its color. */
+    .heading-notes-badge span, .heading-attachments-badge span,
+    .sub-notes-badge span, .sub-attachments-badge span{ display:none; }
+  }
 
   .heading-body{ display:grid; grid-template-rows: 1fr; transition: grid-template-rows .22s ease; }
   .heading-card.collapsed .heading-body{ grid-template-rows: 0fr; }
@@ -231,7 +239,7 @@
     border:none; padding:2px 4px; border-radius:4px; font-family:var(--font-body);
   }
   .sub-title:focus{ background:var(--paper-sunken); }
-  .sub-actions{ display:flex; gap:2px; }
+  .sub-actions{ display:flex; gap:2px; flex-shrink:0; }
   .sub-count{ color:var(--muted); font-size:0.72rem; }
   .sub-dropzone-end{ height:8px; }
   .sub-dropzone-end.drop-target{ height:8px; border-radius:6px; background: color-mix(in srgb, var(--accent-2) 25%, transparent); }
@@ -848,6 +856,7 @@
   var connectionStatus = "not_configured"; // not_configured | connected | error
   var pendingSave = false;
   var saveTimer = null;
+  var saveRetryTimer = null;
   var lastFetchAt = 0;
   var viewMode = "list";
   var lastAddedId = null;
@@ -1058,10 +1067,12 @@
       if(!Array.isArray(h.subheadings)) h.subheadings = [];
       if(h.color === undefined) h.color = null;
       if(h.collapsed === undefined) h.collapsed = false;
+      normalizeNotesAndAttachments(h);
       h.tasks.forEach(normalizeTask);
       h.subheadings.forEach(function(sh){
         if(!Array.isArray(sh.tasks)) sh.tasks = [];
         if(sh.collapsed === undefined) sh.collapsed = false;
+        normalizeNotesAndAttachments(sh);
         sh.tasks.forEach(normalizeTask);
       });
     });
@@ -1116,6 +1127,14 @@
     if(typeof a.extractedText !== "string") a.extractedText = "";
     if(a.textStatus === undefined) a.textStatus = a.extractedText ? "done" : "pending";
   }
+  // Shared by headings and sub-headings, which got their own notes/attachments after tasks
+  // already had them — unlike task notes there's no legacy plain-text format to migrate,
+  // since headings never had notes before this.
+  function normalizeNotesAndAttachments(ownerObj){
+    if(typeof ownerObj.notes !== "string") ownerObj.notes = "";
+    if(!Array.isArray(ownerObj.attachments)) ownerObj.attachments = [];
+    ownerObj.attachments.forEach(normalizeAttachment);
+  }
 
   /* ---------------- config (per-device, in this browser only) ---------------- */
   function loadConfig(){
@@ -1169,16 +1188,19 @@
     });
   }
 
-  function ghPut(cfg, dataObj, prevSha){
+  function ghPut(cfg, dataObj, prevSha, opts){
     var body = {
       message: "Update Daybook tasks — " + new Date().toISOString(),
       content: b64EncodeUtf8(JSON.stringify(dataObj, null, 2)),
       branch: cfg.branch
     };
     if(prevSha) body.sha = prevSha;
-    return fetch(contentsUrl(cfg, false), {
-      method: "PUT", headers: ghHeaders(cfg, {"Content-Type":"application/json"}), body: JSON.stringify(body)
-    }).then(function(res){
+    var fetchOpts = { method: "PUT", headers: ghHeaders(cfg, {"Content-Type":"application/json"}), body: JSON.stringify(body) };
+    // keepalive lets this request keep running after the page starts unloading (tab close,
+    // refresh, navigation) — used only for the best-effort flush on hide/pagehide below, since
+    // browsers cap keepalive request bodies at ~64KB and a normal save shouldn't be limited by that.
+    if(opts && opts.keepalive) fetchOpts.keepalive = true;
+    return fetch(contentsUrl(cfg, false), fetchOpts).then(function(res){
       return res.json().then(function(json){
         if(!res.ok){
           var msg = describeStatus(res, json);
@@ -1317,27 +1339,38 @@
     pendingSave = true;
     setSaveIndicator("pending");
     if(saveTimer) clearTimeout(saveTimer);
+    if(saveRetryTimer){ clearTimeout(saveRetryTimer); saveRetryTimer = null; }
     saveTimer = setTimeout(doSave, 1100);
   }
 
-  function doSave(){
+  function doSave(opts){
     if(saveTimer){ clearTimeout(saveTimer); saveTimer = null; }
-    if(!config){ pendingSave = false; setSaveIndicator("offline"); return; }
+    if(saveRetryTimer){ clearTimeout(saveRetryTimer); saveRetryTimer = null; }
+    if(!config){ pendingSave = false; setSaveIndicator("offline"); return Promise.resolve(); }
     state.updatedAt = new Date().toISOString();
     setSaveIndicator("saving");
-    ghPut(config, state, sha).then(function(newSha){
+    return ghPut(config, state, sha, opts).then(function(newSha){
       sha = newSha; pendingSave = false; setSaveIndicator("saved");
       if(connectionStatus !== "connected") setStatus("connected");
     }).catch(function(err){
-      pendingSave = false;
       if(err && err.code === "conflict"){
+        // The remote copy moved out from under us — there's no local sha to reconcile against,
+        // so the change really is lost. Clear pendingSave (nothing left worth retrying against
+        // a stale base) and pull the latest version in, same as before.
+        pendingSave = false;
         showBanner("This file changed on GitHub since you last loaded it (probably from another device). Reloading the latest version — your last change wasn't saved, redo it if needed.", "danger");
         loadFromGithub();
         return;
       }
+      // Any other failure (offline, rate limit, timeout, auth hiccup) is likely transient —
+      // deliberately leave pendingSave true rather than clearing it. That keeps the change
+      // flagged as unsaved (so the focus-refetch below won't silently overwrite it with the
+      // stale remote copy) and lets us retry automatically instead of relying on the user to
+      // notice the banner and click "sync now" themselves.
       setSaveIndicator("error");
       showBanner(err.message || "Couldn't save to GitHub.", "danger");
       setStatus("error");
+      saveRetryTimer = setTimeout(function(){ if(pendingSave) doSave(); }, 8000);
     });
   }
 
@@ -1349,6 +1382,34 @@
   window.addEventListener("focus", function(){
     if(config && !pendingSave && Date.now() - lastFetchAt >= 15000) loadFromGithub();
     if(gcalStatus === "connected" && Date.now() - lastGcalFetchAt >= 60000) reconcileFromCalendar();
+  });
+
+  /* ---------------- flush-on-exit ----------------
+     scheduleSave() debounces by ~1.1s so a burst of edits doesn't hammer the API — but that
+     window is exactly where a change could vanish if the tab is closed, refreshed, or
+     navigated away from before the timer fires. Three handlers close that gap:
+       - visibilitychange (hidden) / pagehide: as soon as the page is about to go away, if a
+         change hasn't been saved yet, fire the save immediately with `keepalive: true` so the
+         request has a real chance of completing after the page itself has unloaded.
+       - beforeunload: if a save is still outstanding at that point (the flush above hasn't
+         resolved, or failed), show the browser's native "leave site?" prompt so a refresh or
+         tab close isn't the last thing standing between the user and losing that edit. */
+  var flushInFlight = false;
+  function flushPendingSave(){
+    if(!config || !pendingSave || flushInFlight) return;
+    flushInFlight = true;
+    doSave({ keepalive: true }).then(function(){ flushInFlight = false; }, function(){ flushInFlight = false; });
+  }
+  document.addEventListener("visibilitychange", function(){
+    if(document.visibilityState === "hidden") flushPendingSave();
+  });
+  window.addEventListener("pagehide", flushPendingSave);
+  window.addEventListener("beforeunload", function(e){
+    if(pendingSave){
+      e.preventDefault();
+      e.returnValue = "";
+      return "";
+    }
   });
 
   /* ---------------- GitHub settings modal ---------------- */
@@ -2467,11 +2528,11 @@
   }
 
   function addHeading(title){
-    var h = { id: uid(), title: title || "New heading", collapsed:false, color:null, tasks: [], subheadings: [] };
+    var h = { id: uid(), title: title || "New heading", collapsed:false, color:null, tasks: [], subheadings: [], notes:"", attachments:[] };
     state.headings.push(h); lastAddedId = h.id; scheduleSave(); render(); return h;
   }
   function addSubheading(heading, title){
-    var sh = { id: uid(), title: title || "New sub-heading", collapsed:false, tasks: [] };
+    var sh = { id: uid(), title: title || "New sub-heading", collapsed:false, tasks: [], notes:"", attachments:[] };
     heading.subheadings.push(sh); lastAddedId = sh.id; scheduleSave(); render(); return sh;
   }
   function addTask(container, text){
@@ -3042,7 +3103,7 @@
       if(headingId === "__new__"){
         var newTitle = newHeadingEl.value.trim();
         if(!newTitle){ newHeadingEl.focus(); return; }
-        heading = { id: uid(), title: newTitle, collapsed:false, color:null, tasks: [], subheadings: [] };
+        heading = { id: uid(), title: newTitle, collapsed:false, color:null, tasks: [], subheadings: [], notes:"", attachments:[] };
         state.headings.push(heading);
       } else {
         heading = state.headings.filter(function(h){ return h.id === headingId; })[0] || state.headings[0];
@@ -3215,7 +3276,7 @@
       if(headingId === "__new__"){
         var title = newHeadingInput.value.trim();
         if(!title){ errEl.textContent = "Name the new heading, or pick an existing one."; errEl.hidden = false; newHeadingInput.focus(); return; }
-        heading = { id: uid(), title: title, collapsed:false, color:null, tasks: [], subheadings: [] };
+        heading = { id: uid(), title: title, collapsed:false, color:null, tasks: [], subheadings: [], notes:"", attachments:[] };
         state.headings.push(heading);
       } else {
         heading = state.headings.filter(function(h){ return h.id === headingId; })[0];
@@ -3304,7 +3365,11 @@
       '<button class="color-dot' + (heading.color ? '' : ' unset') + '" type="button" title="Heading color" aria-label="Choose heading color"' + (heading.color ? ' style="background:' + heading.color + '"' : '') + '></button>' +
       '<input class="heading-title" value="' + escapeHtml(heading.title) + '" aria-label="Heading title" />' +
       '<span class="heading-count mono">' + doneTasks + '/' + totalTasks + '</span>' +
-      '<div class="heading-actions"><button class="icon-btn danger" title="Delete heading" aria-label="Delete heading"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>';
+      '<div class="heading-actions">' +
+        '<button class="notes-badge heading-notes-badge' + (notesBadgeSet(heading) ? ' set' : '') + '" type="button" title="Notes">' + notesBadgeHtml(heading) + '</button>' +
+        '<button class="attachments-badge heading-attachments-badge' + (attachmentsBadgeSet(heading) ? ' set' : '') + '" type="button" title="Attachments">' + attachmentsBadgeHtml(heading) + '</button>' +
+        '<button class="icon-btn danger" title="Delete heading" aria-label="Delete heading"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>' +
+      '</div>';
     card.appendChild(bar);
 
     wireDragSource(bar.querySelector(".grip"), "heading", heading.id, card);
@@ -3323,6 +3388,17 @@
     bodyInner.className = "heading-body-inner";
     var bodyContent = document.createElement("div");
     bodyContent.className = "heading-body-content";
+
+    // Notes/attachments live at the top of the collapsible body — right under the bar —
+    // rather than appended after the task list like a task's own editors, since bodyContent
+    // here can be long (tasks, sub-headings, add buttons) and burying them at the bottom
+    // would mean scrolling past all of it just to see what you clicked open.
+    bar.querySelector(".heading-notes-badge").addEventListener("click", function(){
+      toggleHeadingNotesEditor(bodyContent, heading, function(){ updateNotesBadge(bar, heading); });
+    });
+    bar.querySelector(".heading-attachments-badge").addEventListener("click", function(){
+      toggleHeadingAttachmentsEditor(bodyContent, heading, function(){ updateAttachmentsBadge(bar, heading); });
+    });
 
     var directList = document.createElement("div");
     directList.className = "task-list";
@@ -3378,7 +3454,11 @@
       '<button class="collapse-btn" aria-label="Toggle sub-section" title="Collapse / expand"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg></button>' +
       '<input class="sub-title" value="' + escapeHtml(sub.title) + '" aria-label="Sub-heading title" />' +
       '<span class="sub-count mono">' + visibleSubTasks.filter(function(t){return t.done;}).length + '/' + visibleSubTasks.length + '</span>' +
-      '<div class="sub-actions"><button class="icon-btn danger" title="Delete sub-heading" aria-label="Delete sub-heading"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></div>';
+      '<div class="sub-actions">' +
+        '<button class="notes-badge sub-notes-badge' + (notesBadgeSet(sub) ? ' set' : '') + '" type="button" title="Notes">' + notesBadgeHtml(sub) + '</button>' +
+        '<button class="attachments-badge sub-attachments-badge' + (attachmentsBadgeSet(sub) ? ' set' : '') + '" type="button" title="Attachments">' + attachmentsBadgeHtml(sub) + '</button>' +
+        '<button class="icon-btn danger" title="Delete sub-heading" aria-label="Delete sub-heading"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>' +
+      '</div>';
     block.appendChild(bar);
 
     wireDragSource(bar.querySelector(".grip"), "sub", sub.id, block);
@@ -3394,6 +3474,13 @@
     subBody.className = "sub-body";
     var subBodyInner = document.createElement("div");
     subBodyInner.className = "sub-body-inner";
+
+    bar.querySelector(".sub-notes-badge").addEventListener("click", function(){
+      toggleHeadingNotesEditor(subBodyInner, sub, function(){ updateNotesBadge(bar, sub); });
+    });
+    bar.querySelector(".sub-attachments-badge").addEventListener("click", function(){
+      toggleHeadingAttachmentsEditor(subBodyInner, sub, function(){ updateAttachmentsBadge(bar, sub); });
+    });
 
     var list = document.createElement("div");
     list.className = "task-list";
@@ -3955,38 +4042,24 @@
     });
     return itemRow;
   }
-  function toggleNotesEditor(row, task){
-    var existing = row.querySelector(".notes-editor");
-    if(existing){ existing.remove(); return; }
-    document.querySelectorAll(".notes-editor").forEach(function(el){ el.remove(); });
-    var editor = document.createElement("div");
-    editor.className = "notes-editor";
-    editor.innerHTML =
-      '<div class="notes-toolbar">' +
-        '<button type="button" class="notes-fmt-btn" data-cmd="bold" title="Bold" aria-label="Bold"><b>B</b></button>' +
-        '<button type="button" class="notes-fmt-btn" data-cmd="italic" title="Italic" aria-label="Italic"><i>I</i></button>' +
-        '<button type="button" class="notes-fmt-btn" data-cmd="underline" title="Underline" aria-label="Underline"><u>U</u></button>' +
-        '<button type="button" class="notes-fmt-btn" data-act="link" title="Add link" aria-label="Add link">🔗</button>' +
-      '</div>' +
-      '<div class="notes-rich" contenteditable="true" data-placeholder="Notes…"></div>' +
-      '<div class="checklist-list"></div>' +
-      '<div class="checklist-add-row"><input type="text" class="checklist-add-input" placeholder="Add checklist item…" aria-label="Add checklist item"><button type="button" class="btn btn-sm btn-ghost" data-act="add-item">Add</button></div>' +
-      '<div class="notes-editor-actions"><button type="button" class="btn btn-sm btn-ghost" data-act="close">Close</button></div>';
-    row.querySelector(".task-main").appendChild(editor);
-
-    var listEl = editor.querySelector(".checklist-list");
-    task.checklist.forEach(function(item){ listEl.appendChild(renderChecklistItemRow(row, task, item)); });
-
+  var NOTES_TOOLBAR_HTML =
+    '<div class="notes-toolbar">' +
+      '<button type="button" class="notes-fmt-btn" data-cmd="bold" title="Bold" aria-label="Bold"><b>B</b></button>' +
+      '<button type="button" class="notes-fmt-btn" data-cmd="italic" title="Italic" aria-label="Italic"><i>I</i></button>' +
+      '<button type="button" class="notes-fmt-btn" data-cmd="underline" title="Underline" aria-label="Underline"><u>U</u></button>' +
+      '<button type="button" class="notes-fmt-btn" data-act="link" title="Add link" aria-label="Add link">🔗</button>' +
+    '</div>';
+  // Wires the rich-text toolbar (bold/italic/underline/link) + save-on-blur for a
+  // ".notes-rich" contenteditable inside `editor`. Shared by task notes (which also has a
+  // checklist, wired separately by the caller) and heading/sub-heading notes (rich text
+  // only) so the trickier link-popover/selection-preservation logic isn't duplicated.
+  // onSave(html) is called with the sanitized HTML whenever the field is blurred with a
+  // real change, or a link is applied. Returns { rich, saveNotes } for the caller's own use
+  // (e.g. flushing a pending edit on close).
+  function wireNotesRichEditor(editor, initialHtml, onSave){
     var rich = editor.querySelector(".notes-rich");
-    rich.innerHTML = task.notes || "";
-    function saveNotes(){
-      var v = sanitizeNotesHtml(rich.innerHTML);
-      if(v !== (task.notes || "")){
-        task.notes = v;
-        scheduleSave();
-        updateNotesBadge(row, task);
-      }
-    }
+    rich.innerHTML = initialHtml || "";
+    function saveNotes(){ onSave(sanitizeNotesHtml(rich.innerHTML)); }
     rich.addEventListener("blur", saveNotes);
     rich.focus();
 
@@ -4057,6 +4130,33 @@
       });
     });
 
+    return { rich: rich, saveNotes: saveNotes };
+  }
+  function toggleNotesEditor(row, task){
+    var existing = row.querySelector(".notes-editor");
+    if(existing){ existing.remove(); return; }
+    document.querySelectorAll(".notes-editor").forEach(function(el){ el.remove(); });
+    var editor = document.createElement("div");
+    editor.className = "notes-editor";
+    editor.innerHTML =
+      NOTES_TOOLBAR_HTML +
+      '<div class="notes-rich" contenteditable="true" data-placeholder="Notes…"></div>' +
+      '<div class="checklist-list"></div>' +
+      '<div class="checklist-add-row"><input type="text" class="checklist-add-input" placeholder="Add checklist item…" aria-label="Add checklist item"><button type="button" class="btn btn-sm btn-ghost" data-act="add-item">Add</button></div>' +
+      '<div class="notes-editor-actions"><button type="button" class="btn btn-sm btn-ghost" data-act="close">Close</button></div>';
+    row.querySelector(".task-main").appendChild(editor);
+
+    var listEl = editor.querySelector(".checklist-list");
+    task.checklist.forEach(function(item){ listEl.appendChild(renderChecklistItemRow(row, task, item)); });
+
+    var ctl = wireNotesRichEditor(editor, task.notes, function(v){
+      if(v !== (task.notes || "")){
+        task.notes = v;
+        scheduleSave();
+        updateNotesBadge(row, task);
+      }
+    });
+
     var addInput = editor.querySelector(".checklist-add-input");
     function addItem(){
       var text = addInput.value.trim();
@@ -4074,9 +4174,46 @@
 
     editor.querySelector('[data-act="close"]').addEventListener("click", function(){
       // Blur first so an in-progress notes edit is saved before closing.
-      if(document.activeElement === rich) rich.blur(); else saveNotes();
+      if(document.activeElement === ctl.rich) ctl.rich.blur(); else ctl.saveNotes();
       editor.remove();
     });
+  }
+  // Rich-text notes for a heading or sub-heading — same toolbar as task notes, no checklist
+  // (headings don't have one). ownerObj is the heading/sub-heading object itself.
+  function buildHeadingNotesEditorEl(ownerObj, onChange){
+    var editor = document.createElement("div");
+    editor.className = "notes-editor";
+    editor.innerHTML =
+      NOTES_TOOLBAR_HTML +
+      '<div class="notes-rich" contenteditable="true" data-placeholder="Notes…"></div>' +
+      '<div class="notes-editor-actions"><button type="button" class="btn btn-sm btn-ghost" data-act="close">Close</button></div>';
+    var ctl = wireNotesRichEditor(editor, ownerObj.notes, function(v){
+      if(v !== (ownerObj.notes || "")){
+        ownerObj.notes = v;
+        scheduleSave();
+        if(onChange) onChange();
+      }
+    });
+    editor.querySelector('[data-act="close"]').addEventListener("click", function(){
+      if(document.activeElement === ctl.rich) ctl.rich.blur(); else ctl.saveNotes();
+      editor.remove();
+    });
+    return editor;
+  }
+  function toggleHeadingNotesEditor(container, ownerObj, onChange){
+    var existing = container.querySelector(".notes-editor");
+    if(existing){ existing.remove(); return; }
+    document.querySelectorAll(".notes-editor").forEach(function(el){ el.remove(); });
+    var editor = buildHeadingNotesEditorEl(ownerObj, onChange);
+    container.insertBefore(editor, container.firstChild);
+  }
+  function toggleHeadingAttachmentsEditor(container, ownerObj, onChange){
+    var existing = container.querySelector(".attachments-editor");
+    if(existing){ existing.remove(); return; }
+    document.querySelectorAll(".attachments-editor").forEach(function(el){ el.remove(); });
+    if(!Array.isArray(ownerObj.attachments)) ownerObj.attachments = [];
+    var editor = buildAttachmentsEditorEl(ownerObj, onChange);
+    container.insertBefore(editor, container.firstChild);
   }
 
   /* ---------------- tags & tag filter ---------------- */

@@ -72,7 +72,7 @@ async function main() {
   await page.waitForSelector(".task-row", { timeout: 5000 });
 
   // --- Badge starts unset ---
-  const badgeSetInitially = await page.locator(".attachments-badge").first().evaluate(el => el.classList.contains("set"));
+  const badgeSetInitially = await page.locator(".task-row .attachments-badge").first().evaluate(el => el.classList.contains("set"));
   console.log("Attachments badge starts unset:", !badgeSetInitially ? "PASS" : "FAIL");
 
   // --- Open the editor ---

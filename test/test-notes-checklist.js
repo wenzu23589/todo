@@ -46,11 +46,11 @@ async function main() {
   await page.waitForSelector(".task-row", { timeout: 5000 });
 
   // Badge starts unset
-  const badgeSetInitially = await page.locator(".notes-badge").first().evaluate(el => el.classList.contains("set"));
+  const badgeSetInitially = await page.locator(".task-row .notes-badge").first().evaluate(el => el.classList.contains("set"));
   console.log("Notes badge starts unset:", !badgeSetInitially ? "PASS" : "FAIL");
 
   // Open the notes editor
-  await page.click(".notes-badge");
+  await page.click(".task-row .notes-badge");
   await page.waitForSelector(".notes-editor", { timeout: 5000 });
   console.log("Notes editor opens:", "PASS");
 
@@ -60,7 +60,7 @@ async function main() {
   await page.keyboard.type("Book flights and hotel before Friday.");
   await page.locator(".notes-rich").evaluate(el => el.blur());
   await page.waitForTimeout(200);
-  const badgeAfterNotes = await page.locator(".notes-badge").first().textContent();
+  const badgeAfterNotes = await page.locator(".task-row .notes-badge").first().textContent();
   console.log("Badge reflects notes after blur:", /Notes/.test(badgeAfterNotes) ? "PASS" : "FAIL (" + badgeAfterNotes + ")");
 
   // Editor should still be open (not closed by the badge update / blur)
@@ -80,7 +80,7 @@ async function main() {
   // Check off one item
   await page.locator(".checklist-item-check").first().check();
   await page.waitForTimeout(150);
-  const badgeAfterCheck = await page.locator(".notes-badge").first().textContent();
+  const badgeAfterCheck = await page.locator(".task-row .notes-badge").first().textContent();
   console.log("Badge shows 1/2 after checking one item:", /1\/2/.test(badgeAfterCheck) ? "PASS" : "FAIL (" + badgeAfterCheck + ")");
   const itemMarkedDone = await page.locator(".checklist-item").first().evaluate(el => el.classList.contains("done"));
   console.log("Checked item gets .done styling:", itemMarkedDone ? "PASS" : "FAIL");
@@ -99,7 +99,7 @@ async function main() {
   console.log("Editor closes:", editorClosed === 0 ? "PASS" : "FAIL");
 
   // Badge persists showing the summary after closing
-  const badgeAfterClose = await page.locator(".notes-badge").first().textContent();
+  const badgeAfterClose = await page.locator(".task-row .notes-badge").first().textContent();
   console.log("Badge still shows summary after closing:", (/Notes/.test(badgeAfterClose) && /1\/1/.test(badgeAfterClose)) ? "PASS" : "FAIL (" + badgeAfterClose + ")");
 
   // Confirm persistence to the backing store (saves are debounced ~1.1s)
@@ -112,7 +112,7 @@ async function main() {
   // Reload and confirm it all survives
   await page.reload();
   await page.waitForSelector(".task-row", { timeout: 5000 });
-  const badgeAfterReload = await page.locator(".notes-badge").first().textContent();
+  const badgeAfterReload = await page.locator(".task-row .notes-badge").first().textContent();
   console.log("Badge correct after reload:", (/Notes/.test(badgeAfterReload) && /1\/1/.test(badgeAfterReload)) ? "PASS" : "FAIL (" + badgeAfterReload + ")");
 
   await browser.close();
