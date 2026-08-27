@@ -589,6 +589,7 @@
   #outline-btn.active{ background:var(--paper-sunken); border-color:color-mix(in srgb, var(--accent) 45%, var(--line)); color:var(--ink); }
   .outline-list{ display:flex; flex-direction:column; gap:2px; overflow:auto; margin-top:0; padding:10px 12px 18px; flex:1; }
   .outline-group{ display:flex; flex-direction:column; }
+  .outline-item-row{ display:flex; align-items:center; gap:0; }
   .outline-item{
     display:flex; align-items:center; gap:8px; width:100%; text-align:left; border:none; background:none;
     padding:7px 8px; border-radius:var(--radius-s); cursor:pointer; font:inherit; font-size:0.85rem; color:var(--ink);
@@ -599,6 +600,16 @@
   .outline-item-title{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .outline-item-count{ color:var(--muted); font-size:0.78rem; flex-shrink:0; }
   .outline-empty{ color:var(--muted); font-size:0.85rem; margin:0; padding:8px 8px 0; }
+  /* Expand/collapse a heading's own sub-heading list within the outline panel — separate
+     from clicking the heading row itself, which still jumps straight to it. */
+  .outline-group-toggle{
+    background:none; border:none; color:var(--muted); cursor:pointer; padding:6px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; border-radius:4px;
+  }
+  .outline-group-toggle:hover{ background:var(--paper-sunken); }
+  .outline-group-toggle svg{ transition: transform .15s ease; transform: rotate(-90deg); }
+  .outline-group-toggle.expanded svg{ transform: rotate(0deg); }
+  .outline-group-toggle-spacer{ width:26px; flex-shrink:0; }
   @keyframes outlineFlash{
     0%{ box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 55%, transparent); }
     100%{ box-shadow:0 0 0 3px transparent; }
@@ -923,6 +934,10 @@
   var viewMode = "list";
   var lastAddedId = null;
   var outlineDrawerOpen = false;
+  // Which headings' sub-heading lists are expanded within the outline panel itself — keyed
+  // by heading id, reset to all-collapsed each time the panel is freshly opened (it's a
+  // navigation convenience, not saved data).
+  var outlineGroupExpanded = {};
 
   /* ---------------- theme palettes ---------------- */
   var PALETTE_KEY = "daybook-palette-v1";
@@ -3330,22 +3345,42 @@
     var groupsHtml = (state.headings || []).map(function(h){
       var total = outlineVisibleCount(h.tasks);
       h.subheadings.forEach(function(sh){ total += outlineVisibleCount(sh.tasks); });
-      var subItemsHtml = h.subheadings.map(function(sh){
+      var hasSubs = h.subheadings.length > 0;
+      var expanded = !!outlineGroupExpanded[h.id];
+      // A heading with sub-headings gets its own chevron to fold its sub-heading list away
+      // within the panel — separate from clicking the heading row itself, which still jumps
+      // straight to it either way. Starts collapsed each time the panel opens, same spirit
+      // as sub-headings collapsing by default in the main list.
+      var toggleHtml = hasSubs
+        ? '<button type="button" class="outline-group-toggle' + (expanded ? ' expanded' : '') + '" data-group-id="' + h.id + '" aria-label="' + (expanded ? 'Collapse' : 'Expand') + ' sub-headings for ' + escapeHtml(h.title) + '" title="' + (expanded ? 'Collapse' : 'Expand') + '">' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg>' +
+          '</button>'
+        : '<span class="outline-group-toggle-spacer"></span>';
+      var subItemsHtml = (hasSubs && expanded) ? h.subheadings.map(function(sh){
         return '<button type="button" class="outline-item outline-sub-item" data-target-type="sub" data-target-id="' + sh.id + '">' +
           '<span class="outline-item-title">' + escapeHtml(sh.title) + '</span>' +
           '<span class="outline-item-count mono">' + outlineVisibleCount(sh.tasks) + '</span>' +
         '</button>';
-      }).join("");
+      }).join("") : "";
       return '<div class="outline-group">' +
-        '<button type="button" class="outline-item" data-target-type="heading" data-target-id="' + h.id + '">' +
-          '<span class="outline-item-dot"' + (h.color ? ' style="background:' + h.color + '"' : '') + '></span>' +
-          '<span class="outline-item-title">' + escapeHtml(h.title) + '</span>' +
-          '<span class="outline-item-count mono">' + total + '</span>' +
-        '</button>' +
+        '<div class="outline-item-row">' +
+          toggleHtml +
+          '<button type="button" class="outline-item" data-target-type="heading" data-target-id="' + h.id + '">' +
+            '<span class="outline-item-dot"' + (h.color ? ' style="background:' + h.color + '"' : '') + '></span>' +
+            '<span class="outline-item-title">' + escapeHtml(h.title) + '</span>' +
+            '<span class="outline-item-count mono">' + total + '</span>' +
+          '</button>' +
+        '</div>' +
         subItemsHtml +
       '</div>';
     }).join("");
     return groupsHtml || '<p class="outline-empty">No headings yet.</p>';
+  }
+  function renderOutlineList(){
+    var list = document.getElementById("outline-list");
+    if(!list) return;
+    list.innerHTML = outlineGroupsHtml();
+    wireOutlineItemClicks(document.getElementById("outline-drawer"));
   }
   // Jump-to-heading side menu. Unlike most panels in this app it's a persistent drawer, not a
   // one-shot modal: clicking a heading scrolls to it and highlights it but leaves the drawer
@@ -3353,6 +3388,7 @@
   function openOutlinePanel(){
     if(outlineDrawerOpen){ closeOutlinePanel(); return; }
     outlineDrawerOpen = true;
+    outlineGroupExpanded = {}; // start every heading's sub-list collapsed on a fresh open
     var root = document.getElementById("modal-root");
     var backdrop = document.createElement("div");
     backdrop.className = "outline-drawer-backdrop";
@@ -3427,10 +3463,7 @@
   // the drawer is actually open.
   function refreshOutlineDrawer(){
     if(!outlineDrawerOpen) return;
-    var list = document.getElementById("outline-list");
-    if(!list) return;
-    list.innerHTML = outlineGroupsHtml();
-    wireOutlineItemClicks(document.getElementById("outline-drawer"));
+    renderOutlineList();
   }
   function wireOutlineItemClicks(drawer){
     drawer.querySelectorAll(".outline-item").forEach(function(btn){
@@ -3444,6 +3477,13 @@
           target.classList.add("outline-highlight");
           setTimeout(function(){ target.classList.remove("outline-highlight"); }, 1400);
         }
+      });
+    });
+    drawer.querySelectorAll(".outline-group-toggle").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var id = btn.getAttribute("data-group-id");
+        outlineGroupExpanded[id] = !outlineGroupExpanded[id];
+        renderOutlineList();
       });
     });
   }

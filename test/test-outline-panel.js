@@ -91,14 +91,45 @@ async function main() {
   await page.waitForSelector(".outline-drawer.open", { timeout: 5000 });
   console.log("Outline button shows an active state while the drawer is open:",
     await page.locator("#outline-btn").evaluate(el => el.classList.contains("active")) ? "PASS" : "FAIL");
-  const itemCount = await page.locator(".outline-item").count();
-  console.log("Outline lists every heading plus the one sub-heading:", itemCount === 13 ? "PASS" : "FAIL (" + itemCount + ")");
+  // Sub-heading lists start folded away — only the 12 heading rows show at first.
+  const itemCountBeforeExpand = await page.locator(".outline-item").count();
+  console.log("Outline starts with just the 12 headings shown, sub-headings folded away:",
+    itemCountBeforeExpand === 12 ? "PASS" : "FAIL (" + itemCountBeforeExpand + ")");
 
   const lastHeadingItem = page.locator('.outline-item[data-target-id="h11"]');
   console.log("Each heading item shows a task count:", /1/.test(await lastHeadingItem.locator(".outline-item-count").textContent()) ? "PASS" : "FAIL");
 
+  console.log("A heading with no sub-headings gets no group toggle (just spacing to line up):",
+    await page.locator('.outline-item[data-target-id="h0"]').locator("xpath=..").locator(".outline-group-toggle").count() === 0 ? "PASS" : "FAIL");
+
+  // --- A heading with sub-headings gets its own chevron to reveal them ---
+  const h7Toggle = page.locator('.outline-group-toggle[data-group-id="h7"]');
+  console.log("The heading with a sub-heading gets a group toggle chevron:", await h7Toggle.count() === 1 ? "PASS" : "FAIL");
+  console.log("...starting in the collapsed orientation:", await h7Toggle.evaluate(el => el.classList.contains("expanded")) ? "FAIL" : "PASS");
+  console.log("Its sub-heading isn't in the DOM yet while folded:",
+    await page.locator('.outline-item[data-target-id="sh1"]').count() === 0 ? "PASS" : "FAIL");
+
+  await h7Toggle.click();
+  await page.waitForTimeout(100);
   const subItem = page.locator('.outline-item[data-target-id="sh1"]');
-  console.log("The sub-heading item is present and visually indented:", await subItem.evaluate(el => el.classList.contains("outline-sub-item")) ? "PASS" : "FAIL");
+  console.log("Clicking the chevron reveals its sub-heading:", await subItem.count() === 1 ? "PASS" : "FAIL");
+  console.log("The sub-heading item is visually indented:", await subItem.evaluate(el => el.classList.contains("outline-sub-item")) ? "PASS" : "FAIL");
+  console.log("The chevron itself now shows the expanded orientation:",
+    await h7Toggle.evaluate(el => el.classList.contains("expanded")) ? "PASS" : "FAIL");
+  console.log("The total item count grew by exactly one (the sub-heading):",
+    await page.locator(".outline-item").count() === 13 ? "PASS" : "FAIL");
+
+  // --- Clicking the chevron again folds it back away, without navigating anywhere ---
+  await h7Toggle.click();
+  await page.waitForTimeout(100);
+  console.log("Clicking the chevron again folds the sub-heading back away:",
+    await page.locator('.outline-item[data-target-id="sh1"]').count() === 0 ? "PASS" : "FAIL");
+  console.log("...and the side menu itself is still open (folding isn't the same as closing):",
+    await page.locator(".outline-drawer.open").count() === 1 ? "PASS" : "FAIL");
+
+  // Re-expand it for the rest of the jump-to-sub-heading test below.
+  await h7Toggle.click();
+  await page.waitForTimeout(100);
 
   // --- Clicking a heading scrolls straight to it but leaves the side menu open ---
   await lastHeadingItem.click();
@@ -142,9 +173,13 @@ async function main() {
   console.log("Outline button loses its active state once closed:",
     await page.locator("#outline-btn").evaluate(el => el.classList.contains("active")) ? "FAIL" : "PASS");
 
-  // --- Closing via the explicit Close (X) button ---
+  // --- Reopening starts every group folded away again, even though h7 was left expanded ---
   await page.click("#outline-btn");
   await page.waitForSelector(".outline-drawer.open", { timeout: 5000 });
+  console.log("Reopening the side menu starts every heading's sub-list collapsed again:",
+    await page.locator('.outline-item[data-target-id="sh1"]').count() === 0 ? "PASS" : "FAIL");
+
+  // --- Closing via the explicit Close (X) button ---
   await page.click("#outline-close-btn");
   await page.waitForTimeout(300);
   console.log("The close (X) button dismisses the side menu:", await page.locator(".outline-drawer").count() === 0 ? "PASS" : "FAIL");
