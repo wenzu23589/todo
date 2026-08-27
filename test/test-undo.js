@@ -14,7 +14,7 @@ async function main() {
           { id: "t2", text: "Second task", done: false, due: null },
           { id: "t3", text: "Third task", done: false, due: null }
         ], subheadings: [
-          { id: "s1", title: "Sub A", collapsed: false, tasks: [ { id: "t4", text: "Sub task", done: false, due: null } ] }
+          { id: "s1", title: "Sub A", collapsed: false, collapsedDefaultApplied: true, tasks: [ { id: "t4", text: "Sub task", done: false, due: null } ] }
         ] },
         { id: "h2", title: "Personal", color: null, tasks: [], subheadings: [] }
       ]

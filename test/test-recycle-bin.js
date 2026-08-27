@@ -13,7 +13,7 @@ async function main() {
           { id: "t1", text: "Keep me", done: false, due: null },
           { id: "t2", text: "Delete me", done: false, due: { date: "2026-09-01", time: null, endTime: null, allDay: true } }
         ], subheadings: [
-          { id: "s1", title: "Sub A", collapsed: false, tasks: [ { id: "t3", text: "Sub task to delete", done: false, due: null } ] }
+          { id: "s1", title: "Sub A", collapsed: false, collapsedDefaultApplied: true, tasks: [ { id: "t3", text: "Sub task to delete", done: false, due: null } ] }
         ] }
       ]
     }

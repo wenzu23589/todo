@@ -586,10 +586,7 @@
     padding:4px 9px; border-radius:var(--radius-s);
   }
   .outline-drawer-close:hover{ background:var(--paper-sunken); color:var(--ink); }
-  /* Stays clickable (and visible) above its own drawer/backdrop even when they happen to
-     overlap it on a narrow layout, so the same button that opened the side menu can always
-     toggle it closed again without having to reach for the X or click outside. */
-  #outline-btn.active{ position:relative; z-index:57; background:var(--paper-sunken); border-color:color-mix(in srgb, var(--accent) 45%, var(--line)); color:var(--ink); box-shadow:0 0 0 3px var(--paper-raised); }
+  #outline-btn.active{ background:var(--paper-sunken); border-color:color-mix(in srgb, var(--accent) 45%, var(--line)); color:var(--ink); }
   .outline-list{ display:flex; flex-direction:column; gap:2px; overflow:auto; margin-top:0; padding:10px 12px 18px; flex:1; }
   .outline-group{ display:flex; flex-direction:column; }
   .outline-item{
@@ -824,6 +821,10 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="6" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="10.5" cy="19" r="1.5" fill="currentColor" stroke="none"/><path d="M12 3a9 9 0 000 18c1.1 0 1.5-.7 1.5-1.5 0-.4-.15-.75-.4-1.02-.25-.28-.4-.63-.4-1.02 0-.83.67-1.46 1.5-1.46H16a5 5 0 005-5c0-4.42-4.03-8-9-8z"/></svg>
             Theme
           </button>
+          <button class="btn btn-sm" id="outline-btn" type="button" title="Jump to a heading">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6h16M4 12h11M4 18h7"/></svg>
+            Outline
+          </button>
           <button class="btn btn-sm" id="sync-now-btn">Sync now</button>
           <button class="btn btn-sm" id="install-app-btn" hidden>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 19h14"/></svg>
@@ -884,10 +885,6 @@
         <button class="btn btn-sm" id="quick-capture-btn" type="button">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 5v14M5 12h14"/></svg>
           Quick capture
-        </button>
-        <button class="btn btn-sm" id="outline-btn" type="button" title="Jump to a heading">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6h16M4 12h11M4 18h7"/></svg>
-          Outline
         </button>
       </div>
       <div id="headings-root"></div>
@@ -1137,7 +1134,14 @@
       h.tasks.forEach(normalizeTask);
       h.subheadings.forEach(function(sh){
         if(!Array.isArray(sh.tasks)) sh.tasks = [];
-        if(sh.collapsed === undefined) sh.collapsed = false;
+        // Sub-headings now default to collapsed. Any sub-heading that predates this change
+        // (and hasn't already been through this one-time migration) gets force-collapsed
+        // once; collapsedDefaultApplied then marks it handled so a later manual expand by
+        // the user is never re-collapsed on a future load.
+        if(sh.collapsedDefaultApplied !== true){
+          sh.collapsed = true;
+          sh.collapsedDefaultApplied = true;
+        }
         normalizeNotesAndAttachments(sh);
         sh.tasks.forEach(normalizeTask);
       });
@@ -2612,7 +2616,10 @@
     state.headings.push(h); lastAddedId = h.id; scheduleSave(); render(); return h;
   }
   function addSubheading(heading, title){
-    var sh = { id: uid(), title: title || "New sub-heading", collapsed:false, tasks: [], notesList:[], attachments:[] };
+    // Starts expanded (not collapsedDefaultApplied so it's excluded from the retroactive
+    // collapse migration in normalizeState) so you can add a task to it right away — collapse
+    // it yourself once you're done with it, same as any other sub-heading from then on.
+    var sh = { id: uid(), title: title || "New sub-heading", collapsed:false, collapsedDefaultApplied:true, tasks: [], notesList:[], attachments:[] };
     heading.subheadings.push(sh); lastAddedId = sh.id; scheduleSave(); render(); return sh;
   }
   function addTask(container, text){
@@ -3366,6 +3373,12 @@
       '<div class="outline-list" id="outline-list">' + outlineGroupsHtml() + '</div>';
     drawer.addEventListener("click", function(e){ e.stopPropagation(); });
 
+    // Sit below the sticky header rather than covering it, so the header — including the
+    // Outline button itself, right there next to Theme — stays visible and clickable the
+    // whole time the drawer is open, instead of getting hidden behind its own overlay.
+    positionOutlineDrawerBelowHeader(backdrop, drawer);
+    window.addEventListener("resize", onOutlineResize);
+
     root.appendChild(backdrop);
     root.appendChild(drawer);
     wireOutlineItemClicks(drawer);
@@ -3385,10 +3398,23 @@
     });
   }
   function onOutlineKeydown(e){ if(e.key === "Escape") closeOutlinePanel(); }
+  function positionOutlineDrawerBelowHeader(backdrop, drawer){
+    var header = document.querySelector("header.top");
+    var top = header ? header.getBoundingClientRect().bottom : 0;
+    if(top < 0) top = 0; // header scrolled fully past view isn't expected (it's sticky), but guard anyway
+    backdrop.style.top = top + "px";
+    drawer.style.top = top + "px";
+  }
+  function onOutlineResize(){
+    var backdrop = document.getElementById("outline-drawer-backdrop");
+    var drawer = document.getElementById("outline-drawer");
+    if(backdrop && drawer) positionOutlineDrawerBelowHeader(backdrop, drawer);
+  }
   function closeOutlinePanel(){
     if(!outlineDrawerOpen) return;
     outlineDrawerOpen = false;
     document.removeEventListener("keydown", onOutlineKeydown);
+    window.removeEventListener("resize", onOutlineResize);
     var btn = document.getElementById("outline-btn");
     if(btn) btn.classList.remove("active");
     var backdrop = document.getElementById("outline-drawer-backdrop");

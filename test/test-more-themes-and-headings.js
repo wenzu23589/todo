@@ -8,7 +8,7 @@ async function main() {
   const page = await browser.newPage();
   const repoFiles = { "data/tasks.json": { headings: [
     { id: "h1", title: "Work", color: null, tasks: [{ id: "t1", text: "Task one", done: false, due: null, subtasks: [] }], subheadings: [
-      { id: "s1", title: "Sub A", collapsed: false, tasks: [] }
+      { id: "s1", title: "Sub A", collapsed: false, collapsedDefaultApplied: true, tasks: [] }
     ] }
   ] } };
   const shas = {};

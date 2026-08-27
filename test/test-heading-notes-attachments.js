@@ -12,7 +12,7 @@ async function main() {
       { id: "h1", title: "Research — Grant Proposal", color: null, tasks: [
         { id: "t1", text: "Draft methodology section", done: false, due: null, notes: "", checklist: [], tags: [], priority: null, subtasks: [], attachments: [] }
       ], subheadings: [
-        { id: "sh1", title: "Ethics approval", tasks: [] }
+        { id: "sh1", title: "Ethics approval", collapsed: false, collapsedDefaultApplied: true, tasks: [] }
       ] },
       // An old save from before multi-note support: a single plain `notes` string, no notesList.
       { id: "h2", title: "Legacy heading", color: null, tasks: [], subheadings: [],

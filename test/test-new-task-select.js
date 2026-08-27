@@ -7,7 +7,7 @@ async function main() {
   const browser = await chromium.launch();
   const page = await browser.newPage();
   const repoFiles = { "data/tasks.json": { headings: [{ id: "h1", title: "Work", color: null, tasks: [], subheadings: [
-    { id: "s1", title: "Sub A", collapsed: false, tasks: [] }
+    { id: "s1", title: "Sub A", collapsed: false, collapsedDefaultApplied: true, tasks: [] }
   ] }] } };
   const shas = {};
 

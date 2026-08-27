@@ -83,7 +83,9 @@ async function main() {
   await page.waitForSelector("#modal-root .modal-box", { state: "detached", timeout: 5000 });
   await page.waitForSelector(".task-row", { timeout: 5000 });
 
-  console.log("Outline button is present above the list:", await page.locator("#outline-btn").count() === 1 ? "PASS" : "FAIL");
+  console.log("Outline button is present:", await page.locator("#outline-btn").count() === 1 ? "PASS" : "FAIL");
+  console.log("Outline button sits in the header, right next to Theme:",
+    await page.locator("#theme-btn + #outline-btn").count() === 1 ? "PASS" : "FAIL");
 
   await page.click("#outline-btn");
   await page.waitForSelector(".outline-drawer.open", { timeout: 5000 });
