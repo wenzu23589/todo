@@ -617,11 +617,16 @@
         }
       ],
       "subheadings": [],
-      "notesList": [],
+      "notesList": [
+        {
+          "id": "0628e686-916c-457a-8d70-9f8a9fba133f",
+          "html": ""
+        }
+      ],
       "attachments": []
     }
   ],
-  "updatedAt": "2026-08-28T11:29:12.126Z",
+  "updatedAt": "2026-08-28T11:29:17.710Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
