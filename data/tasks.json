@@ -598,7 +598,12 @@
           "id": "6c03a008-f37e-4641-b92a-3f2d17cab528",
           "text": "Has a meeting date for September been established yet ? Ask Christian.",
           "done": false,
-          "due": null,
+          "due": {
+            "date": "2026-09-01",
+            "time": null,
+            "endTime": null,
+            "allDay": true
+          },
           "completedAt": null,
           "calendarEventId": null,
           "syncError": null,
@@ -616,7 +621,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-08-28T11:28:55.707Z",
+  "updatedAt": "2026-08-28T11:29:02.062Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
