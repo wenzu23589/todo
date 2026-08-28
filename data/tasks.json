@@ -587,9 +587,19 @@
       "subheadings": [],
       "attachments": [],
       "notesList": []
+    },
+    {
+      "id": "af70b5ce-b30b-433f-aa53-d48b7b04504f",
+      "title": "New heading",
+      "collapsed": false,
+      "color": null,
+      "tasks": [],
+      "subheadings": [],
+      "notesList": [],
+      "attachments": []
     }
   ],
-  "updatedAt": "2026-08-27T17:29:31.457Z",
+  "updatedAt": "2026-08-28T11:28:34.410Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
