@@ -70,7 +70,7 @@ async function main() {
   console.log("Archived row shows the old task:", archivedText === "Old done task" ? "PASS" : "FAIL (" + archivedText + ")");
 
   // Manually archive "Recently done" via its archive button
-  const recentRow = page.locator('.task-row', { has: page.locator('.task-text[value="Recently done"]') });
+  const recentRow = page.locator('.task-row', { has: page.locator('.task-text', { hasText: 'Recently done' }) });
   await recentRow.hover();
   await recentRow.locator('[data-act="archive"]').click();
   await page.waitForTimeout(150);
@@ -91,7 +91,7 @@ async function main() {
   console.log("Restored task reappears in main list:", visibleAfterRestore.includes("Old done task") ? "PASS" : "FAIL (" + JSON.stringify(visibleAfterRestore) + ")");
 
   // No un-done task should ever show an archive button
-  const activeRow = page.locator('.task-row', { has: page.locator('.task-text[value="Active task"]') });
+  const activeRow = page.locator('.task-row', { has: page.locator('.task-text', { hasText: 'Active task' }) });
   const archiveBtnOnActive = await activeRow.locator('[data-act="archive"]').count();
   console.log("Un-done task has no archive button:", archiveBtnOnActive === 0 ? "PASS" : "FAIL");
 

@@ -86,13 +86,23 @@ async function main() {
   console.log("\"in 3 days\" resolves relative to today:",
     sync && sync.text === "Team sync" && sync.due && sync.due.date === ymd(in3days) ? "PASS" : "FAIL (" + JSON.stringify(sync) + ")");
 
+  // Both of these phrases omit a year, so the app resolves them to the next occurrence —
+  // this year if that date hasn't happened yet, otherwise next year (see qcParseDatePhrase's
+  // "if(d < today) roll to year+1" rule). Compute the expectation the same way instead of
+  // hardcoding the current year, so this test stays correct regardless of what day it runs on.
+  function nextOccurrence(monthIdx, day) {
+    var candidate = new Date(today.getFullYear(), monthIdx, day);
+    if (candidate < today) candidate = new Date(today.getFullYear() + 1, monthIdx, day);
+    return ymd(candidate);
+  }
+
   const passport = byText("Renew passport");
   console.log("Numeric M/D (9/20) parsed correctly:",
-    passport && passport.text === "Renew passport" && passport.due && passport.due.date === now.getFullYear() + "-09-20" ? "PASS" : "FAIL (" + JSON.stringify(passport) + ")");
+    passport && passport.text === "Renew passport" && passport.due && passport.due.date === nextOccurrence(8, 20) ? "PASS" : "FAIL (" + JSON.stringify(passport) + ")");
 
   const flights = byText("Book flights");
   console.log("Month-name date (Aug 30) parsed correctly:",
-    flights && flights.text === "Book flights" && flights.due && flights.due.date === now.getFullYear() + "-08-30" ? "PASS" : "FAIL (" + JSON.stringify(flights) + ")");
+    flights && flights.text === "Book flights" && flights.due && flights.due.date === nextOccurrence(7, 30) ? "PASS" : "FAIL (" + JSON.stringify(flights) + ")");
 
   // A line with a date phrase should also have created a Google Calendar sync attempt
   // (no Google connected in this test, so it should just be a no-op, not an error)

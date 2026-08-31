@@ -106,6 +106,10 @@ async function main() {
   // and, same as the Today view, a task that's now done drops out of its day bucket
   // immediately (this view only ever shows what's still outstanding), so we confirm
   // via the row disappearing rather than waiting for the checkbox to stay checked.
+  // The status control cycles not started -> in progress -> done, so it takes two clicks
+  // to actually reach done.
+  await page.click('.week-day-section.week-day-today .task-row[data-task-id="t1"] .check');
+  await page.waitForTimeout(150);
   await page.click('.week-day-section.week-day-today .task-row[data-task-id="t1"] .check');
   await page.waitForSelector('.week-day-section.week-day-today .task-row[data-task-id="t1"]', { state: "detached", timeout: 5000 });
   console.log("Checking off a task from the week view removes it from its day bucket:", "PASS");

@@ -88,7 +88,7 @@ async function main() {
   // Adding a subtask and checking it off doesn't disturb the open/chevron state
   await page.click('.task-row[data-task-id="t1"] .subtasks-badge');
   await page.waitForSelector('.task-row[data-task-id="t1"] .subtasks-editor', { timeout: 5000 });
-  await page.check('.task-row[data-task-id="t1"] .subtask-item[data-subtask-id="st1"] .subtask-check');
+  await page.click('.task-row[data-task-id="t1"] .subtask-item[data-subtask-id="st1"] .subtask-check');
   await page.waitForTimeout(150);
   const stillOpenAfterCheck = await page.getAttribute('.task-row[data-task-id="t1"] .subtasks-badge', "class");
   console.log("Checking off a subtask keeps the panel's open state (badge refresh doesn't lose it):", /\bopen\b/.test(stillOpenAfterCheck) ? "PASS" : "FAIL (" + stillOpenAfterCheck + ")");

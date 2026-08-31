@@ -74,9 +74,12 @@ async function main() {
   const badgeAfterAdd = await page.locator(".subtasks-badge").first().textContent();
   console.log("Badge updates after adding (1/3):", /1\/3/.test(badgeAfterAdd) ? "PASS" : "FAIL (" + badgeAfterAdd + ")");
 
-  // Check off the new subtask
-  const newItem = page.locator(".subtask-item", { has: page.locator('.subtask-text[value="Order catering"]') });
-  await newItem.locator(".subtask-check").check();
+  // Check off the new subtask — the status control cycles not started -> in progress ->
+  // done, so it takes two clicks to actually reach done.
+  const newItem = page.locator(".subtask-item", { has: page.locator('.subtask-text', { hasText: 'Order catering' }) });
+  await newItem.locator(".subtask-check").click();
+  await page.waitForTimeout(100);
+  await newItem.locator(".subtask-check").click();
   await page.waitForTimeout(150);
   const badgeAfterCheck = await page.locator(".subtasks-badge").first().textContent();
   console.log("Badge updates after checking one off (2/3):", /2\/3/.test(badgeAfterCheck) ? "PASS" : "FAIL (" + badgeAfterCheck + ")");

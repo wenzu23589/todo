@@ -48,12 +48,13 @@ async function main() {
   await page.waitForSelector(".task-row", { timeout: 5000 });
 
   // --- Legacy plain-text migration ---
-  await page.click('.task-row[data-task-id="t2"] .notes-badge');
+  // t2 already has notes content, so its block shows automatically on load — no badge
+  // click needed (clicking the badge on an already-open block now just collapses it).
   await page.waitForSelector('.task-row[data-task-id="t2"] .notes-rich', { timeout: 5000 });
   const migratedText = await page.locator('.task-row[data-task-id="t2"] .notes-rich').innerText();
   console.log("Legacy plain-text note's literal '<' survives migration (not parsed as a tag):", /<urgent>/.test(migratedText) ? "PASS" : "FAIL (" + migratedText + ")");
   console.log("Legacy note's line break is preserved as two visible lines:", /Line one/.test(migratedText) && /Line two/.test(migratedText) ? "PASS" : "FAIL (" + migratedText + ")");
-  await page.click('.task-row[data-task-id="t2"] .notes-editor [data-act="close"]');
+  await page.click('.task-row[data-task-id="t2"] .notes-collapse-btn');
 
   // --- Toolbar formatting on the fresh task ---
   await page.click('.task-row[data-task-id="t1"] .notes-badge');
@@ -103,9 +104,9 @@ async function main() {
   console.log("Only the allowed tags are stored (no stray attributes like style=):", !/style=/i.test(savedNotes) ? "PASS" : "FAIL (" + savedNotes + ")");
 
   // --- Reload and confirm formatting survives ---
+  // t1 now has notes content too, so it also shows automatically on load — no click needed.
   await page.reload();
   await page.waitForSelector(".task-row", { timeout: 5000 });
-  await page.click('.task-row[data-task-id="t1"] .notes-badge');
   await page.waitForSelector('.task-row[data-task-id="t1"] .notes-rich', { timeout: 5000 });
   const reloadedHtml = await page.locator('.task-row[data-task-id="t1"] .notes-rich').evaluate(el => el.innerHTML);
   console.log("Formatting survives reload:", (/<b>|<strong>/i.test(reloadedHtml)) && /<a href="https:\/\/example\.com"/.test(reloadedHtml) ? "PASS" : "FAIL (" + reloadedHtml + ")");

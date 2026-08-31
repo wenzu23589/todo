@@ -92,15 +92,30 @@ async function main() {
   const itemCountAfterRemove = await page.locator(".checklist-item").count();
   console.log("Item removed:", itemCountAfterRemove === 1 ? "PASS" : "FAIL (" + itemCountAfterRemove + ")");
 
-  // Close the editor
-  await page.click('.notes-editor [data-act="close"]');
+  // Collapse the editor (notes/checklist now show automatically once there's content, so
+  // there's no "Close" button anymore — folding it away is the chevron in its head instead,
+  // and unlike the old Close it doesn't remove the block, just its editable content).
+  await page.click('.notes-editor .notes-collapse-btn');
   await page.waitForTimeout(100);
-  const editorClosed = await page.locator(".notes-editor").count();
-  console.log("Editor closes:", editorClosed === 0 ? "PASS" : "FAIL");
+  const editorCollapsedNotClosed = await page.locator(".notes-editor.collapsed").count();
+  console.log("Collapsing folds the editor instead of removing it:", editorCollapsedNotClosed === 1 ? "PASS" : "FAIL");
+  const richHiddenWhileCollapsed = await page.locator(".notes-editor .notes-rich").count();
+  console.log("Its editable content isn't rendered while collapsed:", richHiddenWhileCollapsed === 0 ? "PASS" : "FAIL");
 
-  // Badge persists showing the summary after closing
+  // Badge persists showing the summary after collapsing
   const badgeAfterClose = await page.locator(".task-row .notes-badge").first().textContent();
-  console.log("Badge still shows summary after closing:", (/Notes/.test(badgeAfterClose) && /1\/1/.test(badgeAfterClose)) ? "PASS" : "FAIL (" + badgeAfterClose + ")");
+  console.log("Badge still shows summary after collapsing:", (/Notes/.test(badgeAfterClose) && /1\/1/.test(badgeAfterClose)) ? "PASS" : "FAIL (" + badgeAfterClose + ")");
+
+  // Clicking the badge while collapsed expands it back, with everything still there
+  await page.click(".task-row .notes-badge");
+  await page.waitForTimeout(150);
+  const expandedAgain = await page.locator(".notes-editor.collapsed").count();
+  console.log("Clicking the Notes badge expands a collapsed editor back open:", expandedAgain === 0 ? "PASS" : "FAIL");
+  const itemCountAfterExpand = await page.locator(".checklist-item").count();
+  console.log("Its checklist is still there after expanding again:", itemCountAfterExpand === 1 ? "PASS" : "FAIL (" + itemCountAfterExpand + ")");
+
+  // Collapse it again so the reload check below exercises the collapsed state
+  await page.click('.notes-editor .notes-collapse-btn');
 
   // Confirm persistence to the backing store (saves are debounced ~1.1s)
   await page.waitForTimeout(1500);
@@ -108,12 +123,15 @@ async function main() {
   const savedNotesText = savedTask.notes.replace(/<[^>]+>/g, "");
   console.log("Notes persisted to storage:", savedNotesText === "Book flights and hotel before Friday." ? "PASS" : "FAIL (" + JSON.stringify(savedTask.notes) + ")");
   console.log("Checklist persisted to storage:", savedTask.checklist.length === 1 && savedTask.checklist[0].done === true ? "PASS" : "FAIL (" + JSON.stringify(savedTask.checklist) + ")");
+  console.log("The collapsed preference itself is persisted:", savedTask.notesCollapsed === true ? "PASS" : "FAIL (" + savedTask.notesCollapsed + ")");
 
-  // Reload and confirm it all survives
+  // Reload and confirm it all survives, including staying collapsed
   await page.reload();
   await page.waitForSelector(".task-row", { timeout: 5000 });
   const badgeAfterReload = await page.locator(".task-row .notes-badge").first().textContent();
   console.log("Badge correct after reload:", (/Notes/.test(badgeAfterReload) && /1\/1/.test(badgeAfterReload)) ? "PASS" : "FAIL (" + badgeAfterReload + ")");
+  const collapsedAfterReload = await page.locator(".notes-editor.collapsed").count();
+  console.log("Notes block reloads in the same collapsed state it was left in:", collapsedAfterReload === 1 ? "PASS" : "FAIL");
 
   await browser.close();
 }

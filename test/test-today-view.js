@@ -98,7 +98,10 @@ async function main() {
   const gripVisible = await page.locator("#today-view .grip").first().isVisible();
   console.log("Drag grips are hidden in the Today view:", gripVisible ? "FAIL" : "PASS");
 
-  // Reused row is fully interactive: checking a task off in Today view persists and removes it from view
+  // Reused row is fully interactive: checking a task off in Today view persists and removes it from view.
+  // The status control now cycles not started -> in progress -> done, so it takes two clicks.
+  await page.click('#today-view .task-row[data-task-id="t-today"] .check');
+  await page.waitForTimeout(150);
   await page.click('#today-view .task-row[data-task-id="t-today"] .check');
   await page.waitForTimeout(1500);
   const stillThere = await page.locator('#today-view .task-row[data-task-id="t-today"]').count();

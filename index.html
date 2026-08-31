@@ -255,24 +255,32 @@
   .task-row.dragging{ opacity:0.45; }
   .task-row.drop-before{ box-shadow: inset 0 2px 0 var(--accent-2); }
   .task-row.drop-after{ box-shadow: inset 0 -2px 0 var(--accent-2); }
+  /* Not started / in progress / done — click cycles through all three. A plain checkbox
+     can only ever be on or off, so this is a <button>, not an <input type="checkbox">. */
+  .task-row.in-progress{ box-shadow: inset 2px 0 0 var(--accent); border-radius:2px; }
   .check{
     width:19px; height:19px; margin-top:2px; border-radius:5px; border:1.5px solid var(--line);
-    background:var(--paper-raised); cursor:pointer; flex-shrink:0; position:relative; appearance:none;
+    background:var(--paper-raised); cursor:pointer; flex-shrink:0; position:relative; padding:0;
     transition: background-color .15s ease, border-color .15s ease;
   }
-  .check:checked{ background:var(--accent-2); border-color:var(--accent-2); }
-  .check:checked::after{
+  .check.status-done{ background:var(--accent-2); border-color:var(--accent-2); }
+  .check.status-done::after{
     content:""; position:absolute; left:5px; top:1px; width:5px; height:9px; border:solid white; border-width:0 2px 2px 0;
     transform:rotate(40deg); animation: tick-pop .18s ease;
   }
+  .check.status-in_progress{ border-color:var(--accent); }
+  .check.status-in_progress::after{
+    content:""; position:absolute; left:50%; top:50%; width:8px; height:8px; margin:-4px 0 0 -4px;
+    border-radius:2px; background:var(--accent); animation: dot-pop .18s ease;
+  }
   @keyframes tick-pop{ from{ transform:scale(0.3) rotate(40deg); opacity:0; } to{ transform:scale(1) rotate(40deg); opacity:1; } }
+  @keyframes dot-pop{ from{ transform:scale(0.3); opacity:0; } to{ transform:scale(1); opacity:1; } }
   .task-main{ flex:1; min-width:0; }
-  .task-text{ width:100%; border:none; background:transparent; color:var(--ink); font:inherit; font-size:0.92rem; padding:2px 4px; border-radius:4px; text-overflow:ellipsis; }
+  .task-text{
+    display:block; width:100%; border:none; background:transparent; color:var(--ink); font:inherit;
+    font-size:0.92rem; line-height:1.35; padding:2px 4px; border-radius:4px; resize:none; overflow:hidden;
+  }
   @media (max-width: 640px){
-    /* A single-line <input> can never wrap (hard HTML limit), so on narrow
-       screens where titles clip most often, at least make the full text
-       reachable without opening the task: tap-and-hold / long-press shows
-       the native title tooltip, and focusing to edit already shows it all. */
     .task-text{ font-size:0.95rem; }
   }
   .task-text:focus{ background:var(--paper-sunken); }
@@ -320,9 +328,17 @@
   .notes-badge:hover{ border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
   .notes-badge.set{ color:var(--ink-soft); border-color: color-mix(in srgb, var(--accent-2) 45%, var(--line)); }
   .notes-editor{
-    display:flex; flex-direction:column; gap:7px; background:var(--paper-sunken); border:1px solid var(--line);
+    display:flex; flex-direction:column; background:var(--paper-sunken); border:1px solid var(--line);
     border-radius:var(--radius-s); padding:8px; margin-top:4px;
   }
+  /* Only a task's own notes/checklist block gets this collapsible head+chevron — it's the
+     only notes UI that shows up unprompted whenever there's content, so it's also the only
+     one that needs a way to fold back out of the way again. */
+  .notes-editor-head{ display:flex; align-items:center; gap:4px; }
+  .notes-editor-head .notes-collapse-btn svg{ transition: transform .15s ease; }
+  .notes-editor.collapsed .notes-editor-head .notes-collapse-btn svg{ transform: rotate(-90deg); }
+  .notes-editor-head-label{ font-size:0.72rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; }
+  .notes-editor-content{ display:flex; flex-direction:column; gap:7px; padding-top:7px; }
   .notes-toolbar{ display:flex; align-items:center; gap:3px; position:relative; }
   .notes-fmt-btn{
     display:flex; align-items:center; justify-content:center; width:26px; height:26px; border:1px solid var(--line);
@@ -440,15 +456,21 @@
   }
   .subtask-list{ display:flex; flex-direction:column; gap:3px; }
   .subtask-item{ display:flex; flex-direction:column; gap:4px; }
-  .subtask-item-row{ display:flex; align-items:center; gap:6px; }
-  .subtask-check{ flex-shrink:0; }
+  .subtask-item-row{ display:flex; align-items:flex-start; gap:6px; }
+  /* Reuses .check's base styling (colors, states) at a slightly smaller size to fit the
+     tighter subtask row. */
+  .subtask-check{ width:15px; height:15px; margin-top:3px; flex-shrink:0; }
+  .subtask-check.status-done::after{ left:4px; top:0; width:4px; height:7px; }
+  .subtask-check.status-in_progress::after{ width:6px; height:6px; margin:-3px 0 0 -3px; }
+  .subtask-item.in-progress .subtask-item-row{ box-shadow: inset 2px 0 0 var(--accent); border-radius:2px; }
   .subtask-text{
-    flex:1; min-width:0; border:none; background:transparent; color:var(--ink); font:inherit; font-size:0.85rem; padding:3px 4px; border-radius:4px;
+    display:block; flex:1; min-width:0; border:none; background:transparent; color:var(--ink); font:inherit;
+    font-size:0.85rem; line-height:1.3; padding:3px 4px; border-radius:4px; resize:none; overflow:hidden;
   }
   .subtask-text:focus{ background:var(--paper-raised); }
   .subtask-item.done .subtask-text{ color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line); }
-  .due-badge-sm{ font-size:0.7rem; padding:1px 7px; flex-shrink:0; }
-  .subtask-remove{ opacity:0; padding:3px; flex-shrink:0; }
+  .due-badge-sm{ font-size:0.7rem; padding:1px 7px; flex-shrink:0; margin-top:1px; }
+  .subtask-remove{ opacity:0; padding:3px; flex-shrink:0; margin-top:1px; }
   .subtask-item:hover .subtask-remove, .subtask-text:focus ~ .subtask-remove{ opacity:1; }
   .subtask-add-row{ display:flex; gap:6px; }
   .subtask-add-input{
@@ -1165,10 +1187,19 @@
     return s;
   }
   var ARCHIVE_AFTER_DAYS = 14;
+  var TASK_STATUSES = { not_started: 1, in_progress: 1, done: 1 };
   function normalizeTask(t){
     if(t.completedAt === undefined) t.completedAt = null;
     if(t.calendarEventId === undefined) t.calendarEventId = null;
     if(t.syncError === undefined) t.syncError = null;
+    // Status is the three-state ("not started" / "in progress" / "done") successor to the
+    // old plain done boolean — done stays around (and in sync with status) because so much
+    // else still keys off it: heading counts, Today/Week views, Stats, archiving, the digest
+    // email, calendar sync. A save from before this feature has no status field at all, so
+    // it's derived from done once, here; from then on status is what the UI actually cycles,
+    // and done is simply true exactly when status is "done".
+    if(!TASK_STATUSES[t.status]) t.status = t.done ? "done" : "not_started";
+    t.done = t.status === "done";
     if(typeof t.notes !== "string") t.notes = "";
     // Notes used to be plain text; migrate once to the rich-text HTML format (preserving
     // line breaks) so old saves still display correctly under the new formatting toolbar.
@@ -1178,6 +1209,10 @@
       t.notesRich = true;
     }
     if(!Array.isArray(t.checklist)) t.checklist = [];
+    // Notes/checklist show automatically whenever there's content, rather than staying
+    // hidden until the Notes badge is clicked — collapsedNotes lets that be folded away
+    // again without losing anything, defaulting to expanded (not collapsed) either way.
+    t.notesCollapsed = !!t.notesCollapsed;
     if(t.archivedAt === undefined) t.archivedAt = null;
     if(t.deletedAt === undefined) t.deletedAt = null;
     if(t.priority !== "low" && t.priority !== "medium" && t.priority !== "high") t.priority = null;
@@ -1199,7 +1234,8 @@
   function normalizeSubtask(st){
     if(!st.id) st.id = uid();
     if(typeof st.text !== "string") st.text = "";
-    st.done = !!st.done;
+    if(!TASK_STATUSES[st.status]) st.status = st.done ? "done" : "not_started";
+    st.done = st.status === "done";
     if(st.due !== null && typeof st.due !== "object") st.due = null;
     if(st.due && st.due.endTime === undefined) st.due.endTime = null;
     if(st.completedAt === undefined) st.completedAt = null;
@@ -1477,9 +1513,21 @@
     if(gcalStatus === "connected") reconcileFromCalendar();
   });
 
+  // Alt-tabbing away mid-edit and back is exactly the case the plain !pendingSave check above
+  // misses: the field never blurred (so 'change' never fired, so pendingSave never became
+  // true), but the user is still actively in the middle of typing. Reloading from GitHub at
+  // that moment would tear down and rebuild the whole list, wiping out whatever they'd typed
+  // but hadn't committed yet — this is the "resets in the middle of writing a task" bug.
+  function isActivelyEditing(){
+    var el = document.activeElement;
+    if(!el || el === document.body) return false;
+    var tag = el.tagName;
+    if(tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true;
+    return !!el.isContentEditable;
+  }
   window.addEventListener("focus", function(){
-    if(config && !pendingSave && Date.now() - lastFetchAt >= 15000) loadFromGithub();
-    if(gcalStatus === "connected" && Date.now() - lastGcalFetchAt >= 60000) reconcileFromCalendar();
+    if(config && !pendingSave && !isActivelyEditing() && Date.now() - lastFetchAt >= 15000) loadFromGithub();
+    if(gcalStatus === "connected" && !isActivelyEditing() && Date.now() - lastGcalFetchAt >= 60000) reconcileFromCalendar();
   });
 
   /* ---------------- flush-on-exit ----------------
@@ -1887,7 +1935,12 @@
         var extText = normText(ev.summary);
         if(!dueEqual(extDue, t.due)){ t.due = extDue; changed = true; }
         if(extText && extText !== normText(t.text)){ t.text = (ev.summary || "").replace(/^✓\s*/, "").trim(); changed = true; }
-        if(extDone !== t.done){ t.done = extDone; t.completedAt = extDone ? (t.completedAt || new Date().toISOString()) : null; changed = true; }
+        if(extDone !== t.done){
+          t.done = extDone;
+          t.completedAt = extDone ? (t.completedAt || new Date().toISOString()) : null;
+          t.status = extDone ? "done" : (t.status === "done" ? "not_started" : t.status);
+          changed = true;
+        }
         if(t.syncError){ t.syncError = null; changed = true; }
       });
       events.forEach(function(ev){
@@ -1900,7 +1953,11 @@
           match.calendarEventId = ev.id;
           match.due = eventToDue(ev);
           var extDone2 = /^✓/.test(ev.summary || "");
-          if(extDone2 !== match.done){ match.done = extDone2; match.completedAt = extDone2 ? new Date().toISOString() : null; }
+          if(extDone2 !== match.done){
+            match.done = extDone2;
+            match.completedAt = extDone2 ? new Date().toISOString() : null;
+            match.status = extDone2 ? "done" : (match.status === "done" ? "not_started" : match.status);
+          }
           match.syncError = null;
           linkedIds[ev.id] = true; changed = true;
         }
@@ -2638,7 +2695,7 @@
     heading.subheadings.push(sh); lastAddedId = sh.id; scheduleSave(); render(); return sh;
   }
   function addTask(container, text){
-    var t = { id: uid(), text: text || "New task", done:false, due:null, completedAt:null, calendarEventId:null, syncError:null, notes:"", checklist:[], archivedAt:null, priority:null, tags:[], subtasks:[], attachments:[] };
+    var t = { id: uid(), text: text || "New task", status:"not_started", done:false, due:null, completedAt:null, calendarEventId:null, syncError:null, notes:"", checklist:[], notesCollapsed:false, archivedAt:null, priority:null, tags:[], subtasks:[], attachments:[] };
     container.tasks.push(t); lastAddedId = t.id; scheduleSave(); render(); return t;
   }
   /* ---------------- undo toast ---------------- */
@@ -3639,6 +3696,10 @@
 
     bar.querySelector(".collapse-btn").addEventListener("click", function(){ heading.collapsed = !heading.collapsed; scheduleSave(); render(); });
     var titleInput = bar.querySelector(".heading-title");
+    // Commit on every keystroke (not just blur/change) so an in-progress edit is never lost
+    // to a re-render triggered by something else while this field hasn't been blurred yet —
+    // see isActivelyEditing() for the case this closes.
+    titleInput.addEventListener("input", function(){ heading.title = titleInput.value; scheduleSave(); });
     titleInput.addEventListener("change", function(){ heading.title = titleInput.value.trim() || "Untitled"; scheduleSave(); });
     titleInput.addEventListener("keydown", function(e){ if(e.key === "Enter") titleInput.blur(); });
     bar.querySelector(".icon-btn.danger").addEventListener("click", function(){ removeHeading(heading); });
@@ -3734,6 +3795,7 @@
 
     bar.querySelector(".collapse-btn").addEventListener("click", function(){ sub.collapsed = !sub.collapsed; scheduleSave(); render(); });
     var subTitleInput = bar.querySelector(".sub-title");
+    subTitleInput.addEventListener("input", function(){ sub.title = subTitleInput.value; scheduleSave(); });
     subTitleInput.addEventListener("change", function(){ sub.title = subTitleInput.value.trim() || "Untitled"; scheduleSave(); });
     subTitleInput.addEventListener("keydown", function(e){ if(e.key === "Enter") subTitleInput.blur(); });
     bar.querySelector(".icon-btn.danger").addEventListener("click", function(){ removeSubheading(heading, sub); });
@@ -4065,9 +4127,22 @@
     root.appendChild(section);
   }
 
+  // Not started → In progress → Done → Not started. Shared by both tasks and subtasks.
+  var STATUS_LABELS = { not_started: "Not started", in_progress: "In progress", done: "Done" };
+  var STATUS_CYCLE = { not_started: "in_progress", in_progress: "done", done: "not_started" };
+  function nextTaskStatus(status){ return STATUS_CYCLE[status] || "in_progress"; }
+  function taskStatusLabel(status){ return STATUS_LABELS[status] || "Not started"; }
+  // Task/subtask titles are <textarea>s (so they can hold multiple lines — Shift+Enter adds a
+  // line, plain Enter finishes editing) instead of <input>s, which never grow with their content
+  // on their own. Recompute height from scrollHeight on every keystroke, and once right after
+  // creation for content that already has newlines in it (e.g. freshly loaded from storage).
+  function autoGrowTextarea(el){
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
   function renderTaskRow(container, task){
     var row = document.createElement("div");
-    row.className = "task-row" + (task.done ? " done" : "");
+    row.className = "task-row" + (task.done ? " done" : "") + (task.status === "in_progress" ? " in-progress" : "");
     row.setAttribute("data-task-id", task.id);
     var due = task.due;
     var overdue = isOverdue(due, task.done);
@@ -4077,10 +4152,10 @@
     var hasSubtasks = !!(task.subtasks && task.subtasks.length);
     row.innerHTML =
       gripHtml() +
-      '<input type="checkbox" class="check" ' + (task.done ? "checked" : "") + ' aria-label="Mark done" />' +
+      '<button type="button" class="check status-' + (task.status || "not_started") + '" aria-label="Status: ' + taskStatusLabel(task.status) + '" title="' + taskStatusLabel(task.status) + ' — click to change"></button>' +
       (hasSubtasks ? '<button class="task-subtask-toggle" type="button" title="Show/hide subtasks" aria-label="Show/hide subtasks">' + SUBTASK_CHEVRON + '</button>' : '') +
       '<div class="task-main">' +
-        '<input class="task-text" value="' + escapeHtml(task.text) + '" title="' + escapeHtml(task.text) + '" aria-label="Task" />' +
+        '<textarea class="task-text" rows="1" title="' + escapeHtml(task.text) + '" aria-label="Task">' + escapeHtml(task.text) + '</textarea>' +
         '<div class="task-meta">' +
           '<button class="priority-flag' + (task.priority ? ' set' : '') + '" type="button" title="' + (task.priority ? "Priority: " + priorityLabel(task) + " (click to change)" : "Set priority") + '" aria-label="Priority"><span class="priority-dot dot-' + (task.priority || "none") + '"></span>' + escapeHtml(priorityLabel(task)) + '</button>' +
           '<button class="due-badge' + (due ? (overdue ? ' overdue' : ' set') : '') + '" type="button">' + syncBadge + '<span>' + escapeHtml(dueLabel) + '</span></button>' +
@@ -4106,20 +4181,30 @@
       wireTaskRowDropTarget(row, task);
     }
 
-    row.querySelector(".check").addEventListener("change", function(e){
-      task.done = e.target.checked;
+    row.querySelector(".check").addEventListener("click", function(){
+      task.status = nextTaskStatus(task.status);
+      task.done = task.status === "done";
       task.completedAt = task.done ? new Date().toISOString() : null;
       scheduleSave();
       if(task.calendarEventId) syncTaskToCalendar(task); else render();
     });
     var textInput = row.querySelector(".task-text");
+    // Captured once, before any live-commit below can change task.text out from under it —
+    // the date-parsing-on-first-edit behavior needs to know whether this row STARTED this
+    // render as the untouched "New task" placeholder, not whatever task.text has become
+    // keystroke-by-keystroke since.
+    var wasFreshNewTask = (task.text === "New task" && !task.due);
+    // Commit on every keystroke (not just blur/change) so an in-progress edit is never lost
+    // to a re-render triggered by something else while this field hasn't been blurred yet —
+    // see isActivelyEditing() for the case this closes.
+    textInput.addEventListener("input", function(){ task.text = textInput.value; scheduleSave(); autoGrowTextarea(textInput); });
     textInput.addEventListener("change", function(){
       var newText = textInput.value.trim() || "Untitled task";
       // Only parse a date out of the very first edit of a freshly created inline task
       // (still showing the "New task" placeholder, no due date yet) — not later
       // renames of existing tasks, so editing a title elsewhere never surprises you
       // with a due date appearing because it happened to mention a day.
-      if(task.text === "New task" && !task.due){
+      if(wasFreshNewTask){
         var parsed = parseQuickCaptureLine(newText, new Date());
         if(parsed.due){
           task.text = parsed.text || "Untitled task";
@@ -4134,7 +4219,13 @@
       scheduleSave();
       if(task.calendarEventId) syncTaskToCalendar(task);
     });
-    textInput.addEventListener("keydown", function(e){ if(e.key === "Enter") textInput.blur(); });
+    // Plain Enter finishes editing (blurs), same as the old single-line input. Shift+Enter
+    // inserts a line break instead — a <textarea>'s default for plain Enter is to insert a
+    // newline, so that has to be suppressed explicitly rather than just left alone.
+    textInput.addEventListener("keydown", function(e){
+      if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); textInput.blur(); }
+    });
+    requestAnimationFrame(function(){ autoGrowTextarea(textInput); });
     row.querySelector(".priority-flag").addEventListener("click", function(){ cyclePriority(row, task); });
     row.querySelector(".due-badge").addEventListener("click", function(){ toggleDueEditor(row, task); });
     row.querySelector(".notes-badge").addEventListener("click", function(){ toggleNotesEditor(row, task); });
@@ -4150,6 +4241,13 @@
       scheduleSave();
       render();
     });
+
+    // Notes/checklist show up on their own whenever there's content — no need to click the
+    // Notes badge just to see what's already there. buildTaskNotesEditor itself honors
+    // task.notesCollapsed, so a manually-folded note stays folded across re-renders.
+    if(notesBadgeSet(task)){
+      row.querySelector(".task-main").appendChild(buildTaskNotesEditor(row, task));
+    }
 
     if(task.id === lastAddedId){
       row.classList.add("enter");
@@ -4305,6 +4403,7 @@
       updateNotesBadge(row, task);
     });
     var textEl = itemRow.querySelector(".checklist-item-text");
+    textEl.addEventListener("input", function(){ item.text = textEl.value; scheduleSave(); });
     textEl.addEventListener("change", function(){
       item.text = textEl.value.trim() || "Item";
       scheduleSave();
@@ -4341,6 +4440,11 @@
     rich.innerHTML = initialHtml || "";
     function saveNotes(){ onSave(sanitizeNotesHtml(rich.innerHTML)); }
     rich.addEventListener("blur", saveNotes);
+    // Also commit on every keystroke, not just blur — heading/sub-heading notes are part of
+    // the normal render tree (rebuilt on every render()), so without this an unrelated
+    // render() elsewhere while this note is mid-edit (and never blurred) would rebuild this
+    // card from the last-saved HTML and silently drop whatever hadn't been blurred in yet.
+    rich.addEventListener("input", saveNotes);
     // Deliberately no auto-focus here: a heading/sub-heading's notes are now part of the
     // normal render tree (rebuilt on every render(), not just when freshly opened), so
     // focusing unconditionally would steal focus from whatever else the user is doing every
@@ -4417,36 +4521,50 @@
 
     return { rich: rich, saveNotes: saveNotes };
   }
-  function toggleNotesEditor(row, task){
-    var existing = row.querySelector(".notes-editor");
-    if(existing){ existing.remove(); return; }
-    // Only close other *toggled* notes editors (other tasks') — a heading/sub-heading's own
-    // note cards are permanently visible now, identifiable by data-note-id, and must never
-    // be closed just because some other notes editor opened elsewhere on the page.
-    document.querySelectorAll(".notes-editor:not([data-note-id])").forEach(function(el){ el.remove(); });
+  var NOTES_COLLAPSE_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg>';
+  // Builds a task's notes+checklist block. Unlike the old on-demand-only editor, this is now
+  // part of the normal render tree — renderTaskRow appends one automatically whenever the
+  // task already has notes/checklist content, same spirit as heading/sub-heading notes always
+  // being visible — but a task can still fold it away (and back) with the chevron in its head,
+  // via task.notesCollapsed, without losing anything: collapsing just stops rendering the
+  // editable body, it never clears task.notes or task.checklist.
+  function buildTaskNotesEditor(row, task){
     var editor = document.createElement("div");
-    editor.className = "notes-editor";
+    editor.className = "notes-editor" + (task.notesCollapsed ? " collapsed" : "");
+    var collapseLabel = task.notesCollapsed ? "Expand notes" : "Collapse notes";
     editor.innerHTML =
+      '<div class="notes-editor-head">' +
+        '<button type="button" class="collapse-btn notes-collapse-btn" aria-label="' + collapseLabel + '" title="' + collapseLabel + '">' + NOTES_COLLAPSE_ICON + '</button>' +
+        '<span class="notes-editor-head-label">Notes</span>' +
+      '</div>';
+    editor.querySelector(".notes-collapse-btn").addEventListener("click", function(){
+      task.notesCollapsed = !task.notesCollapsed;
+      scheduleSave();
+      render();
+    });
+    if(task.notesCollapsed) return editor;
+
+    var content = document.createElement("div");
+    content.className = "notes-editor-content";
+    content.innerHTML =
       NOTES_TOOLBAR_HTML +
       '<div class="notes-rich" contenteditable="true" data-placeholder="Notes…"></div>' +
       '<div class="checklist-list"></div>' +
-      '<div class="checklist-add-row"><input type="text" class="checklist-add-input" placeholder="Add checklist item…" aria-label="Add checklist item"><button type="button" class="btn btn-sm btn-ghost" data-act="add-item">Add</button></div>' +
-      '<div class="notes-editor-actions"><button type="button" class="btn btn-sm btn-ghost" data-act="close">Close</button></div>';
-    row.querySelector(".task-main").appendChild(editor);
+      '<div class="checklist-add-row"><input type="text" class="checklist-add-input" placeholder="Add checklist item…" aria-label="Add checklist item"><button type="button" class="btn btn-sm btn-ghost" data-act="add-item">Add</button></div>';
+    editor.appendChild(content);
 
-    var listEl = editor.querySelector(".checklist-list");
+    var listEl = content.querySelector(".checklist-list");
     task.checklist.forEach(function(item){ listEl.appendChild(renderChecklistItemRow(row, task, item)); });
 
-    var ctl = wireNotesRichEditor(editor, task.notes, function(v){
+    wireNotesRichEditor(content, task.notes, function(v){
       if(v !== (task.notes || "")){
         task.notes = v;
         scheduleSave();
         updateNotesBadge(row, task);
       }
     });
-    ctl.rich.focus();
 
-    var addInput = editor.querySelector(".checklist-add-input");
+    var addInput = content.querySelector(".checklist-add-input");
     function addItem(){
       var text = addInput.value.trim();
       if(!text) return;
@@ -4458,14 +4576,28 @@
       scheduleSave();
       updateNotesBadge(row, task);
     }
-    editor.querySelector('[data-act="add-item"]').addEventListener("click", addItem);
+    content.querySelector('[data-act="add-item"]').addEventListener("click", addItem);
     addInput.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); addItem(); } });
 
-    editor.querySelector('[data-act="close"]').addEventListener("click", function(){
-      // Blur first so an in-progress notes edit is saved before closing.
-      if(document.activeElement === ctl.rich) ctl.rich.blur(); else ctl.saveNotes();
-      editor.remove();
-    });
+    return editor;
+  }
+  // The Notes badge click: if a block is already showing (expanded or collapsed) it just
+  // flips the collapse state, same as clicking the chevron inside it. If nothing's showing
+  // yet — a task with no notes/checklist content — it opens a fresh, expanded editor so
+  // typing can start right away, same as the old "click to open" behavior.
+  function toggleNotesEditor(row, task){
+    var existing = row.querySelector(".notes-editor");
+    if(existing){
+      task.notesCollapsed = !task.notesCollapsed;
+      scheduleSave();
+      render();
+      return;
+    }
+    task.notesCollapsed = false;
+    var editor = buildTaskNotesEditor(row, task);
+    row.querySelector(".task-main").appendChild(editor);
+    var rich = editor.querySelector(".notes-rich");
+    if(rich) rich.focus();
   }
   // Rich-text notes for a heading or sub-heading — same toolbar as task notes, no checklist
   // (headings don't have one). Unlike a task, a heading/sub-heading can hold *several*
@@ -5090,30 +5222,41 @@
   }
   function renderSubtaskRow(listEl, row, task, subtask){
     var itemRow = document.createElement("div");
-    itemRow.className = "subtask-item" + (subtask.done ? " done" : "");
+    itemRow.className = "subtask-item" + (subtask.done ? " done" : "") + (subtask.status === "in_progress" ? " in-progress" : "");
     itemRow.setAttribute("data-subtask-id", subtask.id);
     itemRow.innerHTML =
       '<div class="subtask-item-row">' +
-        '<input type="checkbox" class="subtask-check" ' + (subtask.done ? "checked" : "") + ' aria-label="Mark subtask done" />' +
-        '<input type="text" class="subtask-text" value="' + escapeHtml(subtask.text) + '" title="' + escapeHtml(subtask.text) + '" aria-label="Subtask" />' +
+        '<button type="button" class="check subtask-check status-' + (subtask.status || "not_started") + '" aria-label="Status: ' + taskStatusLabel(subtask.status) + '" title="' + taskStatusLabel(subtask.status) + ' — click to change"></button>' +
+        '<textarea class="subtask-text" rows="1" title="' + escapeHtml(subtask.text) + '" aria-label="Subtask">' + escapeHtml(subtask.text) + '</textarea>' +
         '<button type="button" class="due-badge due-badge-sm subtask-due-badge' + (subtask.due ? (isOverdue(subtask.due, subtask.done) ? " overdue" : " set") : "") + '">' + (subtask.due ? escapeHtml(formatDue(subtask.due)) : "Add date") + '</button>' +
         '<button type="button" class="attachments-badge due-badge-sm subtask-attachments-badge' + (attachmentsBadgeSet(subtask) ? " set" : "") + '" title="Attachments">' + attachmentsBadgeHtml(subtask) + '</button>' +
         '<button type="button" class="icon-btn danger subtask-remove" title="Remove subtask" aria-label="Remove subtask"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' +
       '</div>';
-    itemRow.querySelector(".subtask-check").addEventListener("change", function(e){
-      subtask.done = e.target.checked;
+    itemRow.querySelector(".subtask-check").addEventListener("click", function(e){
+      subtask.status = nextTaskStatus(subtask.status);
+      subtask.done = subtask.status === "done";
       subtask.completedAt = subtask.done ? new Date().toISOString() : null;
       itemRow.classList.toggle("done", subtask.done);
+      itemRow.classList.toggle("in-progress", subtask.status === "in_progress");
+      e.currentTarget.className = "check subtask-check status-" + subtask.status;
+      e.currentTarget.setAttribute("aria-label", "Status: " + taskStatusLabel(subtask.status));
+      e.currentTarget.setAttribute("title", taskStatusLabel(subtask.status) + " — click to change");
       scheduleSave();
       updateSubtasksBadge(row, task);
     });
     var textEl = itemRow.querySelector(".subtask-text");
+    textEl.addEventListener("input", function(){ subtask.text = textEl.value; scheduleSave(); autoGrowTextarea(textEl); });
     textEl.addEventListener("change", function(){
       subtask.text = textEl.value.trim() || "Untitled subtask";
       textEl.value = subtask.text;
       scheduleSave();
+      autoGrowTextarea(textEl);
     });
-    textEl.addEventListener("keydown", function(e){ if(e.key === "Enter") textEl.blur(); });
+    // Same Shift+Enter-for-newline / plain-Enter-to-finish convention as the task title above.
+    textEl.addEventListener("keydown", function(e){
+      if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); textEl.blur(); }
+    });
+    requestAnimationFrame(function(){ autoGrowTextarea(textEl); });
     itemRow.querySelector(".subtask-due-badge").addEventListener("click", function(){ toggleSubtaskDueEditor(itemRow, task, subtask); });
     itemRow.querySelector(".subtask-attachments-badge").addEventListener("click", function(){ toggleSubtaskAttachmentsEditor(itemRow, subtask); });
     itemRow.querySelector(".subtask-remove").addEventListener("click", function(){
@@ -5155,7 +5298,7 @@
     function addSubtask(){
       var text = addInput.value.trim();
       if(!text) return;
-      var subtask = { id: uid(), text: text, done: false, due: null, completedAt: null, attachments: [] };
+      var subtask = { id: uid(), text: text, status: "not_started", done: false, due: null, completedAt: null, attachments: [] };
       task.subtasks.push(subtask);
       renderSubtaskRow(listEl, row, task, subtask);
       addInput.value = "";
