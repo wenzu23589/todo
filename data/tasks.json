@@ -368,9 +368,9 @@
             {
               "id": "8b58f262-22db-4c2d-a61f-14baa44e68ce",
               "text": "Submitted in August",
-              "done": false,
+              "done": true,
               "due": null,
-              "completedAt": null,
+              "completedAt": "2026-08-31T07:42:07.823Z",
               "calendarEventId": null,
               "syncError": null,
               "notes": "",
@@ -755,7 +755,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-08-31T07:42:05.248Z",
+  "updatedAt": "2026-08-31T07:42:08.923Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
