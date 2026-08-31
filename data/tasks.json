@@ -435,10 +435,27 @@
         },
         {
           "id": "bcc521f2-0ed8-4158-b93b-a85f7be96a28",
-          "title": "New sub-heading",
+          "title": "James FMEA",
           "collapsed": false,
           "collapsedDefaultApplied": true,
-          "tasks": [],
+          "tasks": [
+            {
+              "id": "098d92be-0f1d-481f-b1e1-de7ef48b10ec",
+              "text": "New task",
+              "done": false,
+              "due": null,
+              "completedAt": null,
+              "calendarEventId": null,
+              "syncError": null,
+              "notes": "",
+              "checklist": [],
+              "archivedAt": null,
+              "priority": null,
+              "tags": [],
+              "subtasks": [],
+              "attachments": []
+            }
+          ],
           "notesList": [],
           "attachments": []
         }
@@ -726,7 +743,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-08-31T07:39:51.446Z",
+  "updatedAt": "2026-08-31T07:39:57.066Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
