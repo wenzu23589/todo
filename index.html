@@ -818,6 +818,50 @@
   }
   .week-day-empty{ color:var(--muted); font-size:0.82rem; padding:4px 4px 2px; }
 
+  /* Status board: not started / in progress / done, one column each. */
+  .board-head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+  .board-title{ font-size:1.15rem; font-weight:600; }
+  .board-sub{ color:var(--muted); font-size:0.85rem; margin-top:2px; }
+  .board{ display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; align-items:start; }
+  @media (max-width: 860px){ .board{ grid-template-columns:1fr; } }
+  .board-col{ background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-l); box-shadow:var(--shadow); overflow:hidden; }
+  .board-col-head{ display:flex; align-items:center; gap:9px; padding:12px 14px; border-bottom:1px solid var(--line-soft); }
+  .board-col-dot{ width:11px; height:11px; border-radius:50%; flex-shrink:0; }
+  .board-col-dot.not-started{ background:var(--paper-raised); border:2px solid var(--line); }
+  .board-col-dot.in-progress{ background:var(--accent); }
+  .board-col-dot.done{ background:var(--accent-2); }
+  .board-col-title{ font-size:0.92rem; font-weight:600; flex:1; }
+  .board-col-count{ color:var(--muted); font-size:0.76rem; background:var(--paper-sunken); border-radius:999px; padding:2px 8px; }
+  .board-col-body{ padding:9px; display:flex; flex-direction:column; gap:8px; }
+  .board-col-empty{ padding:18px 10px; text-align:center; color:var(--muted); font-size:0.82rem; }
+  .board-card{ background:var(--paper-sunken); border:1px solid var(--line-soft); border-radius:var(--radius-m); padding:9px 10px; }
+  .board-card.in-progress{ box-shadow: inset 2px 0 0 var(--accent); }
+  .board-card.context-only{ opacity:0.72; }
+  .board-card-path{ font-size:0.68rem; color:var(--muted); margin-bottom:5px; display:flex; align-items:center; gap:4px; }
+  .board-card-path .dot{ width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+  .board-card-row{ display:flex; align-items:flex-start; gap:8px; }
+  .board-card-title{ font-size:0.87rem; flex:1; }
+  .board-card.done .board-card-title{ color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line); }
+  .board-card-meta{ display:flex; gap:6px; margin-top:6px; padding-left:26px; flex-wrap:wrap; }
+  .board-card-meta .pill{
+    display:inline-flex; align-items:center; gap:4px; font-size:0.68rem; color:var(--muted);
+    border:1px solid var(--line); border-radius:999px; padding:1px 7px; background:var(--paper-raised);
+  }
+  .board-card-meta .pill.overdue{ color:var(--danger); border-color:color-mix(in srgb, var(--danger) 45%, var(--line)); }
+  .board-card-meta .pill.high{ color:#a3492f; border-color:color-mix(in srgb, #a3492f 35%, var(--line)); }
+  .board-card-meta .pill.medium{ color:#a3762a; border-color:color-mix(in srgb, #a3762a 35%, var(--line)); }
+  .board-card-meta .pill.low{ color:var(--accent-2); border-color:color-mix(in srgb, var(--accent-2) 35%, var(--line)); }
+  .board-subtask{
+    margin-top:7px; margin-left:26px; padding:6px 8px; background:var(--paper-raised); border:1px solid var(--line-soft);
+    border-radius:var(--radius-s); display:flex; align-items:flex-start; gap:7px;
+  }
+  .board-subtask.in-progress{ box-shadow: inset 2px 0 0 var(--accent); }
+  .board-subtask .check{ width:15px; height:15px; margin-top:2px; flex-shrink:0; }
+  .board-subtask .check.status-done::after{ left:4px; top:0; width:4px; height:7px; }
+  .board-subtask .check.status-in_progress::after{ width:6px; height:6px; margin:-3px 0 0 -3px; }
+  .board-subtask-title{ font-size:0.8rem; color:var(--ink-soft); }
+  .board-subtask.done .board-subtask-title{ color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line); }
+
   .quickadd-popover{
     position:fixed; z-index:40; background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-m);
     box-shadow:var(--shadow); padding:12px; width:230px; display:flex; flex-direction:column; gap:8px;
@@ -841,6 +885,7 @@
         <button class="tab-btn active" id="tab-list" data-view="list">List</button>
         <button class="tab-btn" id="tab-today" data-view="today">Today</button>
         <button class="tab-btn" id="tab-week" data-view="week">This week</button>
+        <button class="tab-btn" id="tab-status" data-view="status">Status</button>
         <button class="tab-btn" id="tab-cal" data-view="cal">Calendar</button>
         <button class="tab-btn" id="tab-stats" data-view="stats">Stats</button>
         <button class="tab-btn" id="tab-trash" data-view="trash">Trash</button>
@@ -931,6 +976,7 @@
     </div>
     <div id="today-view" hidden></div>
     <div id="week-view" hidden></div>
+    <div id="status-view" hidden></div>
     <div id="cal-view" hidden></div>
     <div id="stats-view" hidden></div>
     <div id="trash-view" hidden></div>
@@ -2255,17 +2301,20 @@
     document.getElementById("list-view").hidden = mode !== "list";
     document.getElementById("today-view").hidden = mode !== "today";
     document.getElementById("week-view").hidden = mode !== "week";
+    document.getElementById("status-view").hidden = mode !== "status";
     document.getElementById("cal-view").hidden = mode !== "cal";
     document.getElementById("stats-view").hidden = mode !== "stats";
     document.getElementById("trash-view").hidden = mode !== "trash";
     document.getElementById("tab-list").classList.toggle("active", mode === "list");
     document.getElementById("tab-today").classList.toggle("active", mode === "today");
     document.getElementById("tab-week").classList.toggle("active", mode === "week");
+    document.getElementById("tab-status").classList.toggle("active", mode === "status");
     document.getElementById("tab-cal").classList.toggle("active", mode === "cal");
     document.getElementById("tab-stats").classList.toggle("active", mode === "stats");
     document.getElementById("tab-trash").classList.toggle("active", mode === "trash");
     if(mode === "today") renderTodayView();
     if(mode === "week") renderWeekView();
+    if(mode === "status") renderStatusView();
     if(mode === "stats") renderStats();
     if(mode === "cal") renderCalendar();
     if(mode === "trash") renderTrashView();
@@ -2273,6 +2322,7 @@
   document.getElementById("tab-list").addEventListener("click", function(){ setView("list"); });
   document.getElementById("tab-today").addEventListener("click", function(){ setView("today"); });
   document.getElementById("tab-week").addEventListener("click", function(){ setView("week"); });
+  document.getElementById("tab-status").addEventListener("click", function(){ setView("status"); });
   document.getElementById("tab-cal").addEventListener("click", function(){ setView("cal"); });
   document.getElementById("tab-stats").addEventListener("click", function(){ setView("stats"); });
   document.getElementById("tab-trash").addEventListener("click", function(){ setView("trash"); });
@@ -3623,6 +3673,7 @@
     updateSearchStatus();
     if(viewMode === "today") renderTodayView();
     if(viewMode === "week") renderWeekView();
+    if(viewMode === "status") renderStatusView();
     if(viewMode === "stats") renderStats();
     if(viewMode === "cal") renderCalendar();
     if(viewMode === "trash") renderTrashView();
@@ -3969,6 +4020,153 @@
       }
       root.appendChild(section);
     });
+  }
+
+  /* ---------------- status board (not started / in progress / done) ----------------
+     A task shows as a full card in the column matching its OWN status. A subtask shows
+     nested under a reference to its parent task, in the column matching the SUBTASK's own
+     status — which can be a different column than the parent's, so the same task can appear
+     more than once across the board: once as its own full card, and again (title-only, for
+     context) wherever one of its subtasks landed. Archived tasks are left out entirely,
+     same as they're hidden everywhere else once checked off and tucked away. */
+  var STATUS_COLUMNS = [
+    { key: "not_started", label: "Not started" },
+    { key: "in_progress", label: "In progress" },
+    { key: "done", label: "Done" }
+  ];
+  function renderStatusView(){
+    var root = document.getElementById("status-view");
+    if(!state){ root.innerHTML = ""; return; }
+    root.innerHTML = "";
+
+    var groups = { not_started: [], in_progress: [], done: [] };
+    forEachTask(function(t, h, sub){
+      if(t.archivedAt || t.deletedAt) return;
+      var container = sub || h;
+      var subtasksByStatus = { not_started: [], in_progress: [], done: [] };
+      (t.subtasks || []).forEach(function(st){
+        var s = subtasksByStatus[st.status] ? st.status : (st.done ? "done" : "not_started");
+        subtasksByStatus[s].push(st);
+      });
+      STATUS_COLUMNS.forEach(function(col){
+        var isPrimary = (t.status || (t.done ? "done" : "not_started")) === col.key;
+        var matching = subtasksByStatus[col.key];
+        if(isPrimary || matching.length){
+          groups[col.key].push({ task:t, heading:h, sub:sub, container:container, matchingSubtasks: matching, isPrimary: isPrimary });
+        }
+      });
+    });
+
+    var head = document.createElement("div");
+    head.className = "board-head";
+    head.innerHTML =
+      '<div><div class="board-title">Status</div>' +
+      '<div class="board-sub">Every task and subtask, grouped by where it stands.</div></div>';
+    root.appendChild(head);
+
+    var anyItems = STATUS_COLUMNS.some(function(col){ return groups[col.key].length; });
+    if(!anyItems){
+      var empty = document.createElement("div");
+      empty.className = "empty-state";
+      empty.innerHTML = '<h2>Nothing to show yet</h2><p>Add a task and its status will show up here.</p>';
+      root.appendChild(empty);
+      return;
+    }
+
+    var board = document.createElement("div");
+    board.className = "board";
+    STATUS_COLUMNS.forEach(function(col){
+      board.appendChild(renderStatusColumn(col, groups[col.key]));
+    });
+    root.appendChild(board);
+  }
+  function renderStatusColumn(col, items){
+    var colEl = document.createElement("div");
+    colEl.className = "board-col";
+    var count = items.reduce(function(n, g){ return n + (g.isPrimary ? 1 : 0) + g.matchingSubtasks.length; }, 0);
+    var colHead = document.createElement("div");
+    colHead.className = "board-col-head";
+    colHead.innerHTML =
+      '<span class="board-col-dot ' + col.key.replace(/_/g,"-") + '"></span>' +
+      '<span class="board-col-title">' + escapeHtml(col.label) + '</span>' +
+      '<span class="board-col-count mono">' + count + '</span>';
+    colEl.appendChild(colHead);
+    var body = document.createElement("div");
+    body.className = "board-col-body";
+    if(!items.length){
+      body.innerHTML = '<div class="board-col-empty">Nothing here</div>';
+    } else {
+      items.forEach(function(group){ body.appendChild(renderStatusCard(group, col.key)); });
+    }
+    colEl.appendChild(body);
+    return colEl;
+  }
+  function renderStatusCard(group, colKey){
+    var task = group.task, heading = group.heading, sub = group.sub;
+    var card = document.createElement("div");
+    card.className = "board-card" + (task.status === "in_progress" ? " in-progress" : "") + (task.done ? " done" : "") + (group.isPrimary ? "" : " context-only");
+    var pathLabel = '<span class="dot" style="background:' + (heading.color || "var(--muted)") + '"></span>' +
+      escapeHtml(heading.title) + (sub ? ' <span class="today-task-path-sep">&rsaquo;</span> ' + escapeHtml(sub.title) : "");
+    card.innerHTML = '<div class="board-card-path">' + pathLabel + '</div>';
+
+    var row = document.createElement("div");
+    row.className = "board-card-row";
+    var statusBtn = document.createElement("button");
+    statusBtn.type = "button";
+    statusBtn.className = "check status-" + (task.status || (task.done ? "done" : "not_started"));
+    statusBtn.setAttribute("aria-label", "Status: " + taskStatusLabel(task.status));
+    statusBtn.title = taskStatusLabel(task.status) + " — click to change";
+    statusBtn.addEventListener("click", function(){
+      task.status = nextTaskStatus(task.status);
+      task.done = task.status === "done";
+      task.completedAt = task.done ? new Date().toISOString() : null;
+      scheduleSave();
+      if(task.calendarEventId) syncTaskToCalendar(task); else render();
+    });
+    row.appendChild(statusBtn);
+    var titleEl = document.createElement("div");
+    titleEl.className = "board-card-title";
+    titleEl.textContent = task.text;
+    row.appendChild(titleEl);
+    card.appendChild(row);
+
+    if(group.isPrimary && (task.due || task.priority)){
+      var meta = document.createElement("div");
+      meta.className = "board-card-meta";
+      if(task.due){
+        var overdue = isOverdue(task.due, task.done);
+        meta.innerHTML += '<span class="pill' + (overdue ? " overdue" : "") + '">' + escapeHtml(formatDue(task.due)) + '</span>';
+      }
+      if(task.priority){
+        meta.innerHTML += '<span class="pill ' + task.priority + '">' + escapeHtml(priorityLabel(task)) + '</span>';
+      }
+      card.appendChild(meta);
+    }
+
+    group.matchingSubtasks.forEach(function(st){
+      var stRow = document.createElement("div");
+      stRow.className = "board-subtask" + (st.status === "in_progress" ? " in-progress" : "") + (st.done ? " done" : "");
+      var stBtn = document.createElement("button");
+      stBtn.type = "button";
+      stBtn.className = "check status-" + (st.status || (st.done ? "done" : "not_started"));
+      stBtn.setAttribute("aria-label", "Status: " + taskStatusLabel(st.status));
+      stBtn.title = taskStatusLabel(st.status) + " — click to change";
+      stBtn.addEventListener("click", function(){
+        st.status = nextTaskStatus(st.status);
+        st.done = st.status === "done";
+        st.completedAt = st.done ? new Date().toISOString() : null;
+        scheduleSave();
+        render();
+      });
+      stRow.appendChild(stBtn);
+      var stTitle = document.createElement("div");
+      stTitle.className = "board-subtask-title";
+      stTitle.textContent = st.text;
+      stRow.appendChild(stTitle);
+      card.appendChild(stRow);
+    });
+
+    return card;
   }
 
   /* ---------------- due-time reminders (in-app only, session-only state) ----------------
