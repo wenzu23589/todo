@@ -397,7 +397,9 @@
               "priority": null,
               "tags": [],
               "subtasks": [],
-              "attachments": []
+              "attachments": [],
+              "notesRich": true,
+              "deletedAt": null
             }
           ],
           "attachments": [],
@@ -473,6 +475,14 @@
                 {
                   "id": "b54d5126-aa9a-46d7-8b26-38d92333f790",
                   "text": "Disclaimer",
+                  "done": false,
+                  "due": null,
+                  "completedAt": null,
+                  "attachments": []
+                },
+                {
+                  "id": "3aef1603-408f-4f66-a81e-1bb502d7f17a",
+                  "text": "Add roles specified by James email 31st August 2026.",
                   "done": false,
                   "due": null,
                   "completedAt": null,
@@ -771,7 +781,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-08-31T07:42:24.968Z",
+  "updatedAt": "2026-08-31T08:08:44.562Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
