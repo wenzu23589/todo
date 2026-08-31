@@ -394,6 +394,22 @@
   }
   .notes-editor-actions{ display:flex; justify-content:flex-end; }
 
+  /* A heading/sub-heading note that isn't actively being edited shows just its rendered
+     content — no toolbar, no Done/remove buttons cluttering the view — until you click into
+     it. The remove button stays available but out of the way (revealed on hover/focus). */
+  .notes-editor.view-mode{ flex-direction:row; align-items:flex-start; gap:4px; padding:6px 8px; }
+  .notes-view{
+    flex:1; min-width:0; font-size:0.85rem; line-height:1.45; color:var(--ink); cursor:pointer;
+    padding:3px 5px; border-radius:4px; word-wrap:break-word;
+  }
+  .notes-view:hover, .notes-view:focus{ background:var(--paper-raised); outline:none; }
+  .notes-view-empty{ color:var(--muted); font-style:italic; }
+  .notes-view a{ color:var(--accent); text-decoration:underline; }
+  .notes-view ul, .notes-view ol{ margin:4px 0 4px 20px; padding:0; }
+  .notes-view li{ margin:2px 0; }
+  .notes-editor.view-mode .notes-remove-btn{ opacity:0; flex-shrink:0; transition:opacity .12s ease; }
+  .notes-editor.view-mode:hover .notes-remove-btn, .notes-editor.view-mode:focus-within .notes-remove-btn{ opacity:1; }
+
   .tags-badge{
     display:inline-flex; align-items:center; gap:5px; font-size:0.8rem; color:var(--muted); max-width:220px;
     border:1px solid var(--line); border-radius:999px; padding:2px 9px 2px 8px; cursor:pointer; background:var(--paper-raised);
@@ -775,6 +791,9 @@
   .search-status{ font-size:0.78rem; color:var(--muted); }
   .list-sort-row{ display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
   .list-sort-label{ font-size:0.72rem; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:var(--muted); }
+  /* Extra breathing room ahead of the Sort group, now that View leads the row — keeps the
+     two toggles from reading as one continuous cluster of buttons. */
+  .list-sort-label-gapped{ margin-left:18px; }
   .list-sort-toggle{ display:inline-flex; gap:2px; background:var(--paper-sunken); padding:3px; border-radius:var(--radius-m); }
   .list-sort-btn{
     border:none; background:transparent; padding:5px 11px; border-radius:calc(var(--radius-m) - 3px);
@@ -897,7 +916,6 @@
         <button class="tab-btn active" id="tab-list" data-view="list">List</button>
         <button class="tab-btn" id="tab-today" data-view="today">Today</button>
         <button class="tab-btn" id="tab-week" data-view="week">This week</button>
-        <button class="tab-btn" id="tab-status" data-view="status">Status</button>
         <button class="tab-btn" id="tab-cal" data-view="cal">Calendar</button>
         <button class="tab-btn" id="tab-stats" data-view="stats">Stats</button>
         <button class="tab-btn" id="tab-trash" data-view="trash">Trash</button>
@@ -954,16 +972,17 @@
         <span class="search-status" id="search-status"></span>
       </div>
       <div class="list-sort-row" id="list-sort-row">
-        <span class="list-sort-label">Sort</span>
+        <span class="list-sort-label">View</span>
+        <div class="list-sort-toggle" id="list-layout-toggle">
+          <button class="list-sort-btn" id="layout-stacked-btn" type="button">Stacked</button>
+          <button class="list-sort-btn active" id="layout-tabs-btn" type="button">Tabs</button>
+          <button class="list-sort-btn" id="layout-status-btn" type="button">Status</button>
+        </div>
+        <span class="list-sort-label list-sort-label-gapped">Sort</span>
         <div class="list-sort-toggle">
           <button class="list-sort-btn active" id="sort-manual-btn" type="button">Manual</button>
           <button class="list-sort-btn" id="sort-priority-btn" type="button">Priority</button>
           <button class="list-sort-btn" id="sort-due-btn" type="button">Due date</button>
-        </div>
-        <span class="list-sort-label">View</span>
-        <div class="list-sort-toggle" id="list-layout-toggle">
-          <button class="list-sort-btn active" id="layout-stacked-btn" type="button">Stacked</button>
-          <button class="list-sort-btn" id="layout-tabs-btn" type="button">Tabs</button>
         </div>
         <button class="btn btn-sm tag-filter-toggle-btn" id="tag-filter-btn" type="button" style="margin-left:auto;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.59 13.41L11 3.83A2 2 0 009.59 3.17H4a1 1 0 00-1 1v5.59a2 2 0 00.59 1.41l9.59 9.59a2 2 0 002.82 0l4.59-4.59a2 2 0 000-2.82z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg>
@@ -994,7 +1013,6 @@
     </div>
     <div id="today-view" hidden></div>
     <div id="week-view" hidden></div>
-    <div id="status-view" hidden></div>
     <div id="cal-view" hidden></div>
     <div id="stats-view" hidden></div>
     <div id="trash-view" hidden></div>
@@ -1150,24 +1168,25 @@
     if(pb) pb.classList.toggle("active", taskSortMode === "priority");
   }
 
-  /* ---------------- list layout (stacked headings vs tabs) ---------------- */
+  /* ---------------- list layout (stacked headings / tabs / status board) ---------------- */
   var LIST_LAYOUT_KEY = "daybook-listlayout-v1";
-  var LIST_LAYOUT_MODES = ["stacked", "tabs"];
-  var listLayoutMode = "stacked";
+  var LIST_LAYOUT_MODES = ["stacked", "tabs", "status"];
+  var listLayoutMode = "tabs";
   var activeHeadingTabId = null; // null = "All" tab; session-only, not persisted
   function loadListLayoutMode(){
-    try{ var v = localStorage.getItem(LIST_LAYOUT_KEY); return LIST_LAYOUT_MODES.indexOf(v) !== -1 ? v : "stacked"; }catch(e){ return "stacked"; }
+    try{ var v = localStorage.getItem(LIST_LAYOUT_KEY); return LIST_LAYOUT_MODES.indexOf(v) !== -1 ? v : "tabs"; }catch(e){ return "tabs"; }
   }
   function setListLayoutMode(mode){
-    listLayoutMode = LIST_LAYOUT_MODES.indexOf(mode) !== -1 ? mode : "stacked";
+    listLayoutMode = LIST_LAYOUT_MODES.indexOf(mode) !== -1 ? mode : "tabs";
     try{ localStorage.setItem(LIST_LAYOUT_KEY, listLayoutMode); }catch(e){}
     syncListLayoutButtons();
     render();
   }
   function syncListLayoutButtons(){
-    var sb = document.getElementById("layout-stacked-btn"), tb = document.getElementById("layout-tabs-btn");
+    var sb = document.getElementById("layout-stacked-btn"), tb = document.getElementById("layout-tabs-btn"), stb = document.getElementById("layout-status-btn");
     if(sb) sb.classList.toggle("active", listLayoutMode === "stacked");
     if(tb) tb.classList.toggle("active", listLayoutMode === "tabs");
+    if(stb) stb.classList.toggle("active", listLayoutMode === "status");
   }
   // Undated tasks all get this same (very late) key, so a stable sort keeps them
   // in their original relative order, trailing after every dated task.
@@ -2339,20 +2358,17 @@
     document.getElementById("list-view").hidden = mode !== "list";
     document.getElementById("today-view").hidden = mode !== "today";
     document.getElementById("week-view").hidden = mode !== "week";
-    document.getElementById("status-view").hidden = mode !== "status";
     document.getElementById("cal-view").hidden = mode !== "cal";
     document.getElementById("stats-view").hidden = mode !== "stats";
     document.getElementById("trash-view").hidden = mode !== "trash";
     document.getElementById("tab-list").classList.toggle("active", mode === "list");
     document.getElementById("tab-today").classList.toggle("active", mode === "today");
     document.getElementById("tab-week").classList.toggle("active", mode === "week");
-    document.getElementById("tab-status").classList.toggle("active", mode === "status");
     document.getElementById("tab-cal").classList.toggle("active", mode === "cal");
     document.getElementById("tab-stats").classList.toggle("active", mode === "stats");
     document.getElementById("tab-trash").classList.toggle("active", mode === "trash");
     if(mode === "today") renderTodayView();
     if(mode === "week") renderWeekView();
-    if(mode === "status") renderStatusView();
     if(mode === "stats") renderStats();
     if(mode === "cal") renderCalendar();
     if(mode === "trash") renderTrashView();
@@ -2360,7 +2376,6 @@
   document.getElementById("tab-list").addEventListener("click", function(){ setView("list"); });
   document.getElementById("tab-today").addEventListener("click", function(){ setView("today"); });
   document.getElementById("tab-week").addEventListener("click", function(){ setView("week"); });
-  document.getElementById("tab-status").addEventListener("click", function(){ setView("status"); });
   document.getElementById("tab-cal").addEventListener("click", function(){ setView("cal"); });
   document.getElementById("tab-stats").addEventListener("click", function(){ setView("stats"); });
   document.getElementById("tab-trash").addEventListener("click", function(){ setView("trash"); });
@@ -2748,6 +2763,7 @@
   document.getElementById("sort-due-btn").addEventListener("click", function(){ setTaskSortMode("due"); });
   document.getElementById("layout-stacked-btn").addEventListener("click", function(){ setListLayoutMode("stacked"); });
   document.getElementById("layout-tabs-btn").addEventListener("click", function(){ setListLayoutMode("tabs"); });
+  document.getElementById("layout-status-btn").addEventListener("click", function(){ setListLayoutMode("status"); });
   document.getElementById("quick-capture-btn").addEventListener("click", function(){ openQuickCapture(); });
   document.getElementById("outline-btn").addEventListener("click", function(){ openOutlinePanel(); });
   function wireColorDot(dot, bar, heading){
@@ -3713,7 +3729,6 @@
     updateSearchStatus();
     if(viewMode === "today") renderTodayView();
     if(viewMode === "week") renderWeekView();
-    if(viewMode === "status") renderStatusView();
     if(viewMode === "stats") renderStats();
     if(viewMode === "cal") renderCalendar();
     if(viewMode === "trash") renderTrashView();
@@ -3750,7 +3765,10 @@
   function renderHeadingTabsBar(){
     var tabsRoot = document.getElementById("heading-tabs-root");
     tabsRoot.innerHTML = "";
-    if(listLayoutMode !== "tabs" || !state.headings.length){ return; }
+    // The heading filter bar is shared by both the Tabs layout (isolate one heading's card)
+    // and the Status layout (scope the kanban board to one heading) — Stacked has no use for
+    // it, since every heading is already shown at once there.
+    if((listLayoutMode !== "tabs" && listLayoutMode !== "status") || !state.headings.length){ return; }
     // If the previously-selected heading was deleted, fall back to "All" rather than
     // silently rendering nothing.
     if(activeHeadingTabId !== null && !state.headings.some(function(h){ return h.id === activeHeadingTabId; })){
@@ -3783,6 +3801,14 @@
     renderHeadingTabsBar();
     var root = document.getElementById("headings-root");
     root.innerHTML = "";
+
+    if(listLayoutMode === "status"){
+      // No headings at all is handled by the shared "Nothing here yet" empty state below
+      // (renderEmptyState) — don't also show the board's own, narrower empty message on top of it.
+      if(state.headings.length) renderStatusBoard(root, activeHeadingTabId);
+      return;
+    }
+
     var showAll = listLayoutMode !== "tabs" || activeHeadingTabId === null;
     var headingsToShow = showAll ? state.headings : state.headings.filter(function(h){ return h.id === activeHeadingTabId; });
     headingsToShow.forEach(function(heading){ root.appendChild(renderHeadingCard(heading)); });
@@ -4120,14 +4146,18 @@
     { key: "in_progress", label: "In progress" },
     { key: "done", label: "Done" }
   ];
-  function renderStatusView(){
-    var root = document.getElementById("status-view");
+  // Renders the kanban board into `root`. When `headingFilterId` is set (List view's Status
+  // layout, with a specific heading tab selected rather than "All"), only that heading's tasks
+  // are grouped — otherwise every heading in the list contributes, same as before this became
+  // an embedded List-view layout instead of its own top-level tab.
+  function renderStatusBoard(root, headingFilterId){
     if(!state){ root.innerHTML = ""; return; }
     root.innerHTML = "";
 
     var groups = { not_started: [], in_progress: [], done: [] };
     forEachTask(function(t, h, sub){
       if(t.archivedAt || t.deletedAt) return;
+      if(headingFilterId && h.id !== headingFilterId) return;
       var container = sub || h;
       var subtasksByStatus = { not_started: [], in_progress: [], done: [] };
       (t.subtasks || []).forEach(function(st){
@@ -4143,18 +4173,13 @@
       });
     });
 
-    var head = document.createElement("div");
-    head.className = "board-head";
-    head.innerHTML =
-      '<div><div class="board-title">Status</div>' +
-      '<div class="board-sub">Every task and subtask, grouped by where it stands.</div></div>';
-    root.appendChild(head);
-
     var anyItems = STATUS_COLUMNS.some(function(col){ return groups[col.key].length; });
     if(!anyItems){
       var empty = document.createElement("div");
       empty.className = "empty-state";
-      empty.innerHTML = '<h2>Nothing to show yet</h2><p>Add a task and its status will show up here.</p>';
+      empty.innerHTML = headingFilterId
+        ? '<h2>Nothing here yet</h2><p>This heading has no tasks to show on the board.</p>'
+        : '<h2>Nothing to show yet</h2><p>Add a task and its status will show up here.</p>';
       root.appendChild(empty);
       return;
     }
@@ -4891,10 +4916,66 @@
   // "Done" button (blurs + confirms the save — notes already save on blur regardless, this
   // is purely so it's obvious you're finished rather than still mid-edit) and a "remove"
   // button, rather than a task-notes-style "Close" action.
+  // Which heading/sub-heading notes are currently mid-edit (showing the toolbar) — keyed by
+  // note id, session-only (never saved). A note not in here renders as a plain, read-only
+  // view of its content with no editing chrome; clicking it (or the "Add note" button, for a
+  // brand-new note) is what puts it in here and switches it into the toolbar+contenteditable
+  // form. Finishing — clicking Done, or clicking/tabbing away — removes it from here again.
+  var openHeadingNoteEditors = {};
+
   function renderHeadingNoteCard(ownerObj, note, onChange){
+    var editing = !!openHeadingNoteEditors[note.id];
     var editor = document.createElement("div");
-    editor.className = "notes-editor";
+    editor.className = "notes-editor" + (editing ? "" : " view-mode");
     editor.setAttribute("data-note-id", note.id);
+
+    function rebuild(){
+      var fresh = renderHeadingNoteCard(ownerObj, note, onChange);
+      editor.replaceWith(fresh);
+      return fresh;
+    }
+
+    if(!editing){
+      var viewRemoveBtn = document.createElement("button");
+      viewRemoveBtn.type = "button";
+      viewRemoveBtn.className = "icon-btn danger notes-remove-btn";
+      viewRemoveBtn.title = "Remove this note";
+      viewRemoveBtn.setAttribute("aria-label", "Remove this note");
+      viewRemoveBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+      // Keep this from blurring/rebuilding anything mid-click — it never opens an editor itself.
+      viewRemoveBtn.addEventListener("mousedown", function(e){ e.preventDefault(); });
+      viewRemoveBtn.addEventListener("click", function(e){
+        e.stopPropagation();
+        delete openHeadingNoteEditors[note.id];
+        ownerObj.notesList = ownerObj.notesList.filter(function(n){ return n.id !== note.id; });
+        editor.remove();
+        scheduleSave();
+        if(onChange) onChange();
+      });
+
+      var viewEl = document.createElement("div");
+      viewEl.className = "notes-view";
+      viewEl.tabIndex = 0;
+      viewEl.setAttribute("role", "button");
+      viewEl.setAttribute("aria-label", "Edit note");
+      if(note.html && note.html.trim()){ viewEl.innerHTML = note.html; }
+      else { viewEl.innerHTML = '<span class="notes-view-empty">Empty note — click to edit</span>'; }
+      function enterEdit(){
+        openHeadingNoteEditors[note.id] = true;
+        var fresh = rebuild();
+        var rich = fresh.querySelector(".notes-rich");
+        if(rich) rich.focus();
+      }
+      viewEl.addEventListener("click", enterEdit);
+      viewEl.addEventListener("keydown", function(e){
+        if(e.key === "Enter" || e.key === " "){ e.preventDefault(); enterEdit(); }
+      });
+
+      editor.appendChild(viewEl);
+      editor.appendChild(viewRemoveBtn);
+      return editor;
+    }
+
     editor.innerHTML =
       NOTES_TOOLBAR_HTML +
       '<div class="notes-rich" contenteditable="true" data-placeholder="Notes…"></div>';
@@ -4913,30 +4994,39 @@
     removeBtn.title = "Remove this note";
     removeBtn.setAttribute("aria-label", "Remove this note");
     removeBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    // Don't let clicking Remove blur the rich field first (which would rebuild this card into
+    // its view-mode form out from under the click) — just remove it directly.
+    removeBtn.addEventListener("mousedown", function(e){ e.preventDefault(); });
     toolbar.appendChild(removeBtn);
 
     var ctl = wireNotesRichEditor(editor, note.html, function(v){
       if(v !== note.html){ note.html = v; scheduleSave(); if(onChange) onChange(); }
     });
 
-    // The rich field already saves on blur (see wireNotesRichEditor) — Done just blurs it
-    // explicitly and flashes a confirmation, so clicking away isn't the only way to tell the
-    // edit went through.
-    var doneLabel = doneBtn.querySelector("span");
-    var savedFlashTimer = null;
-    function flashSaved(){
-      editor.classList.add("just-saved");
-      doneLabel.textContent = "Saved";
-      if(savedFlashTimer) clearTimeout(savedFlashTimer);
-      savedFlashTimer = setTimeout(function(){
-        editor.classList.remove("just-saved");
-        doneLabel.textContent = "Done";
-      }, 1200);
+    // The rich field already saves on blur (see wireNotesRichEditor) — Done switches the card
+    // back to its plain, read-only view right away. Clicking anywhere else does the same,
+    // *except* when focus is only moving somewhere still inside this card — the link button's
+    // own URL popover, in particular, deliberately steals focus from the rich field while
+    // staying part of the same edit — so a plain "blur" listener would slam the editor shut
+    // out from under it. Instead, watch focus leaving the whole card (focusout bubbles) and
+    // only exit once the newly-focused element genuinely isn't part of it anymore.
+    var exited = false;
+    function exitEdit(){
+      if(exited) return;
+      exited = true;
+      delete openHeadingNoteEditors[note.id];
+      rebuild();
     }
-    doneBtn.addEventListener("click", function(){ ctl.rich.blur(); });
-    ctl.rich.addEventListener("blur", flashSaved);
+    doneBtn.addEventListener("click", function(){ ctl.rich.blur(); exitEdit(); });
+    editor.addEventListener("focusout", function(){
+      setTimeout(function(){
+        if(exited || !editor.isConnected) return;
+        if(!editor.contains(document.activeElement)) exitEdit();
+      }, 0);
+    });
 
     removeBtn.addEventListener("click", function(){
+      delete openHeadingNoteEditors[note.id];
       ownerObj.notesList = ownerObj.notesList.filter(function(n){ return n.id !== note.id; });
       editor.remove();
       scheduleSave();
@@ -4959,6 +5049,7 @@
   function addHeadingNote(container, ownerObj, onChange){
     var note = { id: uid(), html: "" };
     ownerObj.notesList.push(note);
+    openHeadingNoteEditors[note.id] = true;
     var block = container.querySelector(".heading-notes-block");
     if(!block){
       block = document.createElement("div");
