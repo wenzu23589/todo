@@ -250,7 +250,7 @@
               "completedAt": "2026-08-31T10:09:08.047Z",
               "calendarEventId": null,
               "syncError": "The linked calendar event was removed",
-              "notes": "",
+              "notes": "Submitted revision on August 31st.&nbsp;",
               "checklist": [],
               "archivedAt": null,
               "priority": null,
@@ -785,7 +785,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-08-31T10:09:09.154Z",
+  "updatedAt": "2026-08-31T10:09:28.188Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
