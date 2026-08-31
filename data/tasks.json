@@ -240,14 +240,14 @@
             {
               "id": "d20e09f9-af5d-4571-8ba1-30511637b643",
               "text": "Review recieved on the 2026.",
-              "done": false,
+              "done": true,
               "due": {
                 "date": "2027-08-30",
                 "time": null,
                 "endTime": null,
                 "allDay": true
               },
-              "completedAt": null,
+              "completedAt": "2026-08-31T10:09:08.047Z",
               "calendarEventId": null,
               "syncError": "The linked calendar event was removed",
               "notes": "",
@@ -785,7 +785,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-08-31T10:08:59.298Z",
+  "updatedAt": "2026-08-31T10:09:09.154Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
