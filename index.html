@@ -784,6 +784,19 @@
   .list-sort-btn:hover:not(.active){ color:var(--ink); }
   .grip.inactive{ opacity:0.35; cursor:default; }
 
+  .heading-tabs-bar{ display:flex; align-items:center; gap:4px; margin-bottom:14px; padding-bottom:2px; overflow-x:auto; scrollbar-width:none; }
+  .heading-tabs-bar::-webkit-scrollbar{ display:none; }
+  .heading-tab-btn{
+    flex-shrink:0; display:inline-flex; align-items:center; gap:6px; border:none; background:var(--paper-sunken);
+    padding:7px 13px; border-radius:var(--radius-m); font-size:0.82rem; font-weight:500; color:var(--muted);
+    cursor:pointer; font:inherit; transition:background .12s ease,color .12s ease;
+  }
+  .heading-tab-btn.active{ background:var(--paper-raised); color:var(--ink); box-shadow:var(--shadow); font-weight:600; }
+  .heading-tab-btn:hover:not(.active){ color:var(--ink); }
+  .heading-tab-dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .heading-tab-count{ font-size:0.72rem; color:var(--muted); }
+  .heading-tab-btn.active .heading-tab-count{ color:var(--ink); }
+
   .undo-toast{
     position:fixed; left:50%; bottom:22px; transform:translateX(-50%); z-index:60;
     display:flex; align-items:center; gap:12px; background:var(--ink); color:var(--paper);
@@ -948,6 +961,11 @@
           <button class="list-sort-btn" id="sort-priority-btn" type="button">Priority</button>
           <button class="list-sort-btn" id="sort-due-btn" type="button">Due date</button>
         </div>
+        <span class="list-sort-label">View</span>
+        <div class="list-sort-toggle" id="list-layout-toggle">
+          <button class="list-sort-btn active" id="layout-stacked-btn" type="button">Stacked</button>
+          <button class="list-sort-btn" id="layout-tabs-btn" type="button">Tabs</button>
+        </div>
         <button class="btn btn-sm tag-filter-toggle-btn" id="tag-filter-btn" type="button" style="margin-left:auto;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.59 13.41L11 3.83A2 2 0 009.59 3.17H4a1 1 0 00-1 1v5.59a2 2 0 00.59 1.41l9.59 9.59a2 2 0 002.82 0l4.59-4.59a2 2 0 000-2.82z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg>
           Tags
@@ -965,6 +983,7 @@
           Quick capture
         </button>
       </div>
+      <div id="heading-tabs-root"></div>
       <div id="headings-root"></div>
       <div id="empty-state-root"></div>
       <div class="add-heading-row">
@@ -1130,6 +1149,26 @@
     if(mb) mb.classList.toggle("active", taskSortMode === "manual");
     if(db) db.classList.toggle("active", taskSortMode === "due");
     if(pb) pb.classList.toggle("active", taskSortMode === "priority");
+  }
+
+  /* ---------------- list layout (stacked headings vs tabs) ---------------- */
+  var LIST_LAYOUT_KEY = "daybook-listlayout-v1";
+  var LIST_LAYOUT_MODES = ["stacked", "tabs"];
+  var listLayoutMode = "stacked";
+  var activeHeadingTabId = null; // null = "All" tab; session-only, not persisted
+  function loadListLayoutMode(){
+    try{ var v = localStorage.getItem(LIST_LAYOUT_KEY); return LIST_LAYOUT_MODES.indexOf(v) !== -1 ? v : "stacked"; }catch(e){ return "stacked"; }
+  }
+  function setListLayoutMode(mode){
+    listLayoutMode = LIST_LAYOUT_MODES.indexOf(mode) !== -1 ? mode : "stacked";
+    try{ localStorage.setItem(LIST_LAYOUT_KEY, listLayoutMode); }catch(e){}
+    syncListLayoutButtons();
+    render();
+  }
+  function syncListLayoutButtons(){
+    var sb = document.getElementById("layout-stacked-btn"), tb = document.getElementById("layout-tabs-btn");
+    if(sb) sb.classList.toggle("active", listLayoutMode === "stacked");
+    if(tb) tb.classList.toggle("active", listLayoutMode === "tabs");
   }
   // Undated tasks all get this same (very late) key, so a stable sort keeps them
   // in their original relative order, trailing after every dated task.
@@ -2708,6 +2747,8 @@
   document.getElementById("sort-manual-btn").addEventListener("click", function(){ setTaskSortMode("manual"); });
   document.getElementById("sort-priority-btn").addEventListener("click", function(){ setTaskSortMode("priority"); });
   document.getElementById("sort-due-btn").addEventListener("click", function(){ setTaskSortMode("due"); });
+  document.getElementById("layout-stacked-btn").addEventListener("click", function(){ setListLayoutMode("stacked"); });
+  document.getElementById("layout-tabs-btn").addEventListener("click", function(){ setListLayoutMode("tabs"); });
   document.getElementById("quick-capture-btn").addEventListener("click", function(){ openQuickCapture(); });
   document.getElementById("outline-btn").addEventListener("click", function(){ openOutlinePanel(); });
   function wireColorDot(dot, bar, heading){
@@ -3700,14 +3741,60 @@
       '</div>';
   }
 
+  function headingTaskCount(heading){
+    var count = 0;
+    heading.tasks.forEach(function(t){ if(!t.archivedAt && !t.deletedAt) count++; });
+    heading.subheadings.forEach(function(sh){ sh.tasks.forEach(function(t){ if(!t.archivedAt && !t.deletedAt) count++; }); });
+    return count;
+  }
+
+  function renderHeadingTabsBar(){
+    var tabsRoot = document.getElementById("heading-tabs-root");
+    tabsRoot.innerHTML = "";
+    if(listLayoutMode !== "tabs" || !state.headings.length){ return; }
+    // If the previously-selected heading was deleted, fall back to "All" rather than
+    // silently rendering nothing.
+    if(activeHeadingTabId !== null && !state.headings.some(function(h){ return h.id === activeHeadingTabId; })){
+      activeHeadingTabId = null;
+    }
+    var bar = document.createElement("div");
+    bar.className = "heading-tabs-bar";
+    var allBtn = document.createElement("button");
+    allBtn.type = "button";
+    allBtn.className = "heading-tab-btn" + (activeHeadingTabId === null ? " active" : "");
+    allBtn.textContent = "All";
+    allBtn.addEventListener("click", function(){ activeHeadingTabId = null; render(); });
+    bar.appendChild(allBtn);
+    state.headings.forEach(function(heading){
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "heading-tab-btn" + (activeHeadingTabId === heading.id ? " active" : "");
+      if(heading.color) btn.style.setProperty("--tab-dot", heading.color);
+      btn.innerHTML =
+        (heading.color ? '<span class="heading-tab-dot" style="background:' + heading.color + '"></span>' : '') +
+        '<span class="heading-tab-title">' + escapeHtml(heading.title) + '</span>' +
+        '<span class="heading-tab-count mono">' + headingTaskCount(heading) + '</span>';
+      btn.addEventListener("click", function(){ activeHeadingTabId = heading.id; render(); });
+      bar.appendChild(btn);
+    });
+    tabsRoot.appendChild(bar);
+  }
+
   function renderHeadings(){
+    renderHeadingTabsBar();
     var root = document.getElementById("headings-root");
     root.innerHTML = "";
-    state.headings.forEach(function(heading){ root.appendChild(renderHeadingCard(heading)); });
-    var endZone = document.createElement("div");
-    endZone.className = "heading-dropzone-end";
-    wireHeadingDropzoneEnd(endZone);
-    root.appendChild(endZone);
+    var showAll = listLayoutMode !== "tabs" || activeHeadingTabId === null;
+    var headingsToShow = showAll ? state.headings : state.headings.filter(function(h){ return h.id === activeHeadingTabId; });
+    headingsToShow.forEach(function(heading){ root.appendChild(renderHeadingCard(heading)); });
+    // Reordering headings against each other only makes sense when every heading is
+    // visible at once — skip the dropzone-end when a single tab is isolated.
+    if(showAll){
+      var endZone = document.createElement("div");
+      endZone.className = "heading-dropzone-end";
+      wireHeadingDropzoneEnd(endZone);
+      root.appendChild(endZone);
+    }
   }
 
   function renderHeadingCard(heading){
@@ -6009,6 +6096,8 @@
   applyFontPackage(loadFontKey());
   taskSortMode = loadTaskSortMode();
   syncSortButtons();
+  listLayoutMode = loadListLayoutMode();
+  syncListLayoutButtons();
   state = defaultState();
   config = loadConfig();
   render();
