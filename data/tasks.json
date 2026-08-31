@@ -21,28 +21,7 @@
           "calendarEventId": "dmfr9kuqi6ih0mt6uil1bf8q3o",
           "syncError": null,
           "notes": "",
-          "checklist": [
-            {
-              "id": "0881ce95-8d76-463d-a1e2-b72c32f6232b",
-              "text": "Final Report",
-              "done": false
-            },
-            {
-              "id": "7f206010-b6a2-4ccd-b7ff-a3f8998e9324",
-              "text": "WP Report",
-              "done": false
-            },
-            {
-              "id": "69e41fc3-86c5-4e3c-930d-de81e851c416",
-              "text": "Deliverables",
-              "done": false
-            },
-            {
-              "id": "4d421b75-5520-428d-88fe-8095c660de92",
-              "text": "David Deliverables",
-              "done": false
-            }
-          ],
+          "checklist": [],
           "archivedAt": null,
           "priority": "high",
           "tags": [],
@@ -53,7 +32,8 @@
               "done": false,
               "due": null,
               "completedAt": null,
-              "attachments": []
+              "attachments": [],
+              "status": "not_started"
             },
             {
               "id": "7e8a41c5-7ab2-4ead-a39f-f9179cdc57f5",
@@ -61,7 +41,8 @@
               "done": false,
               "due": null,
               "completedAt": null,
-              "attachments": []
+              "attachments": [],
+              "status": "not_started"
             },
             {
               "id": "59563510-49b7-43d1-b7f1-08e006ffffb2",
@@ -69,13 +50,16 @@
               "done": false,
               "due": null,
               "completedAt": null,
-              "attachments": []
+              "attachments": [],
+              "status": "not_started"
             }
           ],
           "syncing": false,
           "notesRich": true,
           "attachments": [],
-          "deletedAt": null
+          "deletedAt": null,
+          "status": "not_started",
+          "notesCollapsed": false
         }
       ],
       "subheadings": [],
@@ -117,7 +101,9 @@
               "textStatus": "extracting"
             }
           ],
-          "deletedAt": null
+          "deletedAt": null,
+          "status": "not_started",
+          "notesCollapsed": false
         },
         {
           "id": "f3849877-675e-4b80-9bc8-fba063f05015",
@@ -135,7 +121,9 @@
           "subtasks": [],
           "attachments": [],
           "notesRich": true,
-          "deletedAt": null
+          "deletedAt": null,
+          "status": "not_started",
+          "notesCollapsed": false
         },
         {
           "id": "9741932e-9536-49be-8a28-22416e1982b3",
@@ -153,7 +141,9 @@
           "subtasks": [],
           "attachments": [],
           "notesRich": true,
-          "deletedAt": null
+          "deletedAt": null,
+          "status": "not_started",
+          "notesCollapsed": false
         }
       ],
       "subheadings": [],
@@ -194,7 +184,9 @@
               "syncing": false,
               "notesRich": true,
               "attachments": [],
-              "deletedAt": null
+              "deletedAt": null,
+              "status": "not_started",
+              "notesCollapsed": false
             }
           ],
           "attachments": [],
@@ -235,7 +227,9 @@
                   "textStatus": "done"
                 }
               ],
-              "deletedAt": null
+              "deletedAt": null,
+              "status": "done",
+              "notesCollapsed": false
             },
             {
               "id": "d20e09f9-af5d-4571-8ba1-30511637b643",
@@ -261,7 +255,9 @@
               "attachments": [],
               "syncing": false,
               "notesRich": true,
-              "deletedAt": null
+              "deletedAt": null,
+              "status": "done",
+              "notesCollapsed": false
             },
             {
               "id": "d189e65f-390e-4ba0-9a33-c7e34e48fb85",
@@ -279,7 +275,9 @@
               "subtasks": [],
               "attachments": [],
               "notesRich": true,
-              "deletedAt": "2026-08-31T07:39:41.577Z"
+              "deletedAt": "2026-08-31T07:39:41.577Z",
+              "status": "not_started",
+              "notesCollapsed": false
             },
             {
               "id": "24950b9f-5331-4e2b-88ff-2b375806f227",
@@ -297,7 +295,9 @@
               "subtasks": [],
               "attachments": [],
               "deletedAt": "2026-08-31T07:39:47.906Z",
-              "notesRich": true
+              "notesRich": true,
+              "status": "not_started",
+              "notesCollapsed": false
             }
           ],
           "attachments": [],
@@ -325,7 +325,9 @@
               "subtasks": [],
               "notesRich": true,
               "attachments": [],
-              "deletedAt": null
+              "deletedAt": null,
+              "status": "not_started",
+              "notesCollapsed": false
             }
           ],
           "attachments": [],
@@ -353,7 +355,9 @@
               "subtasks": [],
               "notesRich": true,
               "attachments": [],
-              "deletedAt": null
+              "deletedAt": null,
+              "status": "not_started",
+              "notesCollapsed": false
             }
           ],
           "attachments": [],
@@ -381,7 +385,9 @@
               "subtasks": [],
               "notesRich": true,
               "attachments": [],
-              "deletedAt": null
+              "deletedAt": null,
+              "status": "done",
+              "notesCollapsed": false
             },
             {
               "id": "4e585f9c-c3a2-4f7e-bf84-b9aca07c5f66",
@@ -401,7 +407,9 @@
               "subtasks": [],
               "attachments": [],
               "notesRich": true,
-              "deletedAt": null
+              "deletedAt": null,
+              "status": "not_started",
+              "notesCollapsed": false
             }
           ],
           "attachments": [],
@@ -429,7 +437,9 @@
               "subtasks": [],
               "notesRich": true,
               "attachments": [],
-              "deletedAt": null
+              "deletedAt": null,
+              "status": "not_started",
+              "notesCollapsed": false
             },
             {
               "id": "21baad90-9c13-449c-bcb0-30d61611939f",
@@ -447,7 +457,9 @@
               "subtasks": [],
               "notesRich": true,
               "attachments": [],
-              "deletedAt": null
+              "deletedAt": null,
+              "status": "not_started",
+              "notesCollapsed": false
             }
           ],
           "attachments": [],
@@ -480,7 +492,8 @@
                   "done": false,
                   "due": null,
                   "completedAt": null,
-                  "attachments": []
+                  "attachments": [],
+                  "status": "not_started"
                 },
                 {
                   "id": "3aef1603-408f-4f66-a81e-1bb502d7f17a",
@@ -488,12 +501,15 @@
                   "done": false,
                   "due": null,
                   "completedAt": null,
-                  "attachments": []
+                  "attachments": [],
+                  "status": "not_started"
                 }
               ],
               "attachments": [],
               "notesRich": true,
-              "deletedAt": null
+              "deletedAt": null,
+              "status": "not_started",
+              "notesCollapsed": false
             }
           ],
           "notesList": [],
@@ -546,7 +562,9 @@
               "attachments": [],
               "syncing": false,
               "notesRich": true,
-              "deletedAt": null
+              "deletedAt": null,
+              "status": "not_started",
+              "notesCollapsed": false
             },
             {
               "id": "a32de340-a227-44db-958a-84390d3fa9f7",
@@ -564,7 +582,9 @@
               "subtasks": [],
               "attachments": [],
               "notesRich": true,
-              "deletedAt": null
+              "deletedAt": null,
+              "status": "not_started",
+              "notesCollapsed": false
             }
           ],
           "attachments": [],
@@ -597,7 +617,9 @@
           "subtasks": [],
           "attachments": [],
           "notesRich": true,
-          "deletedAt": "2026-08-27T12:16:10.808Z"
+          "deletedAt": "2026-08-27T12:16:10.808Z",
+          "status": "done",
+          "notesCollapsed": false
         },
         {
           "id": "5f8b9b8b-7f5b-4c2d-9397-cc6d6a3e2d83",
@@ -615,7 +637,9 @@
           "subtasks": [],
           "attachments": [],
           "deletedAt": "2026-08-27T12:35:45.488Z",
-          "notesRich": true
+          "notesRich": true,
+          "status": "not_started",
+          "notesCollapsed": false
         },
         {
           "id": "8b0dc74f-690a-48a3-b0bb-93881342a84a",
@@ -633,7 +657,9 @@
           "subtasks": [],
           "attachments": [],
           "notesRich": true,
-          "deletedAt": null
+          "deletedAt": null,
+          "status": "not_started",
+          "notesCollapsed": false
         }
       ],
       "subheadings": [],
@@ -675,7 +701,9 @@
           "attachments": [],
           "syncing": false,
           "notesRich": true,
-          "deletedAt": null
+          "deletedAt": null,
+          "status": "not_started",
+          "notesCollapsed": false
         }
       ],
       "subheadings": [
@@ -720,7 +748,9 @@
           "attachments": [],
           "syncing": false,
           "notesRich": true,
-          "deletedAt": null
+          "deletedAt": null,
+          "status": "not_started",
+          "notesCollapsed": false
         },
         {
           "id": "895f4b75-2fa7-4f8e-89a9-6f94e75c02f5",
@@ -743,7 +773,9 @@
           "subtasks": [],
           "attachments": [],
           "notesRich": true,
-          "deletedAt": null
+          "deletedAt": null,
+          "status": "done",
+          "notesCollapsed": false
         }
       ],
       "subheadings": [],
@@ -777,7 +809,9 @@
           "subtasks": [],
           "attachments": [],
           "notesRich": true,
-          "deletedAt": null
+          "deletedAt": null,
+          "status": "not_started",
+          "notesCollapsed": false
         }
       ],
       "subheadings": [],
@@ -785,7 +819,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-08-31T11:26:54.291Z",
+  "updatedAt": "2026-08-31T12:59:24.352Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
