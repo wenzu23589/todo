@@ -163,7 +163,7 @@
     {
       "id": "779f9eaa-21b8-4c0d-a214-cd689a877bb0",
       "title": "Research",
-      "collapsed": true,
+      "collapsed": false,
       "color": "#3f7d6e",
       "tasks": [],
       "subheadings": [
@@ -612,7 +612,9 @@
           "priority": null,
           "tags": [],
           "subtasks": [],
-          "attachments": []
+          "attachments": [],
+          "notesRich": true,
+          "deletedAt": null
         }
       ],
       "subheadings": [],
@@ -654,7 +656,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-08-29T13:02:07.939Z",
+  "updatedAt": "2026-08-31T07:38:09.847Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
