@@ -784,8 +784,7 @@
   .list-sort-btn:hover:not(.active){ color:var(--ink); }
   .grip.inactive{ opacity:0.35; cursor:default; }
 
-  .heading-tabs-bar{ display:flex; align-items:center; gap:4px; margin-bottom:14px; padding-bottom:2px; overflow-x:auto; scrollbar-width:none; }
-  .heading-tabs-bar::-webkit-scrollbar{ display:none; }
+  .heading-tabs-bar{ display:flex; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
   .heading-tab-btn{
     flex-shrink:0; display:inline-flex; align-items:center; gap:6px; border:none; background:var(--paper-sunken);
     padding:7px 13px; border-radius:var(--radius-m); font-size:0.82rem; font-weight:500; color:var(--muted);
