@@ -452,7 +452,16 @@
               "archivedAt": null,
               "priority": null,
               "tags": [],
-              "subtasks": [],
+              "subtasks": [
+                {
+                  "id": "b54d5126-aa9a-46d7-8b26-38d92333f790",
+                  "text": "Disclaimer",
+                  "done": false,
+                  "due": null,
+                  "completedAt": null,
+                  "attachments": []
+                }
+              ],
               "attachments": []
             }
           ],
@@ -743,7 +752,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-08-31T07:40:04.812Z",
+  "updatedAt": "2026-08-31T07:40:20.975Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
