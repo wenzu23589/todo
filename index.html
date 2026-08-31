@@ -3765,10 +3765,10 @@
   function renderHeadingTabsBar(){
     var tabsRoot = document.getElementById("heading-tabs-root");
     tabsRoot.innerHTML = "";
-    // The heading filter bar is shared by both the Tabs layout (isolate one heading's card)
-    // and the Status layout (scope the kanban board to one heading) — Stacked has no use for
-    // it, since every heading is already shown at once there.
-    if((listLayoutMode !== "tabs" && listLayoutMode !== "status") || !state.headings.length){ return; }
+    // The heading filter bar is available in all three layouts — Tabs and Status use it to
+    // isolate one heading (or scope the board to it); in Stacked it just narrows the usual
+    // stacked list down to one heading's card instead of showing every heading at once.
+    if(!state.headings.length){ return; }
     // If the previously-selected heading was deleted, fall back to "All" rather than
     // silently rendering nothing.
     if(activeHeadingTabId !== null && !state.headings.some(function(h){ return h.id === activeHeadingTabId; })){
@@ -3809,7 +3809,7 @@
       return;
     }
 
-    var showAll = listLayoutMode !== "tabs" || activeHeadingTabId === null;
+    var showAll = activeHeadingTabId === null;
     var headingsToShow = showAll ? state.headings : state.headings.filter(function(h){ return h.id === activeHeadingTabId; });
     headingsToShow.forEach(function(heading){ root.appendChild(renderHeadingCard(heading)); });
     // Reordering headings against each other only makes sense when every heading is
