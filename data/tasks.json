@@ -77,7 +77,9 @@
           "priority": null,
           "tags": [],
           "subtasks": [],
-          "attachments": []
+          "attachments": [],
+          "notesRich": true,
+          "deletedAt": null
         }
       ],
       "subheadings": [],
@@ -565,7 +567,7 @@
           "tasks": [
             {
               "id": "33b3416d-1dba-435f-9018-fbae87ac2b37",
-              "text": "Sort out issue with timetables.",
+              "text": "CARS Reporting",
               "done": false,
               "due": {
                 "date": "2026-09-04",
@@ -832,7 +834,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-08-31T18:32:44.800Z",
+  "updatedAt": "2026-09-01T04:14:32.511Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
