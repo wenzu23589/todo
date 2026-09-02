@@ -543,20 +543,20 @@
                 {
                   "id": "b54d5126-aa9a-46d7-8b26-38d92333f790",
                   "text": "Disclaimer",
-                  "done": false,
+                  "done": true,
                   "due": null,
-                  "completedAt": null,
+                  "completedAt": "2026-09-02T13:54:33.518Z",
                   "attachments": [],
-                  "status": "not_started"
+                  "status": "done"
                 },
                 {
                   "id": "3aef1603-408f-4f66-a81e-1bb502d7f17a",
                   "text": "Add roles specified by James email 31st August 2026.",
-                  "done": false,
+                  "done": true,
                   "due": null,
-                  "completedAt": null,
+                  "completedAt": "2026-09-02T13:54:32.950Z",
                   "attachments": [],
-                  "status": "not_started"
+                  "status": "done"
                 }
               ],
               "attachments": [],
@@ -863,7 +863,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-02T13:54:28.880Z",
+  "updatedAt": "2026-09-02T13:54:34.618Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
