@@ -580,7 +580,17 @@
               "archivedAt": null,
               "priority": null,
               "tags": [],
-              "subtasks": [],
+              "subtasks": [
+                {
+                  "id": "08575568-4cd3-427b-a889-6182ae13d041",
+                  "text": "Review work carried out by Diane and a few analytical.",
+                  "status": "not_started",
+                  "done": false,
+                  "due": null,
+                  "completedAt": null,
+                  "attachments": []
+                }
+              ],
               "attachments": []
             }
           ],
@@ -881,7 +891,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-02T13:56:50.026Z",
+  "updatedAt": "2026-09-02T13:57:07.355Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
