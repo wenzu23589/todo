@@ -106,7 +106,9 @@
           "priority": null,
           "tags": [],
           "subtasks": [],
-          "attachments": []
+          "attachments": [],
+          "notesRich": true,
+          "deletedAt": null
         }
       ],
       "subheadings": [],
@@ -527,9 +529,9 @@
             {
               "id": "098d92be-0f1d-481f-b1e1-de7ef48b10ec",
               "text": "Ammed the 1st page of the quesstionare with : (1) Disclaimer and (2) Roles",
-              "done": true,
+              "done": false,
               "due": null,
-              "completedAt": "2026-09-02T13:34:26.829Z",
+              "completedAt": null,
               "calendarEventId": null,
               "syncError": null,
               "notes": "",
@@ -560,7 +562,7 @@
               "attachments": [],
               "notesRich": true,
               "deletedAt": null,
-              "status": "done",
+              "status": "not_started",
               "notesCollapsed": false
             }
           ],
@@ -861,7 +863,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-02T13:34:27.932Z",
+  "updatedAt": "2026-09-02T13:35:53.812Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
