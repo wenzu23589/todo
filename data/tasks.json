@@ -458,9 +458,9 @@
             {
               "id": "21baad90-9c13-449c-bcb0-30d61611939f",
               "text": "Research with James",
-              "done": false,
+              "done": true,
               "due": null,
-              "completedAt": null,
+              "completedAt": "2026-09-03T09:11:28.863Z",
               "calendarEventId": null,
               "syncError": null,
               "notes": "",
@@ -472,7 +472,7 @@
               "notesRich": true,
               "attachments": [],
               "deletedAt": null,
-              "status": "in_progress",
+              "status": "done",
               "notesCollapsed": false
             }
           ],
@@ -828,7 +828,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-03T09:11:27.667Z",
+  "updatedAt": "2026-09-03T09:11:29.963Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
