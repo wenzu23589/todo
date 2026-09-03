@@ -692,26 +692,6 @@
       "color": "#6f7d3a",
       "tasks": [
         {
-          "id": "9603ba3b-67ab-4dfa-b3c4-f3b1e75b1eab",
-          "text": "Note to self. Do not delete.",
-          "done": true,
-          "due": null,
-          "completedAt": "2026-08-27T12:16:09.006Z",
-          "calendarEventId": null,
-          "syncError": null,
-          "notes": "The hours allocated to me were, originally proposed 89 hrs, then 133, now agree upon 197 hrs LFC (261 Diane). At a rate of 44 Euro/hr = 8668.",
-          "checklist": [],
-          "archivedAt": null,
-          "priority": null,
-          "tags": [],
-          "subtasks": [],
-          "attachments": [],
-          "notesRich": true,
-          "deletedAt": "2026-08-27T12:16:10.808Z",
-          "status": "done",
-          "notesCollapsed": false
-        },
-        {
           "id": "5f8b9b8b-7f5b-4c2d-9397-cc6d6a3e2d83",
           "text": "New task",
           "done": false,
@@ -899,7 +879,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-03T06:29:53.650Z",
+  "updatedAt": "2026-09-03T06:30:41.023Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
