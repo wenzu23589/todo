@@ -105,26 +105,7 @@
           "archivedAt": null,
           "priority": null,
           "tags": [],
-          "subtasks": [
-            {
-              "id": "ca255cca-5167-40c6-bf1f-690cc781e878",
-              "text": "f",
-              "status": "not_started",
-              "done": false,
-              "due": null,
-              "completedAt": null,
-              "attachments": []
-            },
-            {
-              "id": "d9fac687-6866-45e7-b181-da965342c513",
-              "text": "ff",
-              "status": "not_started",
-              "done": false,
-              "due": null,
-              "completedAt": null,
-              "attachments": []
-            }
-          ],
+          "subtasks": [],
           "attachments": [],
           "notesRich": true,
           "deletedAt": null
@@ -918,7 +899,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-03T06:29:18.881Z",
+  "updatedAt": "2026-09-03T06:29:26.032Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
