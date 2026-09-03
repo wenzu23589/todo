@@ -314,26 +314,6 @@
               "notesCollapsed": false
             },
             {
-              "id": "d189e65f-390e-4ba0-9a33-c7e34e48fb85",
-              "text": "New task",
-              "done": false,
-              "due": null,
-              "completedAt": null,
-              "calendarEventId": null,
-              "syncError": null,
-              "notes": "",
-              "checklist": [],
-              "archivedAt": null,
-              "priority": null,
-              "tags": [],
-              "subtasks": [],
-              "attachments": [],
-              "notesRich": true,
-              "deletedAt": "2026-08-31T07:39:41.577Z",
-              "status": "not_started",
-              "notesCollapsed": false
-            },
-            {
               "id": "24950b9f-5331-4e2b-88ff-2b375806f227",
               "text": "New task",
               "done": false,
@@ -859,7 +839,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-03T06:30:42.759Z",
+  "updatedAt": "2026-09-03T06:30:44.534Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
