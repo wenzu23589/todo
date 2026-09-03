@@ -461,11 +461,20 @@
   .subtask-chevron{ flex-shrink:0; transition: transform .15s ease; }
   .subtasks-badge.open .subtask-chevron, .task-subtask-toggle.open .subtask-chevron{ transform: rotate(180deg); }
   .task-subtask-toggle{
-    background:none; border:none; color:var(--muted); cursor:pointer; padding:4px; margin-top:1px;
-    display:flex; align-items:center; justify-content:center; border-radius:4px; flex-shrink:0;
+    background:none; border:none; color:var(--muted); cursor:pointer; padding:3px 5px; margin-top:1px;
+    display:flex; align-items:center; justify-content:center; gap:3px; border-radius:4px; flex-shrink:0;
   }
   .task-subtask-toggle:hover{ color:var(--ink); background:var(--paper-sunken); }
   .task-subtask-toggle.open{ color:var(--ink-soft); }
+  /* A plain chevron alone was too easy to miss — this puts the actual subtask count right
+     next to the task title, so a task you haven't opened doesn't hide how much is nested
+     inside it. */
+  .task-subtask-count{
+    font-size:0.7rem; font-weight:700; line-height:1; color:var(--ink-soft); background:var(--paper-sunken);
+    border:1px solid var(--line); border-radius:999px; min-width:15px; height:15px; padding:0 4px;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .task-subtask-toggle:hover .task-subtask-count{ background:var(--paper-raised); }
   .subtasks-editor{
     display:flex; flex-direction:column; gap:7px; background:var(--paper-sunken); border:1px solid var(--line);
     border-radius:var(--radius-s); padding:8px; margin-top:4px;
@@ -882,6 +891,7 @@
   .board-card-meta .pill.high{ color:#a3492f; border-color:color-mix(in srgb, #a3492f 35%, var(--line)); }
   .board-card-meta .pill.medium{ color:#a3762a; border-color:color-mix(in srgb, #a3762a 35%, var(--line)); }
   .board-card-meta .pill.low{ color:var(--accent-2); border-color:color-mix(in srgb, var(--accent-2) 35%, var(--line)); }
+  .board-card-archive-btn{ flex-shrink:0; margin:-2px -2px -2px 0; }
   .board-subtask{
     margin-top:7px; margin-left:26px; padding:6px 8px; background:var(--paper-raised); border:1px solid var(--line-soft);
     border-radius:var(--radius-s); display:flex; align-items:flex-start; gap:7px;
@@ -4239,6 +4249,27 @@
     titleEl.className = "board-card-title";
     titleEl.textContent = task.text;
     row.appendChild(titleEl);
+
+    // Archiving only makes sense for a task's own (primary) card once it's actually done —
+    // same condition the List view uses for its own archive icon. A context-only card (shown
+    // here only because one of its subtasks landed in this column) never gets one, since the
+    // task itself isn't done.
+    if(group.isPrimary && task.done){
+      var archiveBtn = document.createElement("button");
+      archiveBtn.type = "button";
+      archiveBtn.className = "icon-btn board-card-archive-btn";
+      archiveBtn.title = "Archive task";
+      archiveBtn.setAttribute("aria-label", "Archive task");
+      archiveBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8M10 13h4"/></svg>';
+      archiveBtn.addEventListener("click", function(e){
+        e.stopPropagation();
+        task.archivedAt = new Date().toISOString();
+        scheduleSave();
+        render();
+      });
+      row.appendChild(archiveBtn);
+    }
+
     card.appendChild(row);
 
     if(group.isPrimary && (task.due || task.priority)){
@@ -4462,7 +4493,7 @@
     row.innerHTML =
       gripHtml() +
       '<button type="button" class="check status-' + (task.status || "not_started") + '" aria-label="Status: ' + taskStatusLabel(task.status) + '" title="' + taskStatusLabel(task.status) + ' — click to change"></button>' +
-      (hasSubtasks ? '<button class="task-subtask-toggle" type="button" title="Show/hide subtasks" aria-label="Show/hide subtasks">' + SUBTASK_CHEVRON + '</button>' : '') +
+      (hasSubtasks ? '<button class="task-subtask-toggle" type="button" title="' + task.subtasks.length + ' subtask' + (task.subtasks.length === 1 ? '' : 's') + ' — show/hide" aria-label="Show/hide subtasks (' + task.subtasks.length + ')"><span class="task-subtask-count">' + task.subtasks.length + '</span>' + SUBTASK_CHEVRON + '</button>' : '') +
       '<div class="task-main">' +
         '<textarea class="task-text" rows="1" title="' + escapeHtml(task.text) + '" aria-label="Task">' + escapeHtml(task.text) + '</textarea>' +
         '<div class="task-meta">' +
@@ -5526,21 +5557,29 @@
   }
   // The row-level disclosure arrow next to the task title only exists once a task has
   // at least one subtask — add or remove it in place (no full render()) when the first
-  // subtask is added or the last one is removed, keeping it in sync with the badge.
+  // subtask is added or the last one is removed, keeping it in sync with the badge. Also
+  // keeps its count number current whenever a subtask is added or removed (the count itself
+  // doesn't need refreshing just because one was checked off, only when the total changes).
   function updateTaskSubtaskToggle(row, task){
     var existing = row.querySelector(".task-subtask-toggle");
-    var shouldExist = !!(task.subtasks && task.subtasks.length);
+    var count = task.subtasks ? task.subtasks.length : 0;
+    var shouldExist = count > 0;
     if(shouldExist && !existing){
       var btn = document.createElement("button");
       btn.className = "task-subtask-toggle";
       btn.type = "button";
-      btn.title = "Show/hide subtasks";
-      btn.setAttribute("aria-label", "Show/hide subtasks");
-      btn.innerHTML = SUBTASK_CHEVRON;
+      btn.title = count + " subtask" + (count === 1 ? "" : "s") + " — show/hide";
+      btn.setAttribute("aria-label", "Show/hide subtasks (" + count + ")");
+      btn.innerHTML = '<span class="task-subtask-count">' + count + '</span>' + SUBTASK_CHEVRON;
       var badge = row.querySelector(".subtasks-badge");
       if(badge && badge.classList.contains("open")) btn.classList.add("open");
       btn.addEventListener("click", function(){ toggleSubtasksEditor(row, task); });
       row.querySelector(".task-main").insertAdjacentElement("beforebegin", btn);
+    } else if(shouldExist && existing){
+      var countEl = existing.querySelector(".task-subtask-count");
+      if(countEl) countEl.textContent = count;
+      existing.title = count + " subtask" + (count === 1 ? "" : "s") + " — show/hide";
+      existing.setAttribute("aria-label", "Show/hide subtasks (" + count + ")");
     } else if(!shouldExist && existing){
       existing.remove();
     }
