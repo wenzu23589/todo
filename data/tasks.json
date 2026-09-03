@@ -216,6 +216,24 @@
           "tags": [],
           "subtasks": [],
           "attachments": []
+        },
+        {
+          "id": "32b4af91-d5fa-482b-b9d9-5067b130dde5",
+          "text": "New task",
+          "status": "not_started",
+          "done": false,
+          "due": null,
+          "completedAt": null,
+          "calendarEventId": null,
+          "syncError": null,
+          "notes": "",
+          "checklist": [],
+          "notesCollapsed": false,
+          "archivedAt": null,
+          "priority": null,
+          "tags": [],
+          "subtasks": [],
+          "attachments": []
         }
       ],
       "subheadings": [],
@@ -887,7 +905,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-03T12:39:41.108Z",
+  "updatedAt": "2026-09-03T12:39:43.293Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
