@@ -129,9 +129,9 @@
         {
           "id": "744ebc5b-2a12-4fcc-affb-a83f53fdcd5c",
           "text": "Setup Meeting for piloting",
-          "done": false,
+          "done": true,
           "due": null,
-          "completedAt": null,
+          "completedAt": "2026-09-03T12:39:30.821Z",
           "calendarEventId": null,
           "syncError": null,
           "notes": "",
@@ -156,7 +156,7 @@
             }
           ],
           "deletedAt": null,
-          "status": "not_started",
+          "status": "done",
           "notesCollapsed": false
         },
         {
@@ -869,7 +869,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-03T12:39:28.363Z",
+  "updatedAt": "2026-09-03T12:39:31.937Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
