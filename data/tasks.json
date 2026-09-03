@@ -123,7 +123,7 @@
     {
       "id": "d5007a2b-9da1-46f1-b38e-6b5b303331c9",
       "title": "GreenToC",
-      "collapsed": false,
+      "collapsed": true,
       "color": "#6f7d3a",
       "tasks": [
         {
@@ -315,7 +315,9 @@
           "priority": null,
           "tags": [],
           "subtasks": [],
-          "attachments": []
+          "attachments": [],
+          "notesRich": true,
+          "deletedAt": null
         }
       ],
       "subheadings": [],
@@ -1000,7 +1002,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-03T13:00:28.544Z",
+  "updatedAt": "2026-09-03T17:04:44.884Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
