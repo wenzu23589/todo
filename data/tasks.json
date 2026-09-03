@@ -51,7 +51,7 @@
               "due": null,
               "completedAt": null,
               "attachments": [],
-              "status": "not_started"
+              "status": "in_progress"
             },
             {
               "id": "8f814b6a-a6d1-4aba-bbd5-87e1344726a6",
@@ -798,7 +798,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-03T06:30:49.271Z",
+  "updatedAt": "2026-09-03T07:23:38.803Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
