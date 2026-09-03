@@ -214,7 +214,7 @@
         {
           "id": "1e0b9535-b3a3-4b0a-9dd9-8f7397a9acb0",
           "title": "Daniela Paper",
-          "collapsed": true,
+          "collapsed": false,
           "tasks": [
             {
               "id": "5a53cca1-85c7-4b1f-9725-bcc61e5a816a",
@@ -321,7 +321,7 @@
         {
           "id": "00c58f34-acde-43ad-a5bb-860b9b7a8283",
           "title": "GreenToC Paper",
-          "collapsed": false,
+          "collapsed": true,
           "tasks": [
             {
               "id": "887a8e91-3cf4-4015-9dfc-feb1d8ecf351",
@@ -828,7 +828,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-03T09:11:39.620Z",
+  "updatedAt": "2026-09-03T09:11:42.878Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
