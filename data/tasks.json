@@ -537,7 +537,7 @@
                 "allDay": true
               },
               "completedAt": null,
-              "calendarEventId": "bdg2rmn0ago2047ueae6hjf6n0",
+              "calendarEventId": null,
               "syncError": null,
               "notes": "",
               "checklist": [],
@@ -559,7 +559,7 @@
               "attachments": [],
               "syncing": false,
               "notesRich": true,
-              "deletedAt": null
+              "deletedAt": "2026-09-03T07:36:35.944Z"
             }
           ],
           "notesList": [],
@@ -807,7 +807,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-03T07:36:31.173Z",
+  "updatedAt": "2026-09-03T07:36:37.044Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
