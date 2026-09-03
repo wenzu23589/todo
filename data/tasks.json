@@ -219,7 +219,7 @@
         },
         {
           "id": "32b4af91-d5fa-482b-b9d9-5067b130dde5",
-          "text": "",
+          "text": "Untitled task",
           "status": "not_started",
           "done": false,
           "due": null,
@@ -233,7 +233,8 @@
           "priority": null,
           "tags": [],
           "subtasks": [],
-          "attachments": []
+          "attachments": [],
+          "deletedAt": "2026-09-03T12:39:54.726Z"
         }
       ],
       "subheadings": [],
@@ -905,7 +906,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-03T12:39:53.816Z",
+  "updatedAt": "2026-09-03T12:39:55.829Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
