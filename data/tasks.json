@@ -570,7 +570,26 @@
           "title": "Departmental Research",
           "collapsed": false,
           "collapsedDefaultApplied": true,
-          "tasks": [],
+          "tasks": [
+            {
+              "id": "f8f17b01-2396-4b8f-8864-d416a4a5133d",
+              "text": "New task",
+              "status": "not_started",
+              "done": false,
+              "due": null,
+              "completedAt": null,
+              "calendarEventId": null,
+              "syncError": null,
+              "notes": "",
+              "checklist": [],
+              "notesCollapsed": false,
+              "archivedAt": null,
+              "priority": null,
+              "tags": [],
+              "subtasks": [],
+              "attachments": []
+            }
+          ],
           "notesList": [],
           "attachments": []
         }
@@ -807,7 +826,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-03T07:36:42.277Z",
+  "updatedAt": "2026-09-03T07:36:43.758Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
