@@ -912,14 +912,14 @@
         {
           "id": "66efa385-656a-4488-8048-322405220c60",
           "text": "IRG check receipts and prpeare docs",
-          "done": false,
+          "done": true,
           "due": {
             "date": "2026-09-18",
             "time": null,
             "endTime": null,
             "allDay": true
           },
-          "completedAt": null,
+          "completedAt": "2026-09-07T13:19:41.231Z",
           "calendarEventId": "ln0dcu7t2v6sk3hufqh7m5ra9o",
           "syncError": null,
           "notes": "",
@@ -929,10 +929,10 @@
           "tags": [],
           "subtasks": [],
           "attachments": [],
-          "syncing": true,
+          "syncing": false,
           "notesRich": true,
           "deletedAt": null,
-          "status": "in_progress",
+          "status": "done",
           "notesCollapsed": false
         },
         {
@@ -1002,7 +1002,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-07T13:19:39.869Z",
+  "updatedAt": "2026-09-07T13:19:43.216Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
