@@ -974,14 +974,14 @@
         {
           "id": "6c03a008-f37e-4641-b92a-3f2d17cab528",
           "text": "Has a meeting date for September been established yet ? Ask Christian.",
-          "done": false,
+          "done": true,
           "due": {
             "date": "2026-09-01",
             "time": null,
             "endTime": null,
             "allDay": true
           },
-          "completedAt": null,
+          "completedAt": "2026-09-07T13:19:43.995Z",
           "calendarEventId": null,
           "syncError": null,
           "notes": "Christian advised to proceed with meeting even if 1-1",
@@ -993,7 +993,7 @@
           "attachments": [],
           "notesRich": true,
           "deletedAt": null,
-          "status": "in_progress",
+          "status": "done",
           "notesCollapsed": true
         }
       ],
@@ -1002,7 +1002,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-07T13:19:43.216Z",
+  "updatedAt": "2026-09-07T13:19:45.099Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
