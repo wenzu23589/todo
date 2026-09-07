@@ -377,7 +377,7 @@
             },
             {
               "id": "5ee126f7-033e-4d04-91f7-cbc4e8576de6",
-              "text": "New task",
+              "text": "Review ",
               "status": "not_started",
               "done": false,
               "due": null,
@@ -1020,7 +1020,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-07T13:20:06.226Z",
+  "updatedAt": "2026-09-07T13:20:08.805Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
