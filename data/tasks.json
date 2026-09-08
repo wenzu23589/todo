@@ -391,7 +391,9 @@
               "priority": null,
               "tags": [],
               "subtasks": [],
-              "attachments": []
+              "attachments": [],
+              "notesRich": true,
+              "deletedAt": null
             }
           ],
           "attachments": [],
@@ -828,8 +830,8 @@
                 "allDay": true
               },
               "completedAt": null,
-              "calendarEventId": "hs33q7ram8fbdt7ules3886c58",
-              "syncError": null,
+              "calendarEventId": null,
+              "syncError": "The linked calendar event was removed",
               "notes": "",
               "checklist": [],
               "archivedAt": null,
@@ -1025,7 +1027,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-07T13:20:53.721Z",
+  "updatedAt": "2026-09-08T15:59:59.509Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
