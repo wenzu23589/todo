@@ -351,7 +351,7 @@
           "tasks": [
             {
               "id": "5a53cca1-85c7-4b1f-9725-bcc61e5a816a",
-              "text": "Revision of Paper based on e-mail.",
+              "text": "Revision of Paper based on e-mail. Due 25th November.",
               "done": false,
               "due": {
                 "date": "2026-11-25",
@@ -1046,7 +1046,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-09T06:56:11.931Z",
+  "updatedAt": "2026-09-09T06:56:20.379Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
