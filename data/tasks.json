@@ -877,9 +877,28 @@
     {
       "id": "de0f850d-75f8-4af0-ad1a-49f0ed028433",
       "title": "SMART-AI",
-      "collapsed": true,
+      "collapsed": false,
       "color": "#6f7d3a",
-      "tasks": [],
+      "tasks": [
+        {
+          "id": "f5392662-5f40-43cf-ac8f-cccc030b4aba",
+          "text": "New task",
+          "status": "not_started",
+          "done": false,
+          "due": null,
+          "completedAt": null,
+          "calendarEventId": null,
+          "syncError": null,
+          "notes": "",
+          "checklist": [],
+          "notesCollapsed": false,
+          "archivedAt": null,
+          "priority": null,
+          "tags": [],
+          "subtasks": [],
+          "attachments": []
+        }
+      ],
       "subheadings": [],
       "attachments": [],
       "notesList": [
@@ -1027,7 +1046,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-08T16:05:16.425Z",
+  "updatedAt": "2026-09-09T06:56:02.545Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
