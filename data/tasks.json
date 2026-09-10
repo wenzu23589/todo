@@ -957,15 +957,15 @@
       "tasks": [
         {
           "id": "66efa385-656a-4488-8048-322405220c60",
-          "text": "IRG check receipts and prpeare docs",
-          "done": true,
+          "text": "Work on TOPSIS Paper",
+          "done": false,
           "due": {
-            "date": "2026-09-18",
+            "date": "2026-09-22",
             "time": null,
             "endTime": null,
             "allDay": true
           },
-          "completedAt": "2026-09-07T13:19:41.231Z",
+          "completedAt": null,
           "calendarEventId": "ln0dcu7t2v6sk3hufqh7m5ra9o",
           "syncError": null,
           "notes": "",
@@ -978,7 +978,7 @@
           "syncing": false,
           "notesRich": true,
           "deletedAt": null,
-          "status": "done",
+          "status": "not_started",
           "notesCollapsed": false
         },
         {
@@ -1048,7 +1048,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-09T07:00:08.687Z",
+  "updatedAt": "2026-09-10T12:38:39.850Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
