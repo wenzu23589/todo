@@ -182,9 +182,9 @@
         {
           "id": "9741932e-9536-49be-8a28-22416e1982b3",
           "text": "Request data collection instruments.",
-          "done": false,
+          "done": true,
           "due": null,
-          "completedAt": null,
+          "completedAt": "2026-09-11T14:18:17.571Z",
           "calendarEventId": null,
           "syncError": null,
           "notes": "",
@@ -196,7 +196,7 @@
           "attachments": [],
           "notesRich": true,
           "deletedAt": null,
-          "status": "in_progress",
+          "status": "done",
           "notesCollapsed": false
         },
         {
@@ -1074,7 +1074,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-11T14:18:15.854Z",
+  "updatedAt": "2026-09-11T14:18:18.672Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
