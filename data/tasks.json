@@ -417,7 +417,9 @@
               "tags": [],
               "subtasks": [],
               "attachments": [],
-              "syncing": false
+              "syncing": false,
+              "notesRich": true,
+              "deletedAt": null
             }
           ],
           "attachments": [],
@@ -951,8 +953,8 @@
             "allDay": true
           },
           "completedAt": null,
-          "calendarEventId": "tud8ag7lgertesv10fhechsb9o",
-          "syncError": null,
+          "calendarEventId": null,
+          "syncError": "The linked calendar event was removed",
           "notes": "Checked on the 31st of August - Still Closed.",
           "checklist": [],
           "archivedAt": null,
@@ -1072,7 +1074,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-10T12:39:57.601Z",
+  "updatedAt": "2026-09-11T12:05:47.600Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
