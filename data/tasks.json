@@ -163,9 +163,14 @@
           "id": "f3849877-675e-4b80-9bc8-fba063f05015",
           "text": "Prepare material for piloting.",
           "done": false,
-          "due": null,
+          "due": {
+            "date": "2026-10-29",
+            "time": "09:00",
+            "endTime": "11:00",
+            "allDay": false
+          },
           "completedAt": null,
-          "calendarEventId": null,
+          "calendarEventId": "8s87tfpfsj188if8u6tgka4f9c",
           "syncError": null,
           "notes": "Pilot launch on VLE + registration on 1st October.<br>Event on 29th Ocotber&nbsp;",
           "checklist": [],
@@ -177,7 +182,8 @@
           "notesRich": true,
           "deletedAt": null,
           "status": "in_progress",
-          "notesCollapsed": false
+          "notesCollapsed": false,
+          "syncing": false
         },
         {
           "id": "9741932e-9536-49be-8a28-22416e1982b3",
@@ -1074,7 +1080,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-11T14:19:48.487Z",
+  "updatedAt": "2026-09-11T14:20:07.524Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
