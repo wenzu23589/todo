@@ -880,9 +880,9 @@
             {
               "id": "a32de340-a227-44db-958a-84390d3fa9f7",
               "text": "Confirm final timetable.",
-              "done": false,
+              "done": true,
               "due": null,
-              "completedAt": null,
+              "completedAt": "2026-09-11T14:20:51.576Z",
               "calendarEventId": null,
               "syncError": null,
               "notes": "",
@@ -894,7 +894,7 @@
               "attachments": [],
               "notesRich": true,
               "deletedAt": null,
-              "status": "in_progress",
+              "status": "done",
               "notesCollapsed": false
             }
           ],
@@ -1080,7 +1080,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-11T14:20:47.953Z",
+  "updatedAt": "2026-09-11T14:20:52.676Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
