@@ -73,10 +73,10 @@
         {
           "id": "11b21019-fd1a-4fe2-afba-711d6e40bd28",
           "text": "Asked David to provide missing newsletter and blogs",
-          "status": "in_progress",
-          "done": false,
+          "status": "done",
+          "done": true,
           "due": null,
-          "completedAt": null,
+          "completedAt": "2026-09-15T10:35:46.128Z",
           "calendarEventId": null,
           "syncError": null,
           "notes": "<br>",
@@ -519,7 +519,9 @@
               "priority": null,
               "tags": [],
               "subtasks": [],
-              "attachments": []
+              "attachments": [],
+              "notesRich": true,
+              "deletedAt": null
             },
             {
               "id": "5d4e20c6-44e6-4422-9f72-44488be50161",
@@ -537,7 +539,9 @@
               "priority": null,
               "tags": [],
               "subtasks": [],
-              "attachments": []
+              "attachments": [],
+              "notesRich": true,
+              "deletedAt": null
             }
           ],
           "attachments": [],
@@ -1121,7 +1125,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-15T06:40:27.293Z",
+  "updatedAt": "2026-09-15T10:35:47.239Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
