@@ -56,7 +56,7 @@
             {
               "id": "8f814b6a-a6d1-4aba-bbd5-87e1344726a6",
               "text": "Uploading on EU site",
-              "status": "not_started",
+              "status": "in_progress",
               "done": false,
               "due": null,
               "completedAt": null,
@@ -452,7 +452,7 @@
               "syncError": null,
               "notes": "",
               "checklist": [],
-              "archivedAt": null,
+              "archivedAt": "2026-09-15T06:39:13.964Z",
               "priority": "medium",
               "tags": [],
               "subtasks": [],
@@ -490,7 +490,7 @@
               "syncError": "The linked calendar event was removed",
               "notes": "Submitted revision on August 31st.&nbsp;",
               "checklist": [],
-              "archivedAt": null,
+              "archivedAt": "2026-09-15T06:39:13.964Z",
               "priority": null,
               "tags": [
                 "In Progress"
@@ -583,7 +583,7 @@
               "syncError": null,
               "notes": "",
               "checklist": [],
-              "archivedAt": null,
+              "archivedAt": "2026-09-15T06:39:13.964Z",
               "priority": null,
               "tags": [],
               "subtasks": [],
@@ -1080,7 +1080,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-11T14:24:27.740Z",
+  "updatedAt": "2026-09-15T06:39:18.182Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
