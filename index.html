@@ -928,6 +928,7 @@
         <button class="tab-btn" id="tab-week" data-view="week">This week</button>
         <button class="tab-btn" id="tab-cal" data-view="cal">Calendar</button>
         <button class="tab-btn" id="tab-stats" data-view="stats">Stats</button>
+        <button class="tab-btn" id="tab-archive" data-view="archive">Archive</button>
         <button class="tab-btn" id="tab-trash" data-view="trash">Trash</button>
       </div>
       <div class="header-controls">
@@ -1025,6 +1026,7 @@
     <div id="week-view" hidden></div>
     <div id="cal-view" hidden></div>
     <div id="stats-view" hidden></div>
+    <div id="archive-view" hidden></div>
     <div id="trash-view" hidden></div>
   </main>
 </div>
@@ -1565,11 +1567,28 @@
   }
 
   /* ---------------- load / save ---------------- */
+  // Set once the very first load actually lands — used below to tell "the boot fetch, which
+  // must apply so the app isn't stuck showing the empty placeholder forever" apart from every
+  // later background refresh, which is safe to skip if it would clobber something.
+  var hasLoadedOnce = false;
   function loadFromGithub(){
     if(!config) { state = state || defaultState(); render(); return Promise.resolve(); }
     setStatus("syncing");
     return ghGet(config).then(function(res){
       lastFetchAt = Date.now();
+      // Past the first load, local `state` already holds the real data, so if an edit started
+      // (or is still going) while this fetch was in flight, applying the fetched copy now would
+      // silently overwrite it — this is the "I was typing a new task and it just vanished" bug.
+      // It's an easy race to hit: switching back to this tab kicks off a background refresh, and
+      // if you start typing before it resolves (often exactly why you switched back), the refresh
+      // lands mid-keystroke and wipes the DOM out from under the input. Bail out here instead —
+      // local state already reflects the same base data plus the edit, so nothing is lost, and
+      // the debounced save carries it up as usual.
+      if(hasLoadedOnce && (pendingSave || isActivelyEditing())){
+        setStatus("connected");
+        return;
+      }
+      hasLoadedOnce = true;
       sha = res.sha;
       state = normalizeState(res.data || defaultState());
       setStatus("connected");
@@ -1753,6 +1772,7 @@
         sha = res.sha;
         state = normalizeState(res.data || state || defaultState());
         lastFetchAt = Date.now();
+        hasLoadedOnce = true; // this connect is the real "first load" — later loadFromGithub() calls should now treat it as a background refresh, not a fresh boot, and defer to an in-progress edit instead of overwriting it
         setStatus("connected");
         render();
         close();
@@ -2075,7 +2095,14 @@
           linkedIds[ev.id] = true; changed = true;
         }
       });
-      if(changed){ scheduleSave(); render(); }
+      if(changed){
+        scheduleSave();
+        // Same risk as the GitHub refresh above: don't tear down the DOM (and whatever's
+        // mid-typing in it) just because a calendar sync landed. The synced fields are already
+        // updated on `state` either way, so the visible refresh simply waits for the next
+        // natural render instead of forcing one right now.
+        if(!isActivelyEditing()) render();
+      }
     }).catch(function(err){
       showBanner("Calendar sync: " + (err.message || "couldn't refresh from Google Calendar."), "danger");
     });
@@ -2370,17 +2397,20 @@
     document.getElementById("week-view").hidden = mode !== "week";
     document.getElementById("cal-view").hidden = mode !== "cal";
     document.getElementById("stats-view").hidden = mode !== "stats";
+    document.getElementById("archive-view").hidden = mode !== "archive";
     document.getElementById("trash-view").hidden = mode !== "trash";
     document.getElementById("tab-list").classList.toggle("active", mode === "list");
     document.getElementById("tab-today").classList.toggle("active", mode === "today");
     document.getElementById("tab-week").classList.toggle("active", mode === "week");
     document.getElementById("tab-cal").classList.toggle("active", mode === "cal");
     document.getElementById("tab-stats").classList.toggle("active", mode === "stats");
+    document.getElementById("tab-archive").classList.toggle("active", mode === "archive");
     document.getElementById("tab-trash").classList.toggle("active", mode === "trash");
     if(mode === "today") renderTodayView();
     if(mode === "week") renderWeekView();
     if(mode === "stats") renderStats();
     if(mode === "cal") renderCalendar();
+    if(mode === "archive") renderArchiveView();
     if(mode === "trash") renderTrashView();
   }
   document.getElementById("tab-list").addEventListener("click", function(){ setView("list"); });
@@ -2388,6 +2418,7 @@
   document.getElementById("tab-week").addEventListener("click", function(){ setView("week"); });
   document.getElementById("tab-cal").addEventListener("click", function(){ setView("cal"); });
   document.getElementById("tab-stats").addEventListener("click", function(){ setView("stats"); });
+  document.getElementById("tab-archive").addEventListener("click", function(){ setView("archive"); });
   document.getElementById("tab-trash").addEventListener("click", function(){ setView("trash"); });
 
   /* ---------------- data helpers ---------------- */
@@ -2915,6 +2946,14 @@
       if(t.deletedAt) out.push({ task: t, container: sh || h, heading: h, sub: sh });
     });
     out.sort(function(a, b){ return (b.task.deletedAt || "").localeCompare(a.task.deletedAt || ""); });
+    return out;
+  }
+  function collectArchivedTasks(){
+    var out = [];
+    forEachTask(function(t, h, sh){
+      if(t.archivedAt && !t.deletedAt) out.push({ task: t, container: sh || h, heading: h, sub: sh });
+    });
+    out.sort(function(a, b){ return (b.task.archivedAt || "").localeCompare(a.task.archivedAt || ""); });
     return out;
   }
 
@@ -3741,8 +3780,10 @@
     if(viewMode === "week") renderWeekView();
     if(viewMode === "stats") renderStats();
     if(viewMode === "cal") renderCalendar();
+    if(viewMode === "archive") renderArchiveView();
     if(viewMode === "trash") renderTrashView();
     refreshTrashTabLabel();
+    refreshArchiveTabLabel();
     refreshOutlineDrawer();
     checkReminders();
   }
@@ -3751,6 +3792,12 @@
     if(!tab || !state) return;
     var n = collectTrashedTasks().length;
     tab.textContent = n ? "Trash (" + n + ")" : "Trash";
+  }
+  function refreshArchiveTabLabel(){
+    var tab = document.getElementById("tab-archive");
+    if(!tab || !state) return;
+    var n = collectArchivedTasks().length;
+    tab.textContent = n ? "Archive (" + n + ")" : "Archive";
   }
 
   function renderEmptyState(){
@@ -4463,6 +4510,54 @@
     var list = document.createElement("div");
     list.className = "archived-list";
     trashed.forEach(function(entry){ list.appendChild(renderTrashRow(entry)); });
+    section.appendChild(list);
+    root.appendChild(section);
+  }
+
+  /* ---------------- archive view (all archived tasks, across every heading) ----------------
+     The per-heading "Show archived" panel (renderArchiveToggle, above) is still there for
+     quick in-context access, but it means finding a given archived task means knowing (or
+     hunting through) which heading it was filed under. This is the single, global place that
+     lists every archived task at once, mirroring the Recycle Bin's pattern: restore it
+     (Unarchive) or delete it for good, without leaving the tab. */
+  function renderArchiveRow(entry){
+    var task = entry.task, container = entry.container;
+    var row = document.createElement("div");
+    row.className = "archived-row";
+    row.setAttribute("data-task-id", task.id);
+    var dateLabel = task.archivedAt ? new Date(task.archivedAt).toLocaleDateString(undefined, {month:"short", day:"numeric"}) : "";
+    var pathLabel = escapeHtml(entry.heading.title) + (entry.sub ? ' <span class="today-task-path-sep">&rsaquo;</span> ' + escapeHtml(entry.sub.title) : "");
+    row.innerHTML =
+      '<span class="archived-text" title="' + escapeHtml(task.text) + '">' + escapeHtml(task.text) + ' <span class="trash-row-path">— ' + pathLabel + '</span></span>' +
+      '<span class="archived-date mono">' + escapeHtml(dateLabel) + '</span>' +
+      '<button type="button" class="btn btn-sm btn-ghost" data-act="restore">' + ICON_RESTORE + ' Unarchive</button>' +
+      '<button type="button" class="icon-btn danger" title="Delete permanently" aria-label="Delete permanently"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>';
+    row.querySelector('[data-act="restore"]').addEventListener("click", function(){
+      task.archivedAt = null;
+      scheduleSave();
+      render();
+    });
+    row.querySelector(".icon-btn.danger").addEventListener("click", function(){ permanentlyDeleteTask(container, task); });
+    return row;
+  }
+  function renderArchiveView(){
+    var root = document.getElementById("archive-view");
+    if(!state){ root.innerHTML = ""; return; }
+    root.innerHTML = "";
+    var archived = collectArchivedTasks();
+    if(!archived.length){
+      root.innerHTML = '<div class="empty-state"><h2>Nothing archived yet</h2><p>Archive a done task from its heading, or from a card on the Status board, and it lands here — restore it any time, or delete it for good once you\'re sure.</p></div>';
+      return;
+    }
+    var section = document.createElement("section");
+    section.className = "today-section";
+    var head = document.createElement("div");
+    head.className = "today-section-head";
+    head.innerHTML = '<h2 class="today-section-title">Archived tasks</h2><span class="today-section-count mono">' + archived.length + '</span>';
+    section.appendChild(head);
+    var list = document.createElement("div");
+    list.className = "archived-list";
+    archived.forEach(function(entry){ list.appendChild(renderArchiveRow(entry)); });
     section.appendChild(list);
     root.appendChild(section);
   }
