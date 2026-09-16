@@ -1620,13 +1620,29 @@
       if(connectionStatus !== "connected") setStatus("connected");
     }).catch(function(err){
       if(err && err.code === "conflict"){
-        // The remote copy moved out from under us — there's no local sha to reconcile against,
-        // so the change really is lost. Clear pendingSave (nothing left worth retrying against
-        // a stale base) and pull the latest version in, same as before.
-        pendingSave = false;
-        showBanner("This file changed on GitHub since you last loaded it (probably from another device). Reloading the latest version — your last change wasn't saved, redo it if needed.", "danger");
-        loadFromGithub();
-        return;
+        // The sha we saved against is stale. In practice this is almost always this tab/device
+        // itself, not a genuine other editor — a browser tab left open for a while, or another
+        // tab of the same session, drifting to an old sha. Blowing away the change that was
+        // *just* made (like checking off or archiving a task) and reloading the older remote
+        // copy over it was actively causing that — e.g. archive a task, the debounced save
+        // lands against a stale sha, and the task silently reappears seconds later. Re-fetch the
+        // current sha and retry this exact save against it once before giving up: for the common
+        // single-user case that's the correct outcome (your own latest change should win), and it
+        // only stops helping in the rarer case of a genuinely concurrent edit from elsewhere.
+        return ghGet(config).then(function(res){
+          sha = res.sha;
+          return ghPut(config, state, sha, opts);
+        }).then(function(newSha){
+          sha = newSha; pendingSave = false; setSaveIndicator("saved");
+          if(connectionStatus !== "connected") setStatus("connected");
+        }).catch(function(){
+          // Even the retry couldn't land — a second, still-live conflict, or some other problem
+          // fetching/saving. At this point there's no safe local base left to retry against, so
+          // fall back to the old behavior: pull in the latest version and say so.
+          pendingSave = false;
+          showBanner("This file changed on GitHub since you last loaded it (probably from another device). Reloading the latest version — your last change wasn't saved, redo it if needed.", "danger");
+          loadFromGithub();
+        });
       }
       // Any other failure (offline, rate limit, timeout, auth hiccup) is likely transient —
       // deliberately leave pendingSave true rather than clearing it. That keeps the change
