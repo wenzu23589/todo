@@ -546,7 +546,7 @@
             {
               "id": "23dde4ea-c0f1-471c-b225-2a2416ca124d",
               "text": "Carry out review of paper to be published.",
-              "status": "not_started",
+              "status": "in_progress",
               "done": false,
               "due": null,
               "completedAt": null,
@@ -559,7 +559,9 @@
               "priority": null,
               "tags": [],
               "subtasks": [],
-              "attachments": []
+              "attachments": [],
+              "notesRich": true,
+              "deletedAt": null
             }
           ],
           "attachments": [],
@@ -1143,7 +1145,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-15T13:51:42.044Z",
+  "updatedAt": "2026-09-16T13:26:02.499Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
