@@ -112,12 +112,17 @@
         },
         {
           "id": "df708e8f-5e1d-4d9c-9ce4-7a673997eee2",
-          "text": "New task",
+          "text": "Circualted final report among partners on 2026",
           "status": "not_started",
           "done": false,
-          "due": null,
+          "due": {
+            "date": "2026-09-16",
+            "time": null,
+            "endTime": null,
+            "allDay": true
+          },
           "completedAt": null,
-          "calendarEventId": null,
+          "calendarEventId": "ch4mgp13ta6t6nlbb694mi9mi4",
           "syncError": null,
           "notes": "",
           "checklist": [],
@@ -126,7 +131,8 @@
           "priority": null,
           "tags": [],
           "subtasks": [],
-          "attachments": []
+          "attachments": [],
+          "syncing": false
         }
       ],
       "subheadings": [],
@@ -1235,7 +1241,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-16T13:57:03.074Z",
+  "updatedAt": "2026-09-16T13:57:15.938Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
