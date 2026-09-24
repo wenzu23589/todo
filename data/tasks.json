@@ -18,8 +18,8 @@
             "allDay": true
           },
           "completedAt": null,
-          "calendarEventId": "dmfr9kuqi6ih0mt6uil1bf8q3o",
-          "syncError": null,
+          "calendarEventId": null,
+          "syncError": "The linked calendar event was removed",
           "notes": "",
           "checklist": [],
           "archivedAt": null,
@@ -122,8 +122,8 @@
             "allDay": true
           },
           "completedAt": "2026-09-16T13:57:23.521Z",
-          "calendarEventId": "ch4mgp13ta6t6nlbb694mi9mi4",
-          "syncError": null,
+          "calendarEventId": null,
+          "syncError": "The linked calendar event was removed",
           "notes": "",
           "checklist": [],
           "notesCollapsed": false,
@@ -392,8 +392,8 @@
                 "allDay": true
               },
               "completedAt": null,
-              "calendarEventId": null,
-              "syncError": "The linked calendar event was removed",
+              "calendarEventId": "o2as3h0ctjmgsmt0fho6c4d3pg",
+              "syncError": null,
               "notes": "",
               "checklist": [],
               "archivedAt": null,
@@ -1162,7 +1162,7 @@
       "tasks": [
         {
           "id": "66efa385-656a-4488-8048-322405220c60",
-          "text": "Work on TOPSIS Paper",
+          "text": "Reading M.Sc Dissertation",
           "done": false,
           "due": {
             "date": "2026-09-22",
@@ -1223,8 +1223,8 @@
             "allDay": true
           },
           "completedAt": null,
-          "calendarEventId": "7viqa0a15i8boko2jsj9o4csfs",
-          "syncError": null,
+          "calendarEventId": null,
+          "syncError": "The linked calendar event was removed",
           "notes": "",
           "checklist": [],
           "notesCollapsed": false,
@@ -1305,7 +1305,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-24T18:36:52.302Z",
+  "updatedAt": "2026-09-24T18:54:41.935Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
