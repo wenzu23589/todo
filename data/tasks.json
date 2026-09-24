@@ -1240,7 +1240,7 @@
         {
           "id": "1941c16e-50cd-4c8a-9eed-e9f691f57520",
           "text": "Review M.Sc. Dissertation Adrian Mercieca. Notified on the .",
-          "status": "not_started",
+          "status": "in_progress",
           "done": false,
           "due": {
             "date": "2027-09-14",
@@ -1305,7 +1305,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-24T18:35:46.274Z",
+  "updatedAt": "2026-09-24T18:36:52.302Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
