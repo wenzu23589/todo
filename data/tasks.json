@@ -676,7 +676,7 @@
             },
             {
               "id": "932295e9-58e4-4e8b-b3e4-ee2be29a0149",
-              "text": "New task",
+              "text": "Deadline for submitting revised paper is ",
               "status": "not_started",
               "done": false,
               "due": null,
@@ -1363,7 +1363,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-28T11:00:48.892Z",
+  "updatedAt": "2026-09-28T11:00:56.295Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
