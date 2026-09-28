@@ -1,8 +1,9 @@
 // Daybook service worker — caches the app shell so the installed app opens
-// instantly and works offline. All data (tasks, calendar) still requires a
-// network connection, since it lives in GitHub / Google APIs, not here.
+// instantly and works offline. The task list itself is kept on each device by
+// the app (see "offline copy on this device" in index.html) and synced with
+// GitHub whenever a connection is available; this worker only serves the page.
 
-const CACHE_NAME = "daybook-shell-v1";
+const CACHE_NAME = "daybook-shell-v2";
 const SHELL_FILES = [
   "./",
   "./index.html",
@@ -37,15 +38,23 @@ self.addEventListener("fetch", (event) => {
   // must always go straight to the network so data stays live.
   if (url.origin !== self.location.origin) return;
 
+  const isNavigation = req.mode === "navigate";
+
   event.respondWith(
-    caches.match(req).then((cached) => {
+    // ignoreSearch on page loads, so e.g. "/?source=pwa" still finds the cached page.
+    caches.match(req, isNavigation ? { ignoreSearch: true } : undefined).then((cached) => {
       const network = fetch(req).then((res) => {
         if (res && res.ok) {
           const copy = res.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
         }
         return res;
-      }).catch(() => cached);
+      }).catch(() => {
+        if (cached) return cached;
+        // Offline and this exact address was never cached: any page load still gets the app.
+        if (isNavigation) return caches.match("./index.html");
+        return Response.error();
+      });
       // Stale-while-revalidate: serve cache immediately if we have it, refresh in background.
       return cached || network;
     })

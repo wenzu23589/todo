@@ -69,11 +69,8 @@ async function main() {
   console.log("Priority filter button starts inactive:", !priBtnActiveInit ? "PASS" : "FAIL");
   console.log("Due date filter button starts inactive:", !dueBtnActiveInit ? "PASS" : "FAIL");
 
-  // The Sort buttons (Priority/Due date) must remain untouched, separate feature
-  const sortPriorityExists = await page.locator("#sort-priority-btn").count();
-  const sortDueExists = await page.locator("#sort-due-btn").count();
-  console.log("Existing Sort:Priority button is untouched:", sortPriorityExists === 1 ? "PASS" : "FAIL");
-  console.log("Existing Sort:Due date button is untouched:", sortDueExists === 1 ? "PASS" : "FAIL");
+  // The old Sort control was removed; the filters stand on their own.
+  console.log("The removed Sort control is not on the page:", (await page.locator("#sort-priority-btn, #sort-due-btn, #sort-manual-btn").count()) === 0 ? "PASS" : "FAIL");
 
   // --- Priority filter: select High only ---
   await page.click("#priority-filter-btn");

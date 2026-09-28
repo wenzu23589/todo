@@ -77,8 +77,8 @@ async function main() {
   // Dismiss: removes it, and it doesn't come back on the next re-render.
   await firstToast.locator('[data-act="dismiss"]').click();
   await page.waitForSelector('.reminder-toast[data-reminder-key="t1"]', { state: "detached", timeout: 5000 });
-  await page.click("#sort-priority-btn"); // any action that triggers render() again
-  await page.click("#sort-manual-btn");
+  await page.click("#layout-status-btn"); // any action that triggers render() again
+  await page.click("#layout-tabs-btn");
   await page.waitForTimeout(200);
   console.log("Dismissing a reminder removes it and it stays gone across re-renders:", await page.locator('.reminder-toast[data-reminder-key="t1"]').count() === 0 ? "PASS" : "FAIL");
 
@@ -88,8 +88,8 @@ async function main() {
   const subtaskToast = page.locator('.reminder-toast[data-reminder-key="t1:s1"]');
   await subtaskToast.locator('[data-snooze="5"]').click();
   await page.waitForSelector('.reminder-toast[data-reminder-key="t1:s1"]', { state: "detached", timeout: 5000 });
-  await page.click("#sort-priority-btn");
-  await page.click("#sort-manual-btn");
+  await page.click("#layout-status-btn");
+  await page.click("#layout-tabs-btn");
   await page.waitForTimeout(200);
   console.log("Snoozing a reminder removes it and it stays suppressed across re-renders:", await page.locator('.reminder-toast[data-reminder-key="t1:s1"]').count() === 0 ? "PASS" : "FAIL");
   console.log("No reminder toasts remain after dismissing/snoozing both:", await page.locator(".reminder-toast").count() === 0 ? "PASS" : "FAIL");

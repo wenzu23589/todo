@@ -82,7 +82,9 @@ async function main() {
     const notCancelled = window.dispatchEvent(ev);
     return !notCancelled;
   });
-  console.log("beforeunload is intercepted while a save is still pending:", preventedWhilePending ? "PASS" : "FAIL");
+  // The change is already written to this device's own copy, so it isn't at risk even if the
+  // page closes now — it goes up next time Daybook opens. No "leave site?" prompt needed.
+  console.log("beforeunload stays quiet while a save is pending, since the change is kept on the device:", !preventedWhilePending ? "PASS" : "FAIL");
 
   await page.clock.fastForward(1300); // run out the ~1.1s debounce (this PUT succeeds)
   await page.waitForTimeout(300);

@@ -87,23 +87,14 @@ async function main() {
   txt = await page.locator('.task-row[data-task-id="t1"] .priority-flag').textContent();
   console.log("Fourth click cycles back to the placeholder:", txt.trim() === "Priority" ? "PASS" : "FAIL (" + txt + ")");
 
-  // Sort by priority: high, medium, low, none(no-priority tasks, tiebreak by due date)
-  await page.click("#sort-priority-btn");
-  await page.waitForTimeout(100);
-  const order = await page.locator(".task-list").first().locator(".task-text").evaluateAll(els => els.map(e => e.value));
-  console.log("Priority sort orders high, medium, low, then none:",
-    JSON.stringify(order) === JSON.stringify(["High priority", "Medium priority", "Low priority", "No priority, due soonest"]) ? "PASS" : "FAIL (" + JSON.stringify(order) + ")");
-
-  // Drag grip disabled while priority-sorted
-  const gripInactive = await page.locator(".task-row").first().locator(".grip").evaluate(el => el.classList.contains("inactive"));
-  console.log("Grip disabled while sorted by priority:", gripInactive ? "PASS" : "FAIL");
-
-  // Back to manual — original insertion order restored
-  await page.click("#sort-manual-btn");
+  // Setting a priority never reorders the list (the Sort control was removed): tasks keep
+  // their manual order, and the drag grip stays usable.
   await page.waitForTimeout(100);
   const manualOrder = await page.locator(".task-list").first().locator(".task-text").evaluateAll(els => els.map(e => e.value));
-  console.log("Manual sort restores original order:",
+  console.log("Tasks keep their manual order regardless of priority:",
     JSON.stringify(manualOrder) === JSON.stringify(["No priority, due soonest", "Low priority", "High priority", "Medium priority"]) ? "PASS" : "FAIL (" + JSON.stringify(manualOrder) + ")");
+  const gripDraggable = await page.locator(".task-row").first().locator(".grip").evaluate(el => el.getAttribute("draggable") === "true" && !el.classList.contains("inactive"));
+  console.log("Drag grip stays active:", gripDraggable ? "PASS" : "FAIL");
 
   // Persistence
   await page.waitForTimeout(1500);

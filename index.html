@@ -800,9 +800,6 @@
   .search-status{ font-size:0.78rem; color:var(--muted); }
   .list-sort-row{ display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
   .list-sort-label{ font-size:0.72rem; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:var(--muted); }
-  /* Extra breathing room ahead of the Sort group, now that View leads the row — keeps the
-     two toggles from reading as one continuous cluster of buttons. */
-  .list-sort-label-gapped{ margin-left:18px; }
   .list-sort-toggle{ display:inline-flex; gap:2px; background:var(--paper-sunken); padding:3px; border-radius:var(--radius-m); }
   .list-sort-btn{
     border:none; background:transparent; padding:5px 11px; border-radius:calc(var(--radius-m) - 3px);
@@ -810,7 +807,6 @@
   }
   .list-sort-btn.active{ background:var(--paper-raised); color:var(--ink); box-shadow:var(--shadow); font-weight:600; }
   .list-sort-btn:hover:not(.active){ color:var(--ink); }
-  .grip.inactive{ opacity:0.35; cursor:default; }
 
   .heading-tabs-bar{ display:flex; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
   .heading-tab-btn{
@@ -985,15 +981,8 @@
       <div class="list-sort-row" id="list-sort-row">
         <span class="list-sort-label">View</span>
         <div class="list-sort-toggle" id="list-layout-toggle">
-          <button class="list-sort-btn" id="layout-stacked-btn" type="button">Stacked</button>
           <button class="list-sort-btn active" id="layout-tabs-btn" type="button">Tabs</button>
           <button class="list-sort-btn" id="layout-status-btn" type="button">Status</button>
-        </div>
-        <span class="list-sort-label list-sort-label-gapped">Sort</span>
-        <div class="list-sort-toggle">
-          <button class="list-sort-btn active" id="sort-manual-btn" type="button">Manual</button>
-          <button class="list-sort-btn" id="sort-priority-btn" type="button">Priority</button>
-          <button class="list-sort-btn" id="sort-due-btn" type="button">Due date</button>
         </div>
         <button class="btn btn-sm tag-filter-toggle-btn" id="tag-filter-btn" type="button" style="margin-left:auto;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.59 13.41L11 3.83A2 2 0 009.59 3.17H4a1 1 0 00-1 1v5.59a2 2 0 00.59 1.41l9.59 9.59a2 2 0 002.82 0l4.59-4.59a2 2 0 000-2.82z"/><circle cx="7.5" cy="7.5" r="1.2" fill="currentColor" stroke="none"/></svg>
@@ -1160,29 +1149,13 @@
   }
   var currentFontKey = "ledger";
 
-  /* ---------------- task sort (manual vs due date) ---------------- */
-  var TASK_SORT_KEY = "daybook-tasksort-v1";
-  var TASK_SORT_MODES = ["manual", "priority", "due"];
-  var taskSortMode = "manual";
-  function loadTaskSortMode(){
-    try{ var v = localStorage.getItem(TASK_SORT_KEY); return TASK_SORT_MODES.indexOf(v) !== -1 ? v : "manual"; }catch(e){ return "manual"; }
-  }
-  function setTaskSortMode(mode){
-    taskSortMode = TASK_SORT_MODES.indexOf(mode) !== -1 ? mode : "manual";
-    try{ localStorage.setItem(TASK_SORT_KEY, taskSortMode); }catch(e){}
-    syncSortButtons();
-    render();
-  }
-  function syncSortButtons(){
-    var mb = document.getElementById("sort-manual-btn"), db = document.getElementById("sort-due-btn"), pb = document.getElementById("sort-priority-btn");
-    if(mb) mb.classList.toggle("active", taskSortMode === "manual");
-    if(db) db.classList.toggle("active", taskSortMode === "due");
-    if(pb) pb.classList.toggle("active", taskSortMode === "priority");
-  }
+  // Tasks always show in their manual (drag) order. The old Manual / Priority / Due date
+  // sort toggle was removed; clear its leftover preference so it can't linger in storage.
+  try{ localStorage.removeItem("daybook-tasksort-v1"); }catch(e){}
 
-  /* ---------------- list layout (stacked headings / tabs / status board) ---------------- */
+  /* ---------------- list layout (tabs / status board) ---------------- */
   var LIST_LAYOUT_KEY = "daybook-listlayout-v1";
-  var LIST_LAYOUT_MODES = ["stacked", "tabs", "status"];
+  var LIST_LAYOUT_MODES = ["tabs", "status"]; // a saved "stacked" (removed layout) falls back to "tabs"
   var listLayoutMode = "tabs";
   var activeHeadingTabId = null; // null = "All" tab; session-only, not persisted
   function loadListLayoutMode(){
@@ -1195,21 +1168,9 @@
     render();
   }
   function syncListLayoutButtons(){
-    var sb = document.getElementById("layout-stacked-btn"), tb = document.getElementById("layout-tabs-btn"), stb = document.getElementById("layout-status-btn");
-    if(sb) sb.classList.toggle("active", listLayoutMode === "stacked");
+    var tb = document.getElementById("layout-tabs-btn"), stb = document.getElementById("layout-status-btn");
     if(tb) tb.classList.toggle("active", listLayoutMode === "tabs");
     if(stb) stb.classList.toggle("active", listLayoutMode === "status");
-  }
-  // Undated tasks all get this same (very late) key, so a stable sort keeps them
-  // in their original relative order, trailing after every dated task.
-  function dueSortKey(t){
-    if(!t.due || !t.due.date) return "9999-12-31T99:99";
-    var time = (t.due.allDay || !t.due.time) ? "00:00" : t.due.time;
-    return t.due.date + "T" + time;
-  }
-  var PRIORITY_RANK = { high: 0, medium: 1, low: 2 };
-  function priorityRank(t){
-    return (t.priority && PRIORITY_RANK[t.priority] !== undefined) ? PRIORITY_RANK[t.priority] : 3;
   }
   var PRIORITY_CYCLE = [null, "high", "medium", "low"];
   function priorityLabel(task){
@@ -1221,24 +1182,6 @@
     scheduleSave();
     render();
   }
-  function sortedTaskList(tasks){
-    if(taskSortMode === "due"){
-      return tasks.slice().sort(function(a, b){
-        var ka = dueSortKey(a), kb = dueSortKey(b);
-        return ka < kb ? -1 : (ka > kb ? 1 : 0);
-      });
-    }
-    if(taskSortMode === "priority"){
-      return tasks.slice().sort(function(a, b){
-        var ra = priorityRank(a), rb = priorityRank(b);
-        if(ra !== rb) return ra - rb;
-        var ka = dueSortKey(a), kb = dueSortKey(b);
-        return ka < kb ? -1 : (ka > kb ? 1 : 0);
-      });
-    }
-    return tasks;
-  }
-
   /* ---------------- appearance (light / dark / system) ---------------- */
   var APPEARANCE_KEY = "daybook-appearance-v1";
   var currentAppearance = "system";
@@ -1522,6 +1465,12 @@
       pill.setAttribute("data-state", "warn");
       text.textContent = "Syncing…";
       syncBtn.disabled = true;
+    } else if(kind === "offline"){
+      // No connection, but the list is running from this device's own copy and every change
+      // is kept there — so this is a calm "offline" state, not a red error with a banner.
+      pill.setAttribute("data-state", "warn");
+      text.textContent = "Offline";
+      syncBtn.disabled = false;
     } else {
       pill.setAttribute("data-state", "error");
       text.textContent = "Sync error";
@@ -1560,10 +1509,123 @@
       saveIndicatorTimer = setTimeout(function(){ el.classList.remove("show"); }, 1800);
     } else if(kind === "error"){
       textEl.textContent = "Couldn't save — see banner"; dot.style.background = "var(--danger)";
+    } else if(kind === "queued"){
+      textEl.textContent = "Offline — saved on this device, will sync when back online"; dot.style.background = "var(--accent)";
+      saveIndicatorTimer = setTimeout(function(){ el.classList.remove("show"); }, 4000);
     } else if(kind === "offline"){
       textEl.textContent = "Not connected — changes stay in this tab only"; dot.style.background = "var(--danger)";
       saveIndicatorTimer = setTimeout(function(){ el.classList.remove("show"); }, 3000);
     }
+  }
+
+  /* ---------------- offline copy on this device ----------------
+     GitHub stays the single source of truth, but every device also keeps its own copy of the
+     list in localStorage, so Daybook opens instantly and works fully without a connection:
+       - data:  the list exactly as it is on this device right now (written on every change)
+       - sha:   the GitHub version that copy was last synced against
+       - base:  the list as it was at that version — the common ancestor used to merge
+       - dirty: true while this device holds changes GitHub hasn't received yet
+     localStorage (rather than IndexedDB) is deliberate: it writes synchronously, so a change
+     is already safe on disk before the tab can close, even mid-debounce and fully offline.
+     The copy holds tasks only — the GitHub token stays in its own settings entry, as before. */
+  var OFFLINE_KEY_PREFIX = "daybook-offline-v1:";
+  var baseJson = null;        // JSON of the list as last seen on GitHub (the merge base)
+  var saveInFlight = false;   // an upload is currently on its way to GitHub
+  var localCacheOk = true;    // false only if the last write to the device copy failed (e.g. storage full)
+  function offlineKey(cfg){ return OFFLINE_KEY_PREFIX + cfg.owner + "/" + cfg.repo + "@" + cfg.branch + ":" + cfg.path; }
+  function writeLocalCache(dirty){
+    if(!config || !state) return false;
+    try{
+      localStorage.setItem(offlineKey(config), JSON.stringify({
+        v: 1, data: state, sha: sha, base: baseJson, dirty: !!dirty, at: new Date().toISOString()
+      }));
+      localCacheOk = true;
+    }catch(e){ localCacheOk = false; }
+    return localCacheOk;
+  }
+  function readLocalCache(cfg){
+    try{
+      var raw = localStorage.getItem(offlineKey(cfg));
+      if(!raw) return null;
+      var c = JSON.parse(raw);
+      return (c && c.data && Array.isArray(c.data.headings)) ? c : null;
+    }catch(e){ return null; }
+  }
+  function clearLocalCache(cfg){ try{ localStorage.removeItem(offlineKey(cfg)); }catch(e){} }
+  // fetch() rejects with a TypeError when there's no network at all (as opposed to GitHub
+  // answering with an error status, which ghGet/ghPut turn into a plain Error).
+  function isOfflineError(err){
+    return (typeof navigator !== "undefined" && navigator.onLine === false) || (err instanceof TypeError);
+  }
+
+  /* Three-way merge of the whole list, used when this device's changes meet a newer version on
+     GitHub (typically: edited offline here while another device also saved). Anything that
+     changed on only one side is kept from that side; lists of things with ids (headings,
+     sub-headings, tasks, subtasks, notes, attachments…) merge item by item, so a task added
+     here and a different task added elsewhere both survive. Only the same field changed on
+     both sides counts as a real clash, and there this device's edit wins. */
+  function jsonSame(a, b){ return JSON.stringify(a) === JSON.stringify(b); }
+  function isPlainObj(v){ return !!v && typeof v === "object" && !Array.isArray(v); }
+  function isIdList(a){ return Array.isArray(a) && a.length > 0 && a.every(function(x){ return isPlainObj(x) && x.id != null; }); }
+  function mergeThreeWay(base, local, remote){
+    if(jsonSame(local, remote)) return local;
+    if(jsonSame(base, local)) return remote;
+    if(jsonSame(base, remote)) return local;
+    if(isPlainObj(local) && isPlainObj(remote)){
+      var b = isPlainObj(base) ? base : {}, out = {}, keys = {};
+      Object.keys(local).concat(Object.keys(remote)).forEach(function(k){ keys[k] = true; });
+      Object.keys(keys).forEach(function(k){
+        var v = mergeThreeWay(b[k], local[k], remote[k]);
+        if(v !== undefined) out[k] = v;
+      });
+      return out;
+    }
+    if(Array.isArray(local) && Array.isArray(remote) && (isIdList(local) || isIdList(remote))
+       && (base == null || Array.isArray(base)) && [local, remote, base || []].every(function(a){ return a.every(function(x){ return isPlainObj(x) && x.id != null; }); })){
+      return mergeIdLists(base || [], local, remote);
+    }
+    return local; // the same value edited differently on both sides: this device wins
+  }
+  function mergeIdLists(base, local, remote){
+    function byId(arr){ var m = {}; arr.forEach(function(x){ if(!(x.id in m)) m[x.id] = x; }); return m; }
+    function ids(arr){ return arr.map(function(x){ return x.id; }); }
+    var bm = byId(base), lm = byId(local), rm = byId(remote);
+    function decide(id){
+      var inL = id in lm, inR = id in rm;
+      if(inL && inR) return mergeThreeWay(bm[id], lm[id], rm[id]);
+      if(id in bm) return undefined;           // removed (or moved elsewhere) on one side
+      return inL ? lm[id] : rm[id];            // newly added on one side
+    }
+    // Follow whichever side actually reordered things; if this device didn't, take GitHub's order.
+    var primary = jsonSame(ids(local), ids(base)) ? remote : local;
+    var other = primary === local ? remote : local;
+    var out = [], seen = {};
+    primary.forEach(function(x){
+      if(seen[x.id]) return; seen[x.id] = true;
+      var v = decide(x.id); if(v !== undefined) out.push(v);
+    });
+    other.forEach(function(x, i){
+      if(seen[x.id]) return; seen[x.id] = true;
+      var v = decide(x.id); if(v === undefined) return;
+      // Slot a new item in right after its neighbour on the side it came from.
+      var at = 0;
+      for(var j = i - 1; j >= 0; j--){
+        var k = -1;
+        for(var n = 0; n < out.length; n++){ if(out[n].id === other[j].id){ k = n; break; } }
+        if(k !== -1){ at = k + 1; break; }
+      }
+      out.splice(at, 0, v);
+    });
+    return out;
+  }
+  // Merge a freshly fetched GitHub copy into the local list. Returns the list to use; when
+  // nothing from GitHub needed bringing in, that is the very same `state` object, so open
+  // editors (which hold references into it) keep working undisturbed.
+  function mergeRemoteIntoState(remoteData){
+    var remote = normalizeState(remoteData || defaultState());
+    if(!baseJson) return state; // no common ancestor recorded: keep this device's version
+    var merged = mergeThreeWay(JSON.parse(baseJson), state, remote);
+    return merged === state ? state : normalizeState(merged);
   }
 
   /* ---------------- load / save ---------------- */
@@ -1586,15 +1648,53 @@
       // the debounced save carries it up as usual.
       if(hasLoadedOnce && (pendingSave || isActivelyEditing())){
         setStatus("connected");
+        // A change made while offline is still waiting: now that GitHub is reachable again,
+        // send it (the save merges with whatever changed on GitHub in the meantime).
+        if(pendingSave && !saveTimer && !saveInFlight) doSave();
+        return;
+      }
+      if(!hasLoadedOnce && pendingSave){
+        // Opened with changes this device made offline (maybe in an earlier session) that never
+        // reached GitHub: fold in anything newer from GitHub, then send the combined list up.
+        hasLoadedOnce = true;
+        if(res.sha !== sha){
+          var mergedBoot = mergeRemoteIntoState(res.data);
+          sha = res.sha;
+          if(mergedBoot !== state){ state = mergedBoot; render(); }
+        }
+        setStatus("connected");
+        doSave();
+        return;
+      }
+      if(!hasLoadedOnce && res.sha && res.sha === sha){
+        // The copy already on screen (from this device) is exactly what's on GitHub — nothing to
+        // redraw, so a field the user has already started typing in isn't disturbed.
+        hasLoadedOnce = true;
+        setStatus("connected");
+        return;
+      }
+      if(!hasLoadedOnce && isActivelyEditing()){
+        // The device copy is on screen and the user is already typing into it; applying the
+        // newer GitHub version now would redraw the list under them. Try again shortly.
+        setStatus("connected");
+        setTimeout(function(){ if(!hasLoadedOnce) loadFromGithub(); }, 3000);
         return;
       }
       hasLoadedOnce = true;
       sha = res.sha;
       state = normalizeState(res.data || defaultState());
+      baseJson = res.exists ? JSON.stringify(state) : null;
+      writeLocalCache(false);
       setStatus("connected");
       render();
     }).catch(function(err){
       state = state || defaultState();
+      if(isOfflineError(err)){
+        // No connection: keep showing (and editing) this device's copy; sync resumes on reconnect.
+        setStatus("offline");
+        render();
+        return;
+      }
       setStatus("error", err.message || "Couldn't load from GitHub.");
       render();
     });
@@ -1603,7 +1703,8 @@
   function scheduleSave(){
     if(!config){ setSaveIndicator("offline"); return; }
     pendingSave = true;
-    setSaveIndicator("pending");
+    writeLocalCache(true); // on this device's disk straight away, before the debounced upload
+    setSaveIndicator(connectionStatus === "offline" ? "queued" : "pending");
     if(saveTimer) clearTimeout(saveTimer);
     if(saveRetryTimer){ clearTimeout(saveRetryTimer); saveRetryTimer = null; }
     saveTimer = setTimeout(doSave, 1100);
@@ -1614,10 +1715,22 @@
     if(saveRetryTimer){ clearTimeout(saveRetryTimer); saveRetryTimer = null; }
     if(!config){ pendingSave = false; setSaveIndicator("offline"); return Promise.resolve(); }
     state.updatedAt = new Date().toISOString();
+    writeLocalCache(true);
     setSaveIndicator("saving");
-    return ghPut(config, state, sha, opts).then(function(newSha){
-      sha = newSha; pendingSave = false; setSaveIndicator("saved");
+    var sentJson = JSON.stringify(state);
+    // After a successful upload: what was sent is now GitHub's version (the new merge base).
+    // If more edits arrived while the request was in flight, a new save is already scheduled.
+    function onSaved(newSha, sent){
+      sha = newSha; baseJson = sent;
+      pendingSave = !!saveTimer;
+      writeLocalCache(pendingSave);
+      setSaveIndicator(pendingSave ? "pending" : "saved");
       if(connectionStatus !== "connected") setStatus("connected");
+    }
+    saveInFlight = true;
+    return runSave().then(function(){ saveInFlight = false; }, function(e){ saveInFlight = false; throw e; });
+    function runSave(){ return ghPut(config, state, sha, opts).then(function(newSha){
+      onSaved(newSha, sentJson);
     }).catch(function(err){
       if(err && err.code === "conflict"){
         // The sha we saved against is stale. In practice this is almost always this tab/device
@@ -1629,13 +1742,26 @@
         // current sha and retry this exact save against it once before giving up: for the common
         // single-user case that's the correct outcome (your own latest change should win), and it
         // only stops helping in the rarer case of a genuinely concurrent edit from elsewhere.
+        // Before retrying, merge in whatever GitHub has that this device doesn't (e.g. another
+        // device saved while this one was offline), so neither side's changes are lost.
+        var sentMerged = null;
         return ghGet(config).then(function(res){
+          var merged = mergeRemoteIntoState(res.data);
           sha = res.sha;
+          if(merged !== state){ state = merged; render(); }
+          state.updatedAt = new Date().toISOString();
+          sentMerged = JSON.stringify(state);
+          writeLocalCache(true);
           return ghPut(config, state, sha, opts);
         }).then(function(newSha){
-          sha = newSha; pendingSave = false; setSaveIndicator("saved");
-          if(connectionStatus !== "connected") setStatus("connected");
-        }).catch(function(){
+          onSaved(newSha, sentMerged);
+        }).catch(function(retryErr){
+          if(isOfflineError(retryErr)){
+            // Connection dropped mid-retry: the change is safe on this device; try again later.
+            setSaveIndicator("queued"); setStatus("offline");
+            saveRetryTimer = setTimeout(function(){ if(pendingSave) doSave(); }, 30000);
+            return;
+          }
           // Even the retry couldn't land — a second, still-live conflict, or some other problem
           // fetching/saving. At this point there's no safe local base left to retry against, so
           // fall back to the old behavior: pull in the latest version and say so.
@@ -1644,7 +1770,15 @@
           loadFromGithub();
         });
       }
-      // Any other failure (offline, rate limit, timeout, auth hiccup) is likely transient —
+      if(isOfflineError(err)){
+        // No connection. The change is already stored on this device, so there's nothing to warn
+        // about: it goes up automatically when the connection returns (see the "online" handler).
+        setSaveIndicator(localCacheOk ? "queued" : "error");
+        setStatus("offline");
+        saveRetryTimer = setTimeout(function(){ if(pendingSave) doSave(); }, 30000);
+        return;
+      }
+      // Any other failure (rate limit, timeout, auth hiccup) is likely transient —
       // deliberately leave pendingSave true rather than clearing it. That keeps the change
       // flagged as unsaved (so the focus-refetch below won't silently overwrite it with the
       // stale remote copy) and lets us retry automatically instead of relying on the user to
@@ -1653,7 +1787,7 @@
       showBanner(err.message || "Couldn't save to GitHub.", "danger");
       setStatus("error");
       saveRetryTimer = setTimeout(function(){ if(pendingSave) doSave(); }, 8000);
-    });
+    }); }
   }
 
   document.getElementById("sync-now-btn").addEventListener("click", function(){
@@ -1673,6 +1807,12 @@
     if(tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true;
     return !!el.isContentEditable;
   }
+  // Back online: send anything made offline, otherwise pick up changes made elsewhere.
+  window.addEventListener("online", function(){
+    if(!config) return;
+    if(pendingSave){ if(!saveInFlight) doSave(); } else loadFromGithub();
+    if(gcalStatus === "connected") reconcileFromCalendar();
+  });
   window.addEventListener("focus", function(){
     if(config && !pendingSave && !isActivelyEditing() && Date.now() - lastFetchAt >= 15000) loadFromGithub();
     if(gcalStatus === "connected" && !isActivelyEditing() && Date.now() - lastGcalFetchAt >= 60000) reconcileFromCalendar();
@@ -1690,6 +1830,7 @@
          tab close isn't the last thing standing between the user and losing that edit. */
   var flushInFlight = false;
   function flushPendingSave(){
+    if(config && pendingSave) writeLocalCache(true);
     if(!config || !pendingSave || flushInFlight) return;
     flushInFlight = true;
     doSave({ keepalive: true }).then(function(){ flushInFlight = false; }, function(){ flushInFlight = false; });
@@ -1699,7 +1840,9 @@
   });
   window.addEventListener("pagehide", flushPendingSave);
   window.addEventListener("beforeunload", function(e){
-    if(pendingSave){
+    // An unsent change that is already stored on this device isn't at risk — it syncs next time
+    // Daybook opens — so only warn if even the device copy couldn't be written.
+    if(pendingSave && !localCacheOk){
       e.preventDefault();
       e.returnValue = "";
       return "";
@@ -1764,7 +1907,8 @@
     backdrop.addEventListener("click", function(e){ if(e.target === backdrop) close(); });
     var disc = backdrop.querySelector("#settings-disconnect");
     if(disc) disc.addEventListener("click", function(){
-      clearConfig(); config = null; sha = null; setStatus("not_configured"); close();
+      if(config) clearLocalCache(config);
+      clearConfig(); config = null; sha = null; baseJson = null; setStatus("not_configured"); close();
     });
     var exportBtn = backdrop.querySelector("#settings-export");
     if(exportBtn) exportBtn.addEventListener("click", function(){ exportBackup(); });
@@ -1787,6 +1931,8 @@
         config = newCfg; saveConfig(config);
         sha = res.sha;
         state = normalizeState(res.data || state || defaultState());
+        baseJson = res.exists ? JSON.stringify(state) : null;
+        writeLocalCache(!res.exists);
         lastFetchAt = Date.now();
         hasLoadedOnce = true; // this connect is the real "first load" — later loadFromGithub() calls should now treat it as a background refresh, not a fresh boot, and defer to an in-progress edit instead of overwriting it
         setStatus("connected");
@@ -2815,10 +2961,6 @@
     // which doesn't always also fire "input" — apply immediately, no debounce needed.
     searchInput.addEventListener("search", function(){ clearTimeout(searchDebounceTimer); applySearch(); });
   })();
-  document.getElementById("sort-manual-btn").addEventListener("click", function(){ setTaskSortMode("manual"); });
-  document.getElementById("sort-priority-btn").addEventListener("click", function(){ setTaskSortMode("priority"); });
-  document.getElementById("sort-due-btn").addEventListener("click", function(){ setTaskSortMode("due"); });
-  document.getElementById("layout-stacked-btn").addEventListener("click", function(){ setListLayoutMode("stacked"); });
   document.getElementById("layout-tabs-btn").addEventListener("click", function(){ setListLayoutMode("tabs"); });
   document.getElementById("layout-status-btn").addEventListener("click", function(){ setListLayoutMode("status"); });
   document.getElementById("quick-capture-btn").addEventListener("click", function(){ openQuickCapture(); });
@@ -3838,9 +3980,8 @@
   function renderHeadingTabsBar(){
     var tabsRoot = document.getElementById("heading-tabs-root");
     tabsRoot.innerHTML = "";
-    // The heading filter bar is available in all three layouts — Tabs and Status use it to
-    // isolate one heading (or scope the board to it); in Stacked it just narrows the usual
-    // stacked list down to one heading's card instead of showing every heading at once.
+    // The heading filter bar is shown in both layouts — Tabs uses it to isolate one heading
+    // ("All" shows every heading's card one after another), Status to scope the board to it.
     if(!state.headings.length){ return; }
     // If the previously-selected heading was deleted, fall back to "All" rather than
     // silently rendering nothing.
@@ -3963,7 +4104,7 @@
 
     var directList = document.createElement("div");
     directList.className = "task-list";
-    sortedTaskList(visibleHeadingTasks.filter(function(t){ return taskPassesFilters(t, heading, null); })).forEach(function(task){ directList.appendChild(renderTaskRow(heading, task)); });
+    (visibleHeadingTasks.filter(function(t){ return taskPassesFilters(t, heading, null); })).forEach(function(task){ directList.appendChild(renderTaskRow(heading, task)); });
     wireTaskListContainer(directList, heading);
     bodyContent.appendChild(directList);
 
@@ -4053,7 +4194,7 @@
 
     var list = document.createElement("div");
     list.className = "task-list";
-    sortedTaskList(visibleSubTasks.filter(function(t){ return taskPassesFilters(t, heading, sub); })).forEach(function(task){ list.appendChild(renderTaskRow(sub, task)); });
+    (visibleSubTasks.filter(function(t){ return taskPassesFilters(t, heading, sub); })).forEach(function(task){ list.appendChild(renderTaskRow(sub, task)); });
     wireTaskListContainer(list, sub);
     subBodyInner.appendChild(list);
 
@@ -4622,15 +4763,8 @@
         '<button class="icon-btn danger" title="Delete task" aria-label="Delete task"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>' +
       '</div>';
 
-    if(taskSortMode !== "manual"){
-      var grip = row.querySelector(".grip");
-      grip.classList.add("inactive");
-      grip.removeAttribute("draggable");
-      grip.title = "Switch to Manual sort to drag and reorder";
-    } else {
-      wireDragSource(row.querySelector(".grip"), "task", task.id, row);
-      wireTaskRowDropTarget(row, task);
-    }
+    wireDragSource(row.querySelector(".grip"), "task", task.id, row);
+    wireTaskRowDropTarget(row, task);
 
     row.querySelector(".check").addEventListener("click", function(){
       task.status = nextTaskStatus(task.status);
@@ -6334,12 +6468,19 @@
   if(currentAppearance !== "system") document.documentElement.setAttribute("data-theme", currentAppearance);
   applyPalette(loadPaletteKey());
   applyFontPackage(loadFontKey());
-  taskSortMode = loadTaskSortMode();
-  syncSortButtons();
   listLayoutMode = loadListLayoutMode();
   syncListLayoutButtons();
   state = defaultState();
   config = loadConfig();
+  // Show this device's own copy immediately (works with no connection at all); the GitHub
+  // fetch below then refreshes it, or merges with it if it holds changes not yet uploaded.
+  var bootCache = config && readLocalCache(config);
+  if(bootCache){
+    state = normalizeState(bootCache.data);
+    sha = bootCache.sha || null;
+    baseJson = bootCache.base || null;
+    if(bootCache.dirty) pendingSave = true;
+  }
   render();
   if(config){ setStatus("not_configured"); loadFromGithub(); loadIcsFeeds(); loadDigestSettings(); }
   else { setStatus("not_configured"); openSettings(); }
