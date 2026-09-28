@@ -676,12 +676,17 @@
             },
             {
               "id": "932295e9-58e4-4e8b-b3e4-ee2be29a0149",
-              "text": "Deadline for submitting revised paper is ",
+              "text": "Deadline for submitting revised paper is 2027",
               "status": "not_started",
               "done": false,
-              "due": null,
+              "due": {
+                "date": "2027-01-29",
+                "time": null,
+                "endTime": null,
+                "allDay": true
+              },
               "completedAt": null,
-              "calendarEventId": null,
+              "calendarEventId": "imq4278nmld47ui3iploamuf88",
               "syncError": null,
               "notes": "",
               "checklist": [],
@@ -690,7 +695,8 @@
               "priority": null,
               "tags": [],
               "subtasks": [],
-              "attachments": []
+              "attachments": [],
+              "syncing": false
             }
           ],
           "attachments": [],
@@ -1363,7 +1369,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-28T11:00:56.295Z",
+  "updatedAt": "2026-09-28T11:01:25.484Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
