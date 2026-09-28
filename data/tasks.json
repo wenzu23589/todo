@@ -1240,15 +1240,15 @@
         {
           "id": "1941c16e-50cd-4c8a-9eed-e9f691f57520",
           "text": "Review M.Sc. Dissertation Adrian Mercieca. Notified on the .",
-          "status": "in_progress",
-          "done": false,
+          "status": "done",
+          "done": true,
           "due": {
             "date": "2027-09-14",
             "time": null,
             "endTime": null,
             "allDay": true
           },
-          "completedAt": null,
+          "completedAt": "2026-09-28T10:26:38.697Z",
           "calendarEventId": null,
           "syncError": "The linked calendar event was removed",
           "notes": "",
@@ -1279,7 +1279,9 @@
           "priority": null,
           "tags": [],
           "subtasks": [],
-          "attachments": []
+          "attachments": [],
+          "notesRich": true,
+          "deletedAt": null
         }
       ],
       "subheadings": [],
@@ -1323,7 +1325,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-27T08:17:44.563Z",
+  "updatedAt": "2026-09-28T10:26:39.806Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
