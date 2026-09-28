@@ -1311,12 +1311,17 @@
         },
         {
           "id": "0c0d9ba2-735d-429a-a487-42589b22720b",
-          "text": "Review Paper for JDT due on ",
+          "text": "Review Paper for JDT due on 2026",
           "status": "not_started",
           "done": false,
-          "due": null,
+          "due": {
+            "date": "2026-10-28",
+            "time": null,
+            "endTime": null,
+            "allDay": true
+          },
           "completedAt": null,
-          "calendarEventId": null,
+          "calendarEventId": "bcasrnmij0n7c51na52kctffj4",
           "syncError": null,
           "notes": "",
           "checklist": [],
@@ -1325,7 +1330,8 @@
           "priority": null,
           "tags": [],
           "subtasks": [],
-          "attachments": []
+          "attachments": [],
+          "syncing": false
         }
       ],
       "subheadings": [],
@@ -1369,7 +1375,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-28T11:04:23.756Z",
+  "updatedAt": "2026-09-28T11:04:36.709Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
