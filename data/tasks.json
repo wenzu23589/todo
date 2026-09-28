@@ -334,7 +334,7 @@
         {
           "id": "8f0e6b68-15da-493a-96dd-213bf30ecea2",
           "text": "https://project-spaces.eu/greentoc/course/view.php?id=83",
-          "status": "not_started",
+          "status": "in_progress",
           "done": false,
           "due": null,
           "completedAt": null,
@@ -1331,7 +1331,9 @@
           "tags": [],
           "subtasks": [],
           "attachments": [],
-          "syncing": false
+          "syncing": false,
+          "notesRich": true,
+          "deletedAt": null
         }
       ],
       "subheadings": [],
@@ -1375,7 +1377,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-09-28T11:04:36.709Z",
+  "updatedAt": "2026-09-28T11:05:08.089Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
