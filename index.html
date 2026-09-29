@@ -5977,7 +5977,7 @@
     });
   }
 
-  /* ---------------- attachments (images & PDFs, on tasks and subtasks) ----------------
+  /* ---------------- attachments (images, PDFs & Office files, on tasks and subtasks) ----------------
      Each attachment is its own file committed to the repo under attachments/, uploaded
      via ghPutBinary — the task/subtask itself only stores a lightweight reference (id,
      name, path, mime, type, size, sha). Shared between tasks and subtasks: both kinds of
@@ -5990,6 +5990,38 @@
   var ATTACH_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.44 11.05l-9.19 9.19a5.5 5.5 0 01-7.78-7.78l9.19-9.19a3.5 3.5 0 014.95 4.95l-9.19 9.19a1.5 1.5 0 01-2.12-2.12l8.49-8.48"/></svg>';
   var ATTACH_IMAGE_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
   var ATTACH_PDF_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h8l5 5v13a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/><path d="M14 2v5a1 1 0 001 1h5"/><path d="M8 17v-4h1.3a1.3 1.3 0 010 2.6H8M12 13v4h.8a1.7 1.7 0 000-4H12zM16.5 17v-4h2M16.5 15h1.5"/></svg>';
+
+  // Office documents: a page icon with a coloured letter, in each app's own colour.
+  function officeIcon(letter, color){
+    return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h8l5 5v13a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/><path d="M14 2v5a1 1 0 001 1h5"/>' +
+      '<rect x="2" y="10" width="12" height="10" rx="2" fill="' + color + '" stroke="none"/>' +
+      '<text x="8" y="18.2" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="8.5" font-weight="700" fill="#fff" stroke="none">' + letter + '</text></svg>';
+  }
+  var OFFICE_TYPES = {
+    docx: { label: "Word document",          letter: "W", color: "#2b579a", mime: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+    xlsx: { label: "Excel spreadsheet",      letter: "X", color: "#217346", mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
+    pptx: { label: "PowerPoint presentation", letter: "P", color: "#c43e1c", mime: "application/vnd.openxmlformats-officedocument.presentationml.presentation" }
+  };
+  // Decides what kind of attachment a file is: "image", "pdf", "docx", "xlsx", "pptx", or
+  // null if it isn't allowed. The file extension is checked as well as the reported type,
+  // because phones often report Office files with a blank or generic type.
+  function attachmentTypeOf(file){
+    var name = String(file.name || "").toLowerCase();
+    var mime = String(file.type || "").toLowerCase();
+    if(/^image\//.test(mime)) return "image";
+    if(mime === "application/pdf" || /\.pdf$/.test(name)) return "pdf";
+    var ext = (name.match(/\.([a-z0-9]+)$/) || [])[1];
+    if(OFFICE_TYPES[ext]) return ext;
+    for(var k in OFFICE_TYPES){ if(OFFICE_TYPES[k].mime === mime) return k; }
+    return null;
+  }
+  function attachmentIconFor(att){
+    if(att.type === "image") return ATTACH_IMAGE_ICON;
+    var o = OFFICE_TYPES[att.type];
+    return o ? officeIcon(o.letter, o.color) : ATTACH_PDF_ICON;
+  }
+  var ATTACHMENT_ACCEPT = "image/*,application/pdf,.pdf,.docx,.xlsx,.pptx," +
+    Object.keys(OFFICE_TYPES).map(function(k){ return OFFICE_TYPES[k].mime; }).join(",");
 
   function attachmentPathFor(id, filename){
     var safe = String(filename || "file").replace(/[^a-zA-Z0-9._-]+/g, "_").slice(-80) || "file";
@@ -6128,11 +6160,72 @@
       });
     });
   }
+  /* Office files (.docx, .xlsx, .pptx) are zip archives of XML. This reads the archive with
+     the browser's own DecompressionStream, so no extra library is downloaded, and pulls the
+     visible text out of the relevant parts: the document body for Word, the cell text for
+     Excel, and every slide for PowerPoint. */
+  function readZipEntries(buf, wanted){
+    var dv = new DataView(buf), bytes = new Uint8Array(buf);
+    var eocd = -1;
+    for(var i = buf.byteLength - 22; i >= Math.max(0, buf.byteLength - 65557); i--){
+      if(dv.getUint32(i, true) === 0x06054b50){ eocd = i; break; }
+    }
+    if(eocd === -1) return Promise.reject(new Error("Not a valid Office file."));
+    var count = dv.getUint16(eocd + 10, true), ptr = dv.getUint32(eocd + 16, true);
+    var dec = new TextDecoder("utf-8"), jobs = [];
+    for(var n = 0; n < count; n++){
+      if(dv.getUint32(ptr, true) !== 0x02014b50) break;
+      var method = dv.getUint16(ptr + 10, true), csize = dv.getUint32(ptr + 20, true);
+      var nameLen = dv.getUint16(ptr + 28, true), extraLen = dv.getUint16(ptr + 30, true), commentLen = dv.getUint16(ptr + 32, true);
+      var local = dv.getUint32(ptr + 42, true);
+      var name = dec.decode(bytes.subarray(ptr + 46, ptr + 46 + nameLen));
+      ptr += 46 + nameLen + extraLen + commentLen;
+      if(!wanted(name)) continue;
+      var start = local + 30 + dv.getUint16(local + 26, true) + dv.getUint16(local + 28, true);
+      var data = bytes.slice(start, start + csize);
+      (function(name, method, data){
+        var p;
+        if(method === 0) p = Promise.resolve(dec.decode(data));
+        else if(method === 8) p = new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text();
+        else p = Promise.resolve("");
+        jobs.push(p.then(function(text){ return { name: name, text: text }; }));
+      })(name, method, data);
+    }
+    return Promise.all(jobs);
+  }
+  function xmlTextRuns(xml, tag){
+    // Collects the text of every <tag>…</tag> element (e.g. w:t, a:t, t), keeping paragraph
+    // and row breaks as spaces so words from neighbouring cells don't run together.
+    var re = new RegExp("<" + tag + "(?:\\s[^>]*)?>([^<]*)</" + tag + ">", "g"), out = [], m;
+    while((m = re.exec(xml))) out.push(m[1]);
+    return out.join(" ").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, "&");
+  }
+  function extractOfficeText(blob, type){
+    if(typeof DecompressionStream === "undefined") return Promise.reject(new Error("unsupported"));
+    var wanted, tag;
+    if(type === "docx"){ wanted = function(n){ return /^word\/(document|header\d*|footer\d*|footnotes|endnotes)\.xml$/.test(n); }; tag = "w:t"; }
+    else if(type === "pptx"){ wanted = function(n){ return /^ppt\/(slides\/slide|notesSlides\/notesSlide)\d+\.xml$/.test(n); }; tag = "a:t"; }
+    else { wanted = function(n){ return n === "xl/sharedStrings.xml" || /^xl\/worksheets\/sheet\d+\.xml$/.test(n); }; tag = "t"; }
+    return blob.arrayBuffer().then(function(buf){ return readZipEntries(buf, wanted); }).then(function(parts){
+      // Slides and sheets in their natural order (slide2 before slide10).
+      parts.sort(function(a, b){
+        var na = +(a.name.match(/(\d+)\.xml$/) || [0, 0])[1], nb = +(b.name.match(/(\d+)\.xml$/) || [0, 0])[1];
+        return a.name.replace(/\d+\.xml$/, "") < b.name.replace(/\d+\.xml$/, "") ? -1 : (a.name.replace(/\d+\.xml$/, "") > b.name.replace(/\d+\.xml$/, "") ? 1 : na - nb);
+      });
+      return parts.map(function(p){
+        var xml = type === "xlsx" && p.name !== "xl/sharedStrings.xml"
+          ? p.text.replace(/<v>[^<]*<\/v>/g, "") // only inline text from sheets; numbers aren't useful for search
+          : p.text;
+        return xmlTextRuns(xml, tag);
+      }).join("\n").replace(/[ \t]+/g, " ").trim();
+    });
+  }
   function extractAttachmentText(att, fileOrBlob){
     var srcPromise = fileOrBlob ? Promise.resolve(fileOrBlob) : fetchAttachmentBlob(att);
     return srcPromise.then(function(blob){
       if(att.type === "image") return ocrImageSource(blob);
       if(att.type === "pdf") return extractPdfText(blob);
+      if(OFFICE_TYPES[att.type]) return extractOfficeText(blob, att.type);
       return "";
     });
   }
@@ -6177,6 +6270,18 @@
   }
 
   function openAttachment(att, itemRow){
+    if(OFFICE_TYPES[att.type]){
+      // Browsers can't show Office files in a tab, so hand the file over under its real name:
+      // the computer or phone then opens it in Word, Excel or PowerPoint.
+      fetchAttachmentBlob(att).then(function(blob){
+        var url = URL.createObjectURL(blob.type ? blob : blob.slice(0, blob.size, OFFICE_TYPES[att.type].mime));
+        var a = document.createElement("a");
+        a.href = url; a.download = att.name || ("attachment." + att.type);
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+      }).catch(function(e){ showAttachmentError(itemRow, "Couldn't open that attachment: " + e.message); });
+      return;
+    }
     fetchAttachmentBlob(att).then(function(blob){
       var url = URL.createObjectURL(blob);
       window.open(url, "_blank");
@@ -6229,13 +6334,14 @@
   }
 
   function paintAttachmentRow(itemRow, ownerObj, att, onChange){
-    var icon = att.type === "image" ? ATTACH_IMAGE_ICON : ATTACH_PDF_ICON;
+    var icon = attachmentIconFor(att);
+    var office = OFFICE_TYPES[att.type];
     var statusLine = att.uploading ? "Uploading…" : (att.textStatus === "extracting" ? "Reading text…" : formatFileSize(att.size));
     var searchableTitle = att.textStatus === "done" && att.extractedText ? "This file's text is included in search" : "";
     itemRow.innerHTML =
       '<div class="attachment-thumb"' + (searchableTitle ? ' title="' + escapeHtml(searchableTitle) + '"' : '') + '>' + (att.uploading || att.textStatus === "extracting" ? ICON_SPIN : icon) + '</div>' +
       '<div class="attachment-info">' +
-        '<button type="button" class="attachment-name-btn"' + (att.uploading ? " disabled" : "") + '>' + escapeHtml(att.name) + '</button>' +
+        '<button type="button" class="attachment-name-btn"' + (att.uploading ? " disabled" : "") + (office ? ' title="Download to open in ' + office.label.split(" ")[0] + '"' : '') + '>' + escapeHtml(att.name) + '</button>' +
         '<span class="attachment-size">' + escapeHtml(statusLine) + '</span>' +
       '</div>' +
       (att.uploading ? '' : '<button type="button" class="icon-btn danger attachment-remove" title="Remove attachment" aria-label="Remove attachment"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button>');
@@ -6276,10 +6382,9 @@
   }
   function uploadAttachment(ownerObj, file, listEl, errEl, onChange){
     errEl.hidden = true;
-    var isImage = /^image\//.test(file.type);
-    var isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name || "");
-    if(!isImage && !isPdf){
-      errEl.textContent = "Only images and PDFs can be attached.";
+    var attType = attachmentTypeOf(file);
+    if(!attType){
+      errEl.textContent = "Only images, PDFs, and Word, Excel or PowerPoint files (.docx, .xlsx, .pptx) can be attached.";
       errEl.hidden = false;
       return;
     }
@@ -6293,7 +6398,7 @@
       errEl.hidden = false;
       return;
     }
-    var att = { id: uid(), name: file.name || "file", path: null, mime: file.type || (isPdf ? "application/pdf" : "application/octet-stream"), type: isImage ? "image" : "pdf", size: file.size, sha: null, uploading: true, extractedText: "", textStatus: "pending" };
+    var att = { id: uid(), name: file.name || "file", path: null, mime: file.type || (attType === "pdf" ? "application/pdf" : (OFFICE_TYPES[attType] ? OFFICE_TYPES[attType].mime : "application/octet-stream")), type: attType, size: file.size, sha: null, uploading: true, extractedText: "", textStatus: "pending" };
     att.path = attachmentPathFor(att.id, att.name);
     if(!Array.isArray(ownerObj.attachments)) ownerObj.attachments = [];
     ownerObj.attachments.push(att);
@@ -6325,9 +6430,9 @@
       '<div class="attachment-list"></div>' +
       '<div class="attachment-add-row">' +
         '<label class="btn btn-sm btn-ghost attachment-add-label">' +
-          '<input type="file" class="attachment-file-input" accept="image/*,application/pdf" hidden />+ Add attachment' +
+          '<input type="file" class="attachment-file-input" accept="' + ATTACHMENT_ACCEPT + '" hidden />+ Add attachment' +
         '</label>' +
-        '<span class="attachment-hint">Images or PDFs, up to 12MB — or paste an image</span>' +
+        '<span class="attachment-hint">Images, PDFs, Word, Excel or PowerPoint, up to 12MB — or paste an image</span>' +
       '</div>' +
       '<div class="attachment-error" hidden></div>' +
       '<div class="notes-editor-actions"><button type="button" class="btn btn-sm btn-ghost" data-act="close">Close</button></div>';

@@ -88,7 +88,7 @@ async function main() {
   await page.waitForTimeout(150);
   const badTypeError = await page.locator('.task-row[data-task-id="t1"] .attachment-error').textContent();
   const badTypeItemCount = await page.locator('.task-row[data-task-id="t1"] .attachment-item').count();
-  console.log("Disallowed file type is rejected with an error:", /images and PDFs/i.test(badTypeError) ? "PASS" : "FAIL (" + badTypeError + ")");
+  console.log("Disallowed file type is rejected with an error:", /images, PDFs/i.test(badTypeError) ? "PASS" : "FAIL (" + badTypeError + ")");
   console.log("...and nothing gets added for it:", badTypeItemCount === 0 ? "PASS" : "FAIL (" + badTypeItemCount + ")");
 
   // --- Reject an oversized file ---
