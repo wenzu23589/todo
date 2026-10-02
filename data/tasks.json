@@ -1448,10 +1448,10 @@
         {
           "id": "f46755b1-475b-45d9-bfcf-1d8b87aa052a",
           "text": "Meeting with Christian ?",
-          "status": "in_progress",
-          "done": false,
+          "status": "done",
+          "done": true,
           "due": null,
-          "completedAt": null,
+          "completedAt": "2026-10-02T13:21:55.900Z",
           "calendarEventId": null,
           "syncError": null,
           "notes": "",
@@ -1481,7 +1481,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-10-02T13:21:52.626Z",
+  "updatedAt": "2026-10-02T13:21:57.009Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
