@@ -1388,6 +1388,24 @@
           "syncing": false,
           "notesRich": true,
           "deletedAt": null
+        },
+        {
+          "id": "c8777095-39c5-41a9-ade7-477641568d9a",
+          "text": "New task",
+          "status": "not_started",
+          "done": false,
+          "due": null,
+          "completedAt": null,
+          "calendarEventId": null,
+          "syncError": null,
+          "notes": "",
+          "checklist": [],
+          "notesCollapsed": false,
+          "archivedAt": null,
+          "priority": null,
+          "tags": [],
+          "subtasks": [],
+          "attachments": []
         }
       ],
       "subheadings": [],
@@ -1481,7 +1499,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-10-02T13:22:56.340Z",
+  "updatedAt": "2026-10-02T13:23:00.630Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
