@@ -1402,7 +1402,7 @@
         {
           "id": "0c0d9ba2-735d-429a-a487-42589b22720b",
           "text": "Review Paper for JDT due on 2026",
-          "status": "not_started",
+          "status": "in_progress",
           "done": false,
           "due": {
             "date": "2026-10-28",
@@ -1527,7 +1527,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-10-05T19:35:42.997Z",
+  "updatedAt": "2026-10-10T04:37:08.223Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
