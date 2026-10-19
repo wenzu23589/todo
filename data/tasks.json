@@ -29,11 +29,11 @@
             {
               "id": "0d23840c-79df-4241-bb78-17841d58f102",
               "text": "Review final report.",
-              "done": false,
+              "done": true,
               "due": null,
-              "completedAt": null,
+              "completedAt": "2026-10-19T05:33:06.567Z",
               "attachments": [],
-              "status": "in_progress"
+              "status": "done"
             },
             {
               "id": "7e8a41c5-7ab2-4ead-a39f-f9179cdc57f5",
@@ -1601,7 +1601,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-10-19T05:32:49.444Z",
+  "updatedAt": "2026-10-19T05:33:07.670Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
