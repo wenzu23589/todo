@@ -38,11 +38,11 @@
             {
               "id": "7e8a41c5-7ab2-4ead-a39f-f9179cdc57f5",
               "text": "Review WP report",
-              "done": false,
+              "done": true,
               "due": null,
-              "completedAt": null,
+              "completedAt": "2026-10-19T05:33:08.187Z",
               "attachments": [],
-              "status": "in_progress"
+              "status": "done"
             },
             {
               "id": "59563510-49b7-43d1-b7f1-08e006ffffb2",
@@ -1601,7 +1601,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-10-19T05:33:07.670Z",
+  "updatedAt": "2026-10-19T05:33:09.291Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
