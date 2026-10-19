@@ -1460,7 +1460,17 @@
           "archivedAt": null,
           "priority": null,
           "tags": [],
-          "subtasks": [],
+          "subtasks": [
+            {
+              "id": "5d017506-bbce-41a4-86c8-e3452da27aa9",
+              "text": "Ask Leonard and Diane (either one)",
+              "status": "not_started",
+              "done": false,
+              "due": null,
+              "completedAt": null,
+              "attachments": []
+            }
+          ],
           "attachments": []
         },
         {
@@ -1564,7 +1574,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-10-19T05:32:20.661Z",
+  "updatedAt": "2026-10-19T05:32:29.525Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
