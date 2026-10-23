@@ -1620,9 +1620,39 @@
       "subheadings": [],
       "notesList": [],
       "attachments": []
+    },
+    {
+      "id": "77e59d52-af7c-4386-a068-0a0660fbccd5",
+      "title": "New heading",
+      "collapsed": false,
+      "color": null,
+      "tasks": [],
+      "subheadings": [],
+      "notesList": [],
+      "attachments": []
+    },
+    {
+      "id": "76df5c4a-53d3-4785-b4d7-43b7c7b0e5bc",
+      "title": "New heading",
+      "collapsed": false,
+      "color": null,
+      "tasks": [],
+      "subheadings": [],
+      "notesList": [],
+      "attachments": []
+    },
+    {
+      "id": "33c8893f-f5f4-4b5c-9afd-366518c3327b",
+      "title": "New heading",
+      "collapsed": false,
+      "color": null,
+      "tasks": [],
+      "subheadings": [],
+      "notesList": [],
+      "attachments": []
     }
   ],
-  "updatedAt": "2026-10-23T08:22:30.113Z",
+  "updatedAt": "2026-10-23T08:22:52.136Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
