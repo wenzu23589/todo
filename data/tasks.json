@@ -1424,9 +1424,9 @@
           "done": false,
           "due": {
             "date": "2026-10-28",
-            "time": null,
-            "endTime": null,
-            "allDay": true
+            "time": "11:00",
+            "endTime": "16:00",
+            "allDay": false
           },
           "completedAt": null,
           "calendarEventId": "bcasrnmij0n7c51na52kctffj4",
@@ -1516,7 +1516,9 @@
               "attachments": []
             }
           ],
-          "attachments": []
+          "attachments": [],
+          "notesRich": true,
+          "deletedAt": null
         },
         {
           "id": "7eb4b254-dd56-4892-8ac1-41680934a32d",
@@ -1535,7 +1537,8 @@
           "tags": [],
           "subtasks": [],
           "attachments": [],
-          "deletedAt": "2026-10-19T05:32:19.549Z"
+          "deletedAt": "2026-10-19T05:32:19.549Z",
+          "notesRich": true
         }
       ],
       "subheadings": [],
@@ -1619,7 +1622,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-10-19T05:33:36.715Z",
+  "updatedAt": "2026-10-23T08:19:43.457Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
