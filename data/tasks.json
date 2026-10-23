@@ -65,10 +65,10 @@
             {
               "id": "7b08b607-0057-45ab-9150-30e1cc3958e4",
               "text": "Submission of Final Report",
-              "status": "in_progress",
-              "done": false,
+              "status": "done",
+              "done": true,
               "due": null,
-              "completedAt": null,
+              "completedAt": "2026-10-23T08:22:24.933Z",
               "attachments": []
             },
             {
@@ -1622,7 +1622,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-10-23T08:22:21.714Z",
+  "updatedAt": "2026-10-23T08:22:26.050Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
