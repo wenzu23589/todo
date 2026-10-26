@@ -1181,14 +1181,14 @@
             {
               "id": "33b3416d-1dba-435f-9018-fbae87ac2b37",
               "text": "CARS Reporting",
-              "done": false,
+              "done": true,
               "due": {
                 "date": "2026-09-04",
                 "time": null,
                 "endTime": null,
                 "allDay": true
               },
-              "completedAt": null,
+              "completedAt": "2026-10-26T10:13:11.162Z",
               "calendarEventId": null,
               "syncError": "The linked calendar event was removed",
               "notes": "",
@@ -1201,7 +1201,7 @@
               "syncing": false,
               "notesRich": true,
               "deletedAt": null,
-              "status": "in_progress",
+              "status": "done",
               "notesCollapsed": false
             },
             {
@@ -1652,7 +1652,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-10-26T10:13:09.571Z",
+  "updatedAt": "2026-10-26T10:13:12.264Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
