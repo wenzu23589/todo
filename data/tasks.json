@@ -218,7 +218,7 @@
           "syncError": null,
           "notes": "Pilot launch on VLE + registration on 1st October.<br>Event on 29th Ocotber&nbsp;",
           "checklist": [],
-          "archivedAt": null,
+          "archivedAt": "2026-10-26T10:14:15.078Z",
           "priority": null,
           "tags": [],
           "subtasks": [],
@@ -1652,7 +1652,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-10-26T10:14:11.803Z",
+  "updatedAt": "2026-10-26T10:14:16.183Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
