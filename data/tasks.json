@@ -787,7 +787,7 @@
         {
           "id": "15538df3-367c-44a6-ab47-0a5a03f4be65",
           "title": "Departmental Research",
-          "collapsed": false,
+          "collapsed": true,
           "collapsedDefaultApplied": true,
           "tasks": [
             {
@@ -1513,7 +1513,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-10-27T12:24:41.658Z",
+  "updatedAt": "2026-10-27T12:24:45.405Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
