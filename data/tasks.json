@@ -460,7 +460,8 @@
           "tags": [],
           "subtasks": [],
           "attachments": [],
-          "deletedAt": "2026-10-27T13:59:21.920Z"
+          "deletedAt": "2026-10-27T13:59:21.920Z",
+          "notesRich": true
         },
         {
           "id": "17e0c5d1-a188-491c-ba10-2e755ce520f8",
@@ -479,7 +480,8 @@
           "tags": [],
           "subtasks": [],
           "attachments": [],
-          "deletedAt": "2026-10-27T13:59:21.000Z"
+          "deletedAt": "2026-10-27T13:59:21.000Z",
+          "notesRich": true
         }
       ],
       "subheadings": [
@@ -989,7 +991,7 @@
           "notesList": [
             {
               "id": "b11e58df-6a99-4b64-950c-09094cf87a8d",
-              "html": "RSSD Funding application and URECA submitted on the 27th October 202"
+              "html": "RSSD Funding application and URECA submitted on the 27th October 2026."
             }
           ],
           "attachments": []
@@ -1550,7 +1552,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-10-27T14:00:00.260Z",
+  "updatedAt": "2026-10-27T14:00:03.959Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
