@@ -964,14 +964,14 @@
     {
       "id": "38f2311d-9f6d-4586-ad5f-3157ca90d647",
       "title": "Lectures",
-      "collapsed": false,
+      "collapsed": true,
       "color": "#a8672a",
       "tasks": [],
       "subheadings": [
         {
           "id": "96319935-f903-4f63-afa9-3ed029be52dc",
           "title": "B.Sc. TDT",
-          "collapsed": false,
+          "collapsed": true,
           "tasks": [
             {
               "id": "63a48dab-4b09-4f41-a045-dbf6c3b20fc9",
@@ -1513,7 +1513,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-10-27T12:25:41.234Z",
+  "updatedAt": "2026-10-27T12:25:45.344Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
