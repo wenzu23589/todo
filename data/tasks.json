@@ -949,7 +949,9 @@
               "tags": [],
               "subtasks": [],
               "attachments": [],
-              "syncing": false
+              "syncing": false,
+              "notesRich": true,
+              "deletedAt": null
             }
           ],
           "notesList": [],
@@ -1519,19 +1521,9 @@
       "subheadings": [],
       "notesList": [],
       "attachments": []
-    },
-    {
-      "id": "bfb2d02e-f9eb-44dd-b343-6f007236f6f9",
-      "title": "New heading",
-      "collapsed": false,
-      "color": null,
-      "tasks": [],
-      "subheadings": [],
-      "notesList": [],
-      "attachments": []
     }
   ],
-  "updatedAt": "2026-10-27T12:20:55.136Z",
+  "updatedAt": "2026-10-27T12:21:34.710Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
