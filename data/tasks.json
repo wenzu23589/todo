@@ -713,7 +713,7 @@
         {
           "id": "627fd573-e758-4fd5-b4c9-86d46e148392",
           "title": "Research Planning",
-          "collapsed": false,
+          "collapsed": true,
           "tasks": [
             {
               "id": "2d26da6b-9b70-44c0-9889-43c1b898ae79",
@@ -923,7 +923,7 @@
         {
           "id": "ac6e79b1-ee88-4877-ada6-b615aa1130d4",
           "title": "AI Fatigue",
-          "collapsed": false,
+          "collapsed": true,
           "collapsedDefaultApplied": true,
           "tasks": [
             {
@@ -1565,7 +1565,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-10-27T14:00:59.950Z",
+  "updatedAt": "2026-10-27T14:01:03.185Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
