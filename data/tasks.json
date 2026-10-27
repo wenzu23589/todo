@@ -930,7 +930,7 @@
             {
               "id": "ee9afd8f-dfa0-4afc-90cc-8da7cc2ac94b",
               "text": "Applied on the 2026.",
-              "status": "not_started",
+              "status": "in_progress",
               "done": false,
               "due": {
                 "date": "2026-10-27",
@@ -1531,7 +1531,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-10-27T12:20:51.109Z",
+  "updatedAt": "2026-10-27T12:20:55.136Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
