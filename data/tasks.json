@@ -926,7 +926,26 @@
           "title": "RSSD Funding",
           "collapsed": false,
           "collapsedDefaultApplied": true,
-          "tasks": [],
+          "tasks": [
+            {
+              "id": "ee9afd8f-dfa0-4afc-90cc-8da7cc2ac94b",
+              "text": "Applied on the 27 Oct 202",
+              "status": "not_started",
+              "done": false,
+              "due": null,
+              "completedAt": null,
+              "calendarEventId": null,
+              "syncError": null,
+              "notes": "",
+              "checklist": [],
+              "notesCollapsed": false,
+              "archivedAt": null,
+              "priority": null,
+              "tags": [],
+              "subtasks": [],
+              "attachments": []
+            }
+          ],
           "notesList": [],
           "attachments": []
         }
@@ -1506,7 +1525,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-10-27T12:20:37.693Z",
+  "updatedAt": "2026-10-27T12:20:48.129Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
