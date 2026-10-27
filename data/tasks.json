@@ -432,14 +432,16 @@
           "completedAt": null,
           "calendarEventId": null,
           "syncError": null,
-          "notes": "RSSD Funding Application Submitted on 27/10/2026<br>URECA Application Submitted on 27/10/2026",
+          "notes": "RSSD Funding Application Submitted on 27/10/2026&lt;br&gt;URECA Application Submitted on 27/10/2026",
           "checklist": [],
           "notesCollapsed": false,
           "archivedAt": null,
           "priority": null,
           "tags": [],
           "subtasks": [],
-          "attachments": []
+          "attachments": [],
+          "notesRich": true,
+          "deletedAt": null
         }
       ],
       "subheadings": [
@@ -939,55 +941,6 @@
           ],
           "notesList": [],
           "attachments": []
-        },
-        {
-          "id": "9882f232-de24-4e3c-bbde-dd54e70e7aa4",
-          "title": "RSSD Funding - DARE Research Proposal",
-          "collapsed": false,
-          "collapsedDefaultApplied": true,
-          "tasks": [
-            {
-              "id": "ee9afd8f-dfa0-4afc-90cc-8da7cc2ac94b",
-              "text": "Applied on the 2026.",
-              "status": "in_progress",
-              "done": false,
-              "due": {
-                "date": "2026-10-27",
-                "time": null,
-                "endTime": null,
-                "allDay": true
-              },
-              "completedAt": null,
-              "calendarEventId": null,
-              "syncError": null,
-              "notes": "",
-              "checklist": [],
-              "notesCollapsed": false,
-              "archivedAt": null,
-              "priority": null,
-              "tags": [],
-              "subtasks": [],
-              "attachments": [],
-              "syncing": false,
-              "notesRich": true,
-              "deletedAt": "2026-10-27T13:58:51.058Z"
-            }
-          ],
-          "notesList": [],
-          "attachments": [
-            {
-              "id": "22c634c5-5351-45e8-b605-189112dc5140",
-              "name": "Designing with and without Generative AI Research Proposal.docx",
-              "path": "attachments/22c634c5-5351-45e8-b605-189112dc5140-Designing_with_and_without_Generative_AI_Research_Proposal.docx",
-              "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-              "type": "docx",
-              "size": 63133,
-              "sha": "c07cfe0e9dda79e261829239a63ee519137e96c6",
-              "uploading": false,
-              "extractedText": "DARE: Design, AI, Reasoning and Emotion How Generative AI Reshapes Undergraduate Students' Design Activity Oct 27, 2026 · @Lawrence Summary Principal Investigator Dr. Ing. Lawrence Farrugia Caruana, Department of Technology and Entrepreneurship Education, University of Malta Duration 12 months Participants 10 undergraduate design students Research support 110 hours (EUR 2,212.10 at EUR 20.11 per hour) Generative AI is rapidly entering design practice and education, yet research has largely asked whether it improves design outcomes rather than how it changes the way people design. This study examines how generative AI reshapes design reasoning, cognitive load and epistemic emotions among ten undergraduate design students. In a counterbalanced within subjects design, each student completes two matched design briefs, with and without AI. Concurrent think aloud protocols are coded using the Function Behaviour Structure ontology, complemented by validated measures and expert creativity ratings. Findings will contribute to design cognition research and inform how AI is integrated, assessed and taught in design education. Rationale and contribution Research on generative AI in design has grown rapidly but remains focused on outcomes. A recent meta-analysis reports a pooled effect of d = 0.60 and suggests that how AI is used matters more than which tool is used (Chiang, 2026). Experimental work also shows that AI can increase design fixation (Jansson and Smith, 1991; Wadinambiarachchi et al., 2024). Studies with design students have measured outcomes, self reports or patterns of tool use (Liu et al., 2024; Schut et al., n.d.), and exploratory work calls for controlled comparisons with expert evaluation (Georgieva and Georgiev, 2025). How AI changes the way students reason while designing remains largely unexplored. The study contributes in three ways. Mechanism: concurrent think aloud protocols coded with the Function Behaviour Structure (FBS) ontology (Gero and Kannengiesser, 2004) under counterbalanced conditions. Emotion: epistemic emotions such as curiosity, confusion and surprise, grounded in control value theory (Pekrun, 2006). Context: undergraduate design students outside engineering and user experience design, a group underrepresented in current studies. Research questions How does generative AI change the structure of students' design reasoning? (primary) How does it affect cognitive load and epistemic emotions during designing? Do outcomes differ in rated creativity, and how do students judge AI as a creativity support tool? (secondary) Hypothesis. With AI, students will show proportionally fewer formulation and reformulation processes, and more evaluation of structures supplied by the AI. Method Design. Counterbalanced within subjects (AB/BA), with a convergent mixed methods strand. Participants. Ten undergraduate design students, recruited by the research support office. Procedure. Pre: AI literacy and creative self efficacy. Two sessions at least one week apart, each about 40 minutes: one matched design brief with AI and one without, with think aloud and screen recording, followed by the session questionnaires. Post: short interview and creative self efficacy. Blind expert rating of anonymised outcomes. Instruments. Construct Instrument When Design reasoning (primary) FBS protocol coding (Gero and Kannengiesser, 2004) Both sessions Cognitive load Cognitive Load Inventory (Leppink et al., 2013) After each session Epistemic emotions Epistemically Related Emotion Scales (Pekrun et al., 2017) After each session Creativity support Creativity Support Index (Cherry and Latulipe, 2014) After the AI session Outcome creativity (secondary) Creative Product Semantic Scale (Besemer, 1998) Expert judges Creative self efficacy Short Scale of Creative Self (Karwowski et al., 2018) Pre and post AI literacy (covariate) AI literacy scale for design students (2026) Pre Analysis. Wilcoxon signed rank tests with effect sizes, supported by Bayesian paired estimation. FBS process frequencies are compared across conditions, with a second coder on 20% of segments (Cohen's kappa). Interviews are analysed thematically. Ethics Faculty Research Ethics Committee approval will be sought before recruitment. As participants may be the PI's own students, recruitment and consent will be handled by the research support office, and participation will be kept separate from assessment. Data will be pseudonymised and stored in line with GDPR. Outputs and implications Output Focus Target journals Paper 1 Design reasoning and outcome creativity International Journal of Technology and Design Education; Design Studies Paper 2 Cognitive load, epistemic emotions and creativity support British Journal of Educational Technology; Computers and Education: Artificial Intelligence For design education, the findings will inform: when to introduce AI in the design process, for example after independent ideation; how to assess design capability through process evidence rather than outcomes alone; the tutor's role in helping students question and reframe AI suggestions; discipline specific AI literacy for designers (Stolpe et al., 2026). Timeline 12 month plan · 4 phases, 1 gate Data collection should fall within a teaching semester, so the start month will be set to align months 4 to 6 with teaching time. Budget Item Hours EUR Transcription (automated, human corrected) 50 1,005.50 Second coding and training 30 603.30 Statistical consultancy 15 301.65 Recruitment and consent 5 100.55 Contingency 10 201.10 Total 110 2,212.10 Research support averages about 9 hours a month, concentrated in months 4 to 9. The total exceeds the EUR 2,000 allocation by EUR 212.10, so either a top up or a reduction to 99 hours is needed. Investigator time is estimated at about 400 hours. Expert judges need about 2 hours each. Risks Risk Mitigation Overlap with outcome studies Outcome comparison treated as secondary Small sample Within subjects design, effect sizes, Bayesian estimation; analytic rather than statistical generalisation Briefs not equivalent Piloting and counterbalancing Think aloud or carryover effects Warm up task; sessions at least one week apart References Besemer, S. P. (1998). Creative product analysis matrix: Testing the model structure and a comparison among products. Creativity Research Journal , 11(4), 333-346. Cherry, E., & Latulipe, C. (2014). Quantifying the creativity support of digital tools through the Creativity Support Index. ACM Transactions on Computer-Human Interaction , 21(4), Article 21. Chiang, S.-B. (2026). Effectiveness of generative AI in higher education design pedagogy: A meta-analysis of usage modes. International Journal of Technology and Design Education . https://doi.org/10.1007/s10798-026-10122-6 Georgieva, I., & Georgiev, G. V. (2025). Exploring the use of generative text AI in design creativity inquiries. Computers in Human Behavior: Artificial Humans , 6, 100219. https://doi.org/10.1016/j.chbah.2025.100219 Gero, J. S., & Kannengiesser, U. (2004). The situated function-behaviour-structure framework. Design Studies , 25(4), 373-391. Jansson, D. G., & Smith, S. M. (1991). Design fixation. Design Studies , 12(1), 3-11. Karwowski, M., Lebuda, I., & Wiśniewska, E. (2018). Measuring creative self-efficacy and creative personal identity. International Journal of Creativity and Problem Solving , 28(1), 45-57. Leppink, J., Paas, F., Van der Vleuten, C. P. M., Van Gog, T., & Van Merriënboer, J. J. G. (2013). Development of an instrument for measuring different types of cognitive load. Behavior Research Methods , 45(4), 1058-1072. Liu, H., Zhang, X., Zhou, J., Shou, Y., Yin, Y., & Chai, C. (2024). Cognitive styles and design performances in conceptual design collaboration with GenAI. International Journal of Technology and Design Education . † Measuring AI literacy in design education: Development and validation of the artificial intelligence literacy scale for design students. (2026). International Journal of Technology and Design Education . https://doi.org/10.1007/s10798-026-10128-0 Pekrun, R. (2006). The control-value theory of achievement emotions. Educational Psychology Review , 18(4), 315-341. Pekrun, R., Vogl, E., Muis, K. R., & Sinatra, G. M. (2017). Measuring emotions during epistemic activities: The Epistemically-Related Emotion Scales. Cognition and Emotion , 31(6), 1268-1276. Schut, A., Quanjer, A.-J., van Leeuwen, J., & Detweiler, C. (n.d.). How do design students use ChatGPT when ideating? PATT Conference Proceedings . Linköping University Electronic Press. https://ecp.ep.liu.se/index.php/patt/article/view/1477 Stolpe, K., Larsson, A., & Johansson Falck, M. (2026). Discipline-Specific AI literacy (DiSAIL): A theoretical framework for situated engagement with generative AI in education. International Journal of Technology and Design Education . Wadinambiarachchi, S., Kelly, R. M., Pareek, S., Zhou, Q., & Velloso, E. (2024). The effects of generative AI on design fixation and divergent thinking. In Proceedings of the CHI Conference on Human Factors in Computing Systems (CHI '24) . ACM. https://doi.org/10.1145/3613904.3642919 Entries marked † need author details completing. Bibliographic details should be verified against the original sources before submission.",
-              "textStatus": "done"
-            }
-          ]
         }
       ],
       "attachments": [],
@@ -1545,7 +1498,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-10-27T13:58:52.162Z",
+  "updatedAt": "2026-10-27T13:58:54.846Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
