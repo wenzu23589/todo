@@ -1386,37 +1386,37 @@
             {
               "id": "5d017506-bbce-41a4-86c8-e3452da27aa9",
               "text": "Ask Leonard and Diane (either one)",
-              "status": "in_progress",
-              "done": false,
+              "status": "done",
+              "done": true,
               "due": null,
-              "completedAt": null,
+              "completedAt": "2026-10-27T12:27:15.205Z",
               "attachments": []
             },
             {
               "id": "60a36e9e-4c29-4951-9e46-f224cb14eb8c",
               "text": "1 Student from 1st year",
-              "status": "in_progress",
-              "done": false,
+              "status": "done",
+              "done": true,
               "due": null,
-              "completedAt": null,
+              "completedAt": "2026-10-27T12:27:16.300Z",
               "attachments": []
             },
             {
               "id": "cb28ce2c-430d-4a68-bb2e-2159db4e6081",
               "text": "1 Student from 2nd year",
-              "status": "in_progress",
-              "done": false,
+              "status": "done",
+              "done": true,
               "due": null,
-              "completedAt": null,
+              "completedAt": "2026-10-27T12:27:16.948Z",
               "attachments": []
             },
             {
               "id": "644236ad-c9cf-470e-bd58-3d25a07fe63b",
               "text": "PRocess for student nomination",
-              "status": "in_progress",
-              "done": false,
+              "status": "done",
+              "done": true,
               "due": null,
-              "completedAt": null,
+              "completedAt": "2026-10-27T12:27:17.537Z",
               "attachments": []
             }
           ],
@@ -1526,7 +1526,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-10-27T12:25:53.285Z",
+  "updatedAt": "2026-10-27T12:27:18.647Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
