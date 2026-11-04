@@ -214,8 +214,8 @@
             "allDay": false
           },
           "completedAt": "2026-10-26T10:12:59.395Z",
-          "calendarEventId": "8s87tfpfsj188if8u6tgka4f9c",
-          "syncError": null,
+          "calendarEventId": null,
+          "syncError": "The linked calendar event was removed",
           "notes": "Pilot launch on VLE + registration on 1st October.<br>Event on 29th Ocotber&nbsp;",
           "checklist": [],
           "archivedAt": "2026-10-26T10:14:15.078Z",
@@ -1372,8 +1372,8 @@
             "allDay": false
           },
           "completedAt": null,
-          "calendarEventId": "bcasrnmij0n7c51na52kctffj4",
-          "syncError": null,
+          "calendarEventId": null,
+          "syncError": "The linked calendar event was removed",
           "notes": "",
           "checklist": [],
           "notesCollapsed": false,
@@ -1565,7 +1565,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-10-28T07:36:48.219Z",
+  "updatedAt": "2026-11-04T07:53:44.805Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
