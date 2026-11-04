@@ -312,10 +312,10 @@
         {
           "id": "c118ab19-382e-4271-ac76-3efaa869a486",
           "text": "Internship with David 3D Printing",
-          "status": "in_progress",
-          "done": false,
+          "status": "done",
+          "done": true,
           "due": null,
-          "completedAt": null,
+          "completedAt": "2026-11-04T07:56:38.029Z",
           "calendarEventId": null,
           "syncError": null,
           "notes": "",
@@ -1565,7 +1565,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-11-04T07:56:37.107Z",
+  "updatedAt": "2026-11-04T07:56:39.133Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
