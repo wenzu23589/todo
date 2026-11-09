@@ -1536,7 +1536,17 @@
           "archivedAt": null,
           "priority": null,
           "tags": [],
-          "subtasks": [],
+          "subtasks": [
+            {
+              "id": "d37f481f-1872-4c5b-b25e-97ec8e8ca387",
+              "text": "Asked Marvin Hili",
+              "status": "not_started",
+              "done": false,
+              "due": null,
+              "completedAt": null,
+              "attachments": []
+            }
+          ],
           "attachments": []
         }
       ],
@@ -1621,7 +1631,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-11-09T12:29:50.343Z",
+  "updatedAt": "2026-11-09T12:30:11.128Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
