@@ -1068,10 +1068,10 @@
             {
               "id": "63540fa5-2b44-4cb1-8b48-61771fad643c",
               "text": "TET2015 Assignment Brief",
-              "status": "in_progress",
-              "done": false,
+              "status": "done",
+              "done": true,
               "due": null,
-              "completedAt": null,
+              "completedAt": "2026-11-09T07:45:11.963Z",
               "calendarEventId": null,
               "syncError": null,
               "notes": "",
@@ -1565,7 +1565,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-11-09T07:45:06.639Z",
+  "updatedAt": "2026-11-09T07:45:13.072Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
