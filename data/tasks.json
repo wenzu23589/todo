@@ -328,7 +328,7 @@
             {
               "id": "5a513e49-c149-4d08-9b57-1516ed65f83c",
               "text": "Transport - advised Heather to book on 2nd October 2026",
-              "status": "not_started",
+              "status": "in_progress",
               "done": false,
               "due": null,
               "completedAt": null,
@@ -1565,7 +1565,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-11-09T07:45:24.399Z",
+  "updatedAt": "2026-11-09T07:45:33.015Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
