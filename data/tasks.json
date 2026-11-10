@@ -1392,7 +1392,17 @@
           "archivedAt": null,
           "priority": null,
           "tags": [],
-          "subtasks": [],
+          "subtasks": [
+            {
+              "id": "76401c75-1b57-4cf7-a72f-bb558cd9c7dd",
+              "text": "Silvana ?",
+              "status": "not_started",
+              "done": false,
+              "due": null,
+              "completedAt": null,
+              "attachments": []
+            }
+          ],
           "attachments": [],
           "notesRich": true,
           "deletedAt": null
@@ -1613,7 +1623,9 @@
           "priority": null,
           "tags": [],
           "subtasks": [],
-          "attachments": []
+          "attachments": [],
+          "notesRich": true,
+          "deletedAt": null
         },
         {
           "id": "cbfe63aa-1a1b-4c1a-bbaf-e4139f566a4f",
@@ -1631,7 +1643,9 @@
           "priority": null,
           "tags": [],
           "subtasks": [],
-          "attachments": []
+          "attachments": [],
+          "notesRich": true,
+          "deletedAt": null
         }
       ],
       "subheadings": [],
@@ -1715,7 +1729,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-11-10T08:06:13.017Z",
+  "updatedAt": "2026-11-10T08:07:44.856Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
