@@ -1622,7 +1622,17 @@
           "archivedAt": null,
           "priority": null,
           "tags": [],
-          "subtasks": [],
+          "subtasks": [
+            {
+              "id": "f29c7f14-b2f2-446c-9a6b-2b586e24ba9d",
+              "text": "https://docs.google.com/spreadsheets/d/1kv7hBb39FLidIy-7MsezZ2IXk3RAu1gb37j2I0rhSuo/edit?usp=sharing",
+              "status": "not_started",
+              "done": false,
+              "due": null,
+              "completedAt": null,
+              "attachments": []
+            }
+          ],
           "attachments": [],
           "notesRich": true,
           "deletedAt": null
@@ -1729,7 +1739,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-11-10T08:07:44.856Z",
+  "updatedAt": "2026-11-10T08:15:53.258Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
