@@ -157,12 +157,7 @@
       ],
       "subheadings": [],
       "attachments": [],
-      "notesList": [
-        {
-          "id": "080f95ab-803f-43d5-971f-37ab884a19f7",
-          "html": "Final Reporting"
-        }
-      ]
+      "notesList": []
     },
     {
       "id": "d5007a2b-9da1-46f1-b38e-6b5b303331c9",
@@ -1748,7 +1743,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-11-10T08:24:55.778Z",
+  "updatedAt": "2026-11-10T08:24:59.513Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
