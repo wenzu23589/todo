@@ -1422,14 +1422,14 @@
           "status": "not_started",
           "done": false,
           "due": {
-            "date": "2026-09-16",
+            "date": "2026-11-18",
             "time": null,
             "endTime": null,
             "allDay": true
           },
           "completedAt": null,
-          "calendarEventId": null,
-          "syncError": "The linked calendar event was removed",
+          "calendarEventId": "qmc8fdvjfeuumb01iahome1op4",
+          "syncError": null,
           "notes": "",
           "checklist": [],
           "notesCollapsed": false,
@@ -1748,7 +1748,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-11-10T08:21:14.664Z",
+  "updatedAt": "2026-11-10T08:21:45.258Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
