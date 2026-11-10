@@ -630,7 +630,7 @@
             {
               "id": "932295e9-58e4-4e8b-b3e4-ee2be29a0149",
               "text": "Deadline for submitting revised paper is 2027",
-              "status": "not_started",
+              "status": "in_progress",
               "done": false,
               "due": {
                 "date": "2027-01-29",
@@ -1748,7 +1748,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-11-10T08:23:10.651Z",
+  "updatedAt": "2026-11-10T08:23:31.410Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
