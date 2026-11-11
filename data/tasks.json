@@ -1579,10 +1579,10 @@
             {
               "id": "f77d8f6e-e2ff-4336-9c61-d4c0591b7e35",
               "text": "Assignment 1",
-              "status": "in_progress",
-              "done": false,
+              "status": "done",
+              "done": true,
               "due": null,
-              "completedAt": null,
+              "completedAt": "2026-11-11T10:01:26.815Z",
               "attachments": []
             },
             {
@@ -1697,7 +1697,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-11-11T10:01:24.487Z",
+  "updatedAt": "2026-11-11T10:01:27.919Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
