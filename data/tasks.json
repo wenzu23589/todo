@@ -1505,7 +1505,7 @@
         },
         {
           "id": "c99f5e26-3b2d-479d-83f8-87f23c3c05f1",
-          "text": "New task",
+          "text": "TET1006",
           "status": "not_started",
           "done": false,
           "due": null,
@@ -1603,7 +1603,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-11-11T10:00:07.001Z",
+  "updatedAt": "2026-11-11T10:00:10.125Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
