@@ -1527,6 +1527,15 @@
               "due": null,
               "completedAt": null,
               "attachments": []
+            },
+            {
+              "id": "aec94df2-46ed-4a56-b4cf-13966d34f250",
+              "text": "Assignment 2",
+              "status": "not_started",
+              "done": false,
+              "due": null,
+              "completedAt": null,
+              "attachments": []
             }
           ],
           "attachments": []
@@ -1613,7 +1622,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-11-11T10:00:17.827Z",
+  "updatedAt": "2026-11-11T10:00:21.583Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
