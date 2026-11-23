@@ -1618,7 +1618,17 @@
           "deletedAt": null
         }
       ],
-      "subheadings": [],
+      "subheadings": [
+        {
+          "id": "a21341bf-eadf-420d-ba73-f92548e593b1",
+          "title": "New sub-heading",
+          "collapsed": false,
+          "collapsedDefaultApplied": true,
+          "tasks": [],
+          "notesList": [],
+          "attachments": []
+        }
+      ],
       "attachments": [],
       "notesList": []
     },
@@ -1699,7 +1709,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-11-23T13:53:22.170Z",
+  "updatedAt": "2026-11-23T14:11:04.896Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
