@@ -831,7 +831,9 @@
               "priority": null,
               "tags": [],
               "subtasks": [],
-              "attachments": []
+              "attachments": [],
+              "notesRich": true,
+              "deletedAt": null
             }
           ],
           "notesList": [],
@@ -842,7 +844,28 @@
           "title": "DARE Research Application",
           "collapsed": false,
           "collapsedDefaultApplied": true,
-          "tasks": [],
+          "tasks": [
+            {
+              "id": "975ccc7d-35d4-4a59-b00f-d9947e5faf69",
+              "text": "New task",
+              "status": "not_started",
+              "done": false,
+              "due": null,
+              "completedAt": null,
+              "calendarEventId": null,
+              "syncError": null,
+              "notes": "",
+              "checklist": [],
+              "notesCollapsed": false,
+              "archivedAt": null,
+              "priority": null,
+              "tags": [],
+              "subtasks": [],
+              "attachments": [],
+              "notesRich": true,
+              "deletedAt": null
+            }
+          ],
           "notesList": [
             {
               "id": "b11e58df-6a99-4b64-950c-09094cf87a8d",
@@ -1753,7 +1776,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-11-26T08:24:35.456Z",
+  "updatedAt": "2026-11-26T08:24:37.944Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
