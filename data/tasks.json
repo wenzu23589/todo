@@ -886,6 +886,36 @@
               "textStatus": "done"
             }
           ]
+        },
+        {
+          "id": "acc247cf-ee8d-42c2-b98a-3e58bd6ab550",
+          "title": "Research Excellence Programme",
+          "collapsed": false,
+          "collapsedDefaultApplied": true,
+          "tasks": [
+            {
+              "id": "ff901ef6-27d9-45e9-85ab-ea64e4ee70ed",
+              "text": "De",
+              "status": "not_started",
+              "done": false,
+              "due": null,
+              "completedAt": null,
+              "calendarEventId": null,
+              "syncError": null,
+              "notes": "",
+              "checklist": [],
+              "notesCollapsed": false,
+              "archivedAt": null,
+              "priority": null,
+              "tags": [],
+              "subtasks": [],
+              "attachments": [],
+              "notesRich": true,
+              "deletedAt": null
+            }
+          ],
+          "notesList": [],
+          "attachments": []
         }
       ],
       "attachments": [],
@@ -1776,7 +1806,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-11-26T08:24:37.944Z",
+  "updatedAt": "2026-11-26T08:24:58.744Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
