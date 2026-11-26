@@ -895,7 +895,7 @@
           "tasks": [
             {
               "id": "ff901ef6-27d9-45e9-85ab-ea64e4ee70ed",
-              "text": "",
+              "text": "Untitled task",
               "status": "not_started",
               "done": false,
               "due": null,
@@ -911,10 +911,15 @@
               "subtasks": [],
               "attachments": [],
               "notesRich": true,
-              "deletedAt": null
+              "deletedAt": "2026-11-26T08:25:32.909Z"
             }
           ],
-          "notesList": [],
+          "notesList": [
+            {
+              "id": "173cd69d-ff62-43da-ab4d-529768ccf3d5",
+              "html": ""
+            }
+          ],
           "attachments": []
         }
       ],
@@ -1806,7 +1811,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-11-26T08:25:32.131Z",
+  "updatedAt": "2026-11-26T08:25:34.727Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
