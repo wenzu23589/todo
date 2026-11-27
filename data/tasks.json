@@ -1562,10 +1562,10 @@
         {
           "id": "cbfe63aa-1a1b-4c1a-bbaf-e4139f566a4f",
           "text": "Set up a B.Sc. TDT meeting BoS",
-          "status": "in_progress",
-          "done": false,
+          "status": "done",
+          "done": true,
           "due": null,
-          "completedAt": null,
+          "completedAt": "2026-11-27T13:38:14.347Z",
           "calendarEventId": null,
           "syncError": null,
           "notes": "",
@@ -1811,7 +1811,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-11-27T13:38:05.533Z",
+  "updatedAt": "2026-11-27T13:38:15.462Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
