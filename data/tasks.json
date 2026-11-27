@@ -1527,15 +1527,15 @@
         {
           "id": "f7d13d16-f17d-4385-ad42-007b0660b576",
           "text": "Submitted Questionnaire for APR to student - deadline this",
-          "status": "in_progress",
-          "done": false,
+          "status": "done",
+          "done": true,
           "due": {
             "date": "2026-11-13",
             "time": null,
             "endTime": null,
             "allDay": true
           },
-          "completedAt": null,
+          "completedAt": "2026-11-27T13:38:23.519Z",
           "calendarEventId": null,
           "syncError": null,
           "notes": "",
@@ -1811,7 +1811,7 @@
       "attachments": []
     }
   ],
-  "updatedAt": "2026-11-27T13:38:22.967Z",
+  "updatedAt": "2026-11-27T13:38:24.622Z",
   "googleCalendarId": "c_fav01vhm1jl8dokfchr3e4b09c@group.calendar.google.com",
   "googleDisplayCalendarIds": [
     "c_d7812e34434711d4365fabcebbe54640c709e9409b95ed0565ab6869dcfb57c9@group.calendar.google.com",
